@@ -1,0 +1,78 @@
+%%bash
+from google.colab import drive
+drive.mount('/content/drive')
+
+%cd "/content/drive/MyDrive/StockPredictionML_REGIME_V15.1"
+
+!python main.py
+
+
+!pip uninstall -y yfinance curl_cffi && pip install --no-cache-dir yfinance==0.2.54 curl_cffi==0.7.4 pandas==2.2.2
+
+Environment:
+
+! pip install pandas_ta
+! pip install catboost
+
+
+!pip install streamlit -q
+!pip install streamlit_autorefresh
+
+!streamlit run app.py &>/dev/null &
+# 1. Get your public tunnel password (copy the IP address this prints)
+!wget -qO- ://icanhazip.com
+
+# 2. Create the tunnel bridge (click the link this prints)
+!npx localtunnel --port 8501
+
+
+
+import os
+import sys
+from google.colab import drive
+
+# 1. Automatically mount Google Drive
+drive.mount('/content/drive', force_remount=True)
+
+# 2. Set your default working folder (Change 'MyFolder' to your actual folder)
+default_path = '/content/drive/MyDrive/StockPredictionML_REGIME_V14.3'
+os.chdir(default_path)
+
+# 3. Link your permanent library folder to Colab's python paths
+env_path = '/content/drive/MyDrive/colab_env'
+if env_path not in sys.path:
+    sys.path.insert(0, env_path)
+
+print(" Permanent environment loaded! pandas_ta and catboost are ready.")
+
+
+
+
+My recommended roadmap
+Week 1
+Fold attribution
+Regime attribution
+HHI concentration analysis
+
+Week 2
+Confidence calibration
+Probability bucket analysis
+
+Week 3
+Feature stability across folds
+SHAP analysis on best/worst folds
+
+Week 4
+Only then consider structural changes such as:
+
+dynamic position sizing
+regime-specific models
+regime-specific thresholds
+
+Recommended Order
+1. Fold diagnostics
+2. Regime performance
+3. Confidence calibration
+4. HHI concentration
+5. Fold 13 vs Fold 19 comparison
+6. Feature stability

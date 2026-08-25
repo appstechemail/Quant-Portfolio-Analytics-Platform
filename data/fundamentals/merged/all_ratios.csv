@@ -1,0 +1,37 @@
+PERIOD,ROE__PERCENT,TICKER,COMPANY,DEBTOR_DAYS,INVENTORY_DAYS,DAYS_PAYABLE,CASH_CONVERSION_CYCLE,WORKING_CAPITAL_DAYS,ROCE__PERCENT
+21,21.0,PFC,Power Finance Corporation,,,,,,
+20,20.0,PFC,Power Finance Corporation,,,,,,
+18,18.0,PFC,Power Finance Corporation,,,,,,
+6,6.0,PFC,Power Finance Corporation,,,,,,
+17,17.0,PFC,Power Finance Corporation,,,,,,
+23,23.0,PFC,Power Finance Corporation,,,,,,
+15,15.0,PFC,Power Finance Corporation,,,,,,
+21,21.0,PFC,Power Finance Corporation,,,,,,
+21,21.0,PFC,Power Finance Corporation,,,,,,
+20,20.0,PFC,Power Finance Corporation,,,,,,
+21,21.0,PFC,Power Finance Corporation,,,,,,
+21,21.0,PFC,Power Finance Corporation,,,,,,
+79,,TCS,Tata Consultancy Services,79.0,,,79.0,33.0,50.0
+81,,TCS,Tata Consultancy Services,81.0,,,81.0,62.0,51.0
+70,,TCS,Tata Consultancy Services,70.0,,,70.0,62.0,44.0
+74,,TCS,Tata Consultancy Services,74.0,,,74.0,61.0,39.0
+68,,TCS,Tata Consultancy Services,68.0,,,68.0,70.0,47.0
+71,,TCS,Tata Consultancy Services,71.0,,,71.0,64.0,47.0
+67,,TCS,Tata Consultancy Services,67.0,,,67.0,59.0,49.0
+80,,TCS,Tata Consultancy Services,80.0,,,80.0,33.0,54.0
+81,,TCS,Tata Consultancy Services,81.0,,,81.0,30.0,59.0
+81,,TCS,Tata Consultancy Services,81.0,,,81.0,34.0,64.0
+84,,TCS,Tata Consultancy Services,84.0,,,84.0,34.0,65.0
+93,,TCS,Tata Consultancy Services,93.0,,,93.0,38.0,63.0
+48,,SUZLON,Suzlon Energy,48.0,102.0,134.0,16.0,-99.0,-5.0
+50,,SUZLON,Suzlon Energy,50.0,90.0,122.0,18.0,-96.0,-48.0
+97,,SUZLON,Suzlon Energy,97.0,164.0,193.0,68.0,-56.0,11.0
+104,,SUZLON,Suzlon Energy,104.0,168.0,233.0,39.0,-155.0,53.0
+134,,SUZLON,Suzlon Energy,134.0,216.0,180.0,170.0,-100.0,15.0
+137,,SUZLON,Suzlon Energy,137.0,355.0,265.0,227.0,-328.0,-8.0
+168,,SUZLON,Suzlon Energy,168.0,400.0,253.0,315.0,-1465.0,-48.0
+130,,SUZLON,Suzlon Energy,130.0,503.0,366.0,266.0,84.0,10.0
+76,,SUZLON,Suzlon Energy,76.0,186.0,155.0,107.0,16.0,21.0
+72,,SUZLON,Suzlon Energy,72.0,176.0,86.0,162.0,66.0,20.0
+102,,SUZLON,Suzlon Energy,102.0,210.0,165.0,148.0,103.0,25.0
+130,,SUZLON,Suzlon Energy,130.0,171.0,156.0,145.0,73.0,33.0

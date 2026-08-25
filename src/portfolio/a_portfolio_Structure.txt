@@ -1,0 +1,940 @@
+At this point Portfolio Engine V2 contains
+Configuration
+✔ config.py
+Scoring
+✔ Composite score
+✔ Risk penalty
+✔ Quality filters
+Selection
+✔ Daily ranking
+✔ Long-only
+✔ Long-short (future)
+✔ Hysteresis
+Weighting
+✔ Equal
+✔ Score
+✔ Softmax
+✔ Inverse Volatility
+✔ Caps
+✔ Normalization
+Diagnostics
+✔ Exposure
+✔ Holdings
+✔ Largest position
+✔ Weight concentration
+Pipeline
+✔ End-to-end orchestration
+✔ Export
+✔ Portfolio history
+✔ Latest portfolio
+
+
+
+portfolio/
+│
+├── config.py
+│
+├── scoring.py
+├── selection.py
+├── weighting.py
+│
+├── portfolio_selection.py
+├── portfolio_optimizer.py
+├── risk_management.py
+│
+├── diagnostics.py
+├── pipeline.py
+│
+└── construction/
+    │
+    ├── config.py
+    │
+    ├── portfolio.py
+    ├── exposure.py
+    ├── constraints.py
+    ├── objectives.py
+    ├── optimizer.py
+    │
+    ├── risk_model.py
+    ├── transaction_cost.py
+    │
+    ├── rebalance.py
+    ├── execution.py
+    │
+    ├── analytics.py
+    ├── attribution.py
+    ├── stress_testing.py
+    │
+    └── pipeline.py
+
+
+
+This separation is common in production quantitative systems because it keeps:
+
+Schema (constants.py)
+Portfolio behavior (portfolio/config.py)
+Optimization behavior (construction/config.py)
+
+
+Diagnostics.py - Completed
+
+Part 1  Framework & Validation - Done
+Part 2  Portfolio Summary & Position Monitoring - Done
+Part 3  Holding Overlap & Portfolio Stability - Done
+Part 4  Portfolio Turnover & Weight Drift - Done
+          ↑
+          Drift Analytics was merged here - Done
+Part 5  Capacity & Liquidity Diagnostics - Done
+Part 6  Sector / Industry Exposure Analytics - Done
+Part 7  Institutional Master Reporting Layer - Done
+
+
+
+
+
+
+
+
+Porfolio Layer
+✓ config.py
+✓ selection.py
+✓ weighting.py
+✓ diagnostics.py
+1.pipeline.py
+    Core Framework
+    build_portfolio()
+        validate_universe()
+        select_portfolio()
+        compute_portfolio_weights()
+        portfolio_report()
+        PortfolioResult dataclass
+    latest_portfolio()
+    portfolio_history()
+    export_portfolio()
+2. portfolio_optimizer.py
+3. risk_management.py
+
+
+
+Then move to portfolio/construction - Recommended Order
+
+1. portfolio.py
+2. exposure.py
+3. constraints.py
+4. objectives.py
+5. risk_model.py
+6. transaction_cost.py
+7. optimizer.py
+8. rebalance.py
+9. execution.py
+10. analytics.py
+11. attribution.py
+12. stress_testing.py
+13. pipeline.py
+
+
+These are the exact diagnostics required before implementing:
+
+transaction_cost.py
+rebalance.py
+optimizer.py
+
+
+Recommended structure of portfolio_optimizer.py
+Part 1  Framework & Dataclasses
+Part 2  Optimization Request Builder
+Part 3  Constraint Builder
+Part 4  Risk Model Integration
+Part 5  Optimization Engine Wrapper
+Part 6  Post-Optimization Validation
+Part 7  Turnover Control
+Part 8  Exposure Control
+Part 9  Rebalance Construction
+Part 10 PortfolioOptimizer Class
+Part 11 High-Level API
+
+
+
+constraints.py
+│
+├── ConstraintResult
+├── BaseConstraint
+│
+├── Exposure Constraints
+│   ├── GrossExposureConstraint
+│   ├── NetExposureConstraint
+│   ├── CashConstraint
+│   └── LeverageConstraint
+│
+├── Concentration Constraints
+│   ├── PositionLimitConstraint
+│   ├── SectorExposureConstraint
+│   ├── IndustryExposureConstraint
+│   └── HoldingsCountConstraint
+│
+├── Liquidity Constraints
+│   ├── LiquidityConstraint
+│   ├── CapacityConstraint
+│   └── ADVParticipationConstraint
+│
+├── Turnover Constraints
+│   ├── TurnoverConstraint
+│   ├── TradeCountConstraint
+│   └── WeightDriftConstraint
+│
+└── ConstraintEngine
+
+
+portfolio/construction/optimizer.py
+portfolio/construction/constraints.py
+portfolio/construction/risk_model.py
+portfolio/construction/rebalance.py
+
+That is the natural institutional build sequence.
+constraints.py  → complete
+risk_model.py   → required by optimizer.py
+rebalance.py    → required by pipeline.py
+optimizer.py    → upgraded to use risk model
+pipeline.py     → final orchestration
+
+constraints.py
+│
+├── Part 1: Framework & Validation - Done
+├── Part 2: Constraint Result Objects - Done
+├── Part 3: Exposure Constraints - Done
+├── Part 4: Concentration Constraints - Done
+├── Part 5: Liquidity Constraints - Done
+├── Part 6: Turnover Constraints - Done
+├── Part 7: Dynamic Constraints - Done
+├── Part 8: Constraint Engine - Done
+├── Part 9: Reporting & Diagnostics - Done
+
+
+risk_model.py
+
+Part 1  Framework & Validation
+Part 2  Risk Result Objects
+Part 3  Volatility Models
+Part 4  Covariance Estimators
+Part 5  Correlation Models
+Part 6  Factor Risk Models
+Part 7  Portfolio Risk Analytics
+Part 8  Concentration Risk
+Part 9  Stress Testing
+Part 10 Risk Attribution
+Part 11 Risk Engine
+Part 12 Reporting & Diagnostics
+
+
+rebalance.py
+     ├── Part 1: Framework & Validation
+     ├── Part 2: Rebalance Result Objects
+     ├── Part 3: Rebalance Schedule Engine
+     ├── Part 4: Portfolio Drift Detection
+     ├── Part 5: Rebalance Trigger Logic
+     ├── Part 6: Turnover Control Engine
+     ├── Part 7: Trade Generation Engine
+     ├── Part 8: Transaction Cost Modeling
+     ├── Part 9: Execution-Aware Rebalancing
+     ├── Part 10: Institutional Reporting Layer
+     └── Part 11: Convenience APIs
+
+
+construction/optimizer.py
+
+Part 1  Framework & Core Objects
+Part 2  Optimization Inputs & Data Structures
+Part 3  Objective Functions
+Part 4  Constraint Projection Engine
+Part 5  Risk Model Integration
+Part 6  Mean-Variance Optimizer
+Part 7  Risk Parity Optimizer
+Part 8  Black-Litterman Scaffold
+Part 9  Multi-Objective Optimization
+Part 10 Diagnostics & Reporting
+Part 11 Factory & Convenience APIs
+
+
+constraints.py        ✓
+risk_model.py         ✓
+rebalance.py          ✓
+optimizer.py          ✓
+
+execution.py          ✓
+analytics.py          ✓
+attribution.py        ✓
+stress_testing.py     ✓
+
+portfolio_builder.py  ← NEXT
+
+pipeline.py           ← AFTER BUILDER ← final orchestration layer
+
+compliance.py
+mandate_engine.py
+governance/
+
+
+construction/execution.py
+
+Part 1  Framework & Core Objects
+Part 2  Execution Instructions & Order Models
+Part 3  Execution Cost Models
+Part 4  Slippage Models
+Part 5  Liquidity & Participation Models
+Part 6  Market Impact Models
+Part 7  Execution Simulator
+Part 8  Broker / OMS Integration Layer
+Part 9  Execution Analytics
+Part 10 Institutional Reporting
+Part 11 Factory & Convenience APIs
+
+
+analytics.py
+
+Part 1  Framework & Core Objects
+Part 2  Portfolio Statistics
+Part 3  Exposure Analytics
+Part 4  Concentration Analytics
+Part 5  Risk Analytics
+Part 6  Factor Analytics
+Part 7  Performance Analytics
+Part 8  Rebalance Analytics
+Part 9  Execution Analytics Integration
+Part 10 Capacity & Liquidity Analytics
+Part 11 Institutional Reporting
+Part 12 Analytics Engine
+Part 13 Factory & Convenience APIs
+
+
+attribution.py
+
+Part 1  Framework & Core Objects
+Part 2  Attribution Result Objects
+
+Part 3  Return Attribution
+Part 4  Brinson Attribution
+Part 5  Factor Attribution
+Part 6  Risk Attribution
+
+Part 7  Trade Attribution
+Part 8  Rebalance Attribution
+Part 9  Execution Attribution
+
+Part 10 Multi-Period Attribution
+Part 11 Attribution Diagnostics
+
+Part 12 Institutional Reporting
+Part 13 Attribution Engine
+Part 14 Factory & Convenience APIs
+
+
+
+stress_testing.py
+
+Part 1  Framework & Core Objects
+Part 2  Stress Result Objects
+Part 3  Historical Stress Testing
+Part 4  Scenario Stress Testing
+Part 5  Factor Shock Engine
+Part 6  Correlation Breakdown Engine
+Part 7  Liquidity Stress Engine
+Part 8  Volatility Regime Stress Engine
+Part 9  Monte Carlo Stress Testing
+Part 10 Tail Risk Stress Testing
+Part 11 Reverse Stress Testing
+Part 12 Portfolio Vulnerability Analytics
+Part 13 Institutional Reporting
+Part 14 Stress Testing Engine
+Part 15 Factory & Convenience APIs
+
+
+portfolio_builder.py
+
+Part 1  Framework & Core Objects
+Part 2  Portfolio Inputs
+Part 3  Forecast Integration Layer
+Part 4  Risk Model Integration
+Part 5  Constraint Integration
+Part 6  Optimization Integration
+Part 7  Portfolio Assembly
+Part 8  Rebalance Generation
+Part 9  Portfolio Validation
+Part 10 Portfolio Diagnostics
+Part 11 Institutional Portfolio Report
+Part 12 Portfolio Builder Engine
+Part 13 Factory & Convenience APIs
+
+
+construcion/pipeline.py
+Part 1   Framework & Core Objects
+
+Part 2   Pipeline Inputs
+Part 3   Pipeline Outputs
+
+Part 4   Forecast Stage
+Part 5   Risk Stage
+Part 6   Constraint Stage
+Part 7   Optimization Stage
+Part 8   Portfolio Build Stage
+Part 9   Rebalance Stage
+Part 10  Execution Stage
+
+Part 11  Diagnostics Stage
+Part 12  Attribution Stage
+Part 13  Stress Testing Stage
+
+Part 14  Monitoring & Audit
+
+Part 15  Master Construction Pipeline Engine
+
+Part 16  Factory & Convenience APIs
+
+
+
+monitoring.py
+Part 1  Framework & Core Objects
+Part 2  Monitoring Result Objects
+Part 3  Audit Trail Engine
+Part 4  Configuration Snapshot Engine
+Part 5  Model Lineage Tracking
+Part 6  Runtime Monitoring
+Part 7  Health Checks
+Part 8  Compliance Monitoring
+Part 9  Alerting Engine
+Part 10 Monitoring Diagnostics
+Part 11 Institutional Monitoring Report
+Part 12 Monitoring Engine
+Part 13 Factory & Convenience APIs
+
+
+portfolio/construction/input_adapter.py
+
+Part 1  Imports & Contracts
+Part 2  Adapter Result Objects
+Part 3  Market Data Adapter
+Part 4  Forecast Adapter
+Part 5  Factor Adapter
+Part 6  Portfolio State Adapter
+Part 7  Liquidity Adapter
+Part 8  Constraint Adapter
+Part 9  Validation Layer
+Part 10 Master Input Adapter
+Part 11 Factory APIs
+
+
+portfolio/
+│
+├── constraints.py                  ✔
+├── optimizer.py                    ✔
+├── risk_model.py                   ✔
+├── rebalance.py                    ✔
+├── execution.py                    ✔
+├── analytics.py                    ✔
+│
+└── construction/
+    ├── attribution.py              ✔ COMPLETE
+    ├── stress_testing.py           ✔ COMPLETE
+    ├── portfolio_builder.py        ✔ COMPLETE
+    └── pipeline.py                 ✔ COMPLETE
+
+
+portfolio/
+│
+├── config.py - Done
+│
+├── scoring.py
+├── selection.py - Done
+├── weighting.py - Done
+│
+├── portfolio_selection.py
+├── portfolio_optimizer.py
+├── risk_management.py
+│
+├── diagnostics.py - Done
+├── pipeline.py
+│
+└── construction/
+│
+├── config.py
+│
+├── portfolio.py
+├── exposure.py
+├── constraints.py - Done
+├── objectives.py
+├── optimizer.py
+│
+├── risk_model.py - Done
+├── transaction_cost.py
+│
+├── rebalance.py
+├── execution.py
+│
+├── analytics.py
+├── attribution.py
+├── stress_testing.py
+│
+└── pipeline.py
+
+
+
+portfolio/
+└── construction/
+
+    constraints.py
+
+        Framework
+        Constraint Objects
+        Position Constraints
+        Sector Constraints
+        Liquidity Constraints
+        Portfolio Constraints
+        Constraint Engine
+        Factory APIs
+
+    risk_model.py
+
+        Framework
+        Risk Objects
+        Covariance Models
+        Factor Models
+        Risk Forecasting
+        Risk Engine
+        Factory APIs
+
+    optimizer.py
+
+        Framework
+        Objective Functions
+        Mean Variance
+        Risk Parity
+        Min Variance
+        Max Sharpe
+        Black Litterman
+        CVaR
+        Robust Optimization
+        Optimizer Engine
+        Factory APIs
+
+    rebalance.py
+
+        Framework
+        Rebalance Objects
+        Calendar Rebalance
+        Threshold Rebalance
+        Drift Rebalance
+        Cost Aware Rebalance
+        Rebalance Engine
+        Factory APIs
+
+    execution.py
+
+        Framework
+        Execution Objects
+        Cost Models
+        Slippage Models
+        Liquidity Models
+        Execution Scheduling
+        Execution Engine
+        Factory APIs
+
+    portfolio_builder.py
+
+        Part 1  Framework & Core Objects
+        Part 2  Portfolio Inputs
+
+        Part 3  Forecast Integration
+        Part 4  Risk Integration
+        Part 5  Constraint Integration
+        Part 6  Optimization Integration
+
+        Part 7  Portfolio Assembly
+        Part 8  Rebalance Generation
+        Part 9  Portfolio Validation
+
+        Part 10 Institutional Reporting
+        Part 11 Master Builder Engine
+        Part 12 Factory APIs
+
+
+
+FINAL PUBLISHED STRUCTURE
+===========================
+src/
+│
+├── portfolio/
+│
+│   ├── config.py
+│   ├── diagnostics.py
+│   ├── portfolio_selection.py
+│   ├── selection.py
+│   ├── weighting.py
+│
+│   └── construction/
+│
+│       ├── constraints.py
+│       │
+│       │   Part 1  Framework & Validation
+│       │   Part 2  Constraint Result Objects
+│       │   Part 3  Exposure Constraints
+│       │   Part 4  Concentration Constraints
+│       │   Part 5  Liquidity Constraints
+│       │   Part 6  Turnover Constraints
+│       │   Part 7  Dynamic Constraints
+│       │   Part 8  Constraint Engine
+│       │   Part 9  Reporting & Diagnostics
+│       │
+│
+│       ├── risk_model.py
+│       │
+│       │   Part 1  Framework & Validation
+│       │   Part 2  Risk Result Objects
+│       │   Part 3  Volatility Models
+│       │   Part 4  Covariance Estimators
+│       │   Part 5  Correlation Models
+│       │   Part 6  Factor Risk Models
+│       │   Part 7  Portfolio Risk Analytics
+│       │   Part 8  Concentration Risk
+│       │   Part 9  Stress Testing
+│       │   Part 10 Risk Attribution
+│       │   Part 11 Risk Engine
+│       │   Part 12 Reporting & Diagnostics
+│       │
+│
+│       ├── optimizer.py
+│       │
+│       │   Part 1  Framework & Core Objects
+│       │   Part 2  Optimization Inputs
+│       │   Part 3  Objective Functions
+│       │   Part 4  Constraint Projection Engine
+│       │   Part 5  Risk Model Integration
+│       │   Part 6  Mean-Variance Optimizer
+│       │   Part 7  Risk Parity Optimizer
+│       │   Part 8  Black-Litterman Scaffold
+│       │   Part 9  Multi-Objective Optimization
+│       │   Part 10 Diagnostics & Reporting
+│       │   Part 11 Factory & Convenience APIs
+│       │
+│
+│       ├── rebalance.py
+│       │
+│       │   Part 1  Framework & Validation
+│       │   Part 2  Rebalance Result Objects
+│       │   Part 3  Rebalance Schedule Engine
+│       │   Part 4  Portfolio Drift Detection
+│       │   Part 5  Rebalance Trigger Logic
+│       │   Part 6  Turnover Control Engine
+│       │   Part 7  Trade Generation Engine
+│       │   Part 8  Transaction Cost Modeling
+│       │   Part 9  Execution-Aware Rebalancing
+│       │   Part 10 Institutional Reporting
+│       │   Part 11 Convenience APIs
+│       │
+│
+│       ├── execution.py
+│       │
+│       │   Part 1  Framework & Core Objects
+│       │   Part 2  Orders & Instructions
+│       │   Part 3  Execution Cost Models
+│       │   Part 4  Slippage Models
+│       │   Part 5  Liquidity Models
+│       │   Part 6  Market Impact Models
+│       │   Part 7  Execution Simulator
+│       │   Part 8  OMS/Broker Integration
+│       │   Part 9  Execution Analytics
+│       │   Part 10 Institutional Reporting
+│       │   Part 11 Factory & Convenience APIs
+│       │
+│
+│       ├── analytics.py
+│       │
+│       │   Part 1  Framework & Core Objects
+│       │   Part 2  Portfolio Statistics
+│       │   Part 3  Exposure Analytics
+│       │   Part 4  Concentration Analytics
+│       │   Part 5  Risk Analytics
+│       │   Part 6  Factor Analytics
+│       │   Part 7  Performance Analytics
+│       │   Part 8  Rebalance Analytics
+│       │   Part 9  Execution Analytics
+│       │   Part 10 Capacity & Liquidity Analytics
+│       │   Part 11 Institutional Reporting
+│       │   Part 12 Analytics Engine
+│       │   Part 13 Factory & Convenience APIs
+│       │
+│
+│       ├── attribution.py
+│       │
+│       │   Part 1  Framework & Core Objects
+│       │   Part 2  Attribution Result Objects
+│       │   Part 3  Return Attribution
+│       │   Part 4  Brinson Attribution
+│       │   Part 5  Factor Attribution
+│       │   Part 6  Risk Attribution
+│       │   Part 7  Trade Attribution
+│       │   Part 8  Rebalance Attribution
+│       │   Part 9  Execution Attribution
+│       │   Part 10 Multi-Period Attribution
+│       │   Part 11 Attribution Diagnostics
+│       │   Part 12 Institutional Reporting
+│       │   Part 13 Attribution Engine
+│       │   Part 14 Factory APIs
+│       │
+│
+│       ├── stress_testing.py
+│       │
+│       │   Part 1  Framework & Core Objects
+│       │   Part 2  Stress Result Objects
+│       │   Part 3  Historical Stress Testing
+│       │   Part 4  Scenario Stress Testing
+│       │   Part 5  Factor Shock Engine
+│       │   Part 6  Correlation Breakdown Engine
+│       │   Part 7  Liquidity Stress Engine
+│       │   Part 8  Volatility Regime Stress
+│       │   Part 9  Monte Carlo Stress Testing
+│       │   Part 10 Tail Risk Stress Testing
+│       │   Part 11 Reverse Stress Testing
+│       │   Part 12 Portfolio Vulnerability
+│       │   Part 13 Institutional Reporting
+│       │   Part 14 Stress Testing Engine
+│       │   Part 15 Factory APIs
+│       │
+│
+│       ├── monitoring.py
+│       │
+│       │   Part 1  Framework & Core Objects
+│       │   Part 2  Monitoring Result Objects
+│       │   Part 3  Audit Trail Engine
+│       │   Part 4  Configuration Snapshots
+│       │   Part 5  Model Lineage Tracking
+│       │   Part 6  Runtime Monitoring
+│       │   Part 7  Health Checks
+│       │   Part 8  Compliance Monitoring
+│       │   Part 9  Alerting Engine
+│       │   Part 10 Monitoring Diagnostics
+│       │   Part 11 Institutional Report
+│       │   Part 12 Monitoring Engine
+│       │   Part 13 Factory APIs
+│       │
+│
+│       ├── portfolio_builder.py
+│       │
+│       │   Part 1  Framework & Core Objects
+│       │   Part 2  Portfolio Inputs
+│       │   Part 3  Forecast Integration
+│       │   Part 4  Risk Integration
+│       │   Part 5  Constraint Integration
+│       │   Part 6  Optimization Integration
+│       │   Part 7  Portfolio Assembly
+│       │   Part 8  Rebalance Generation
+│       │   Part 9  Portfolio Validation
+│       │   Part 10 Portfolio Diagnostics
+│       │   Part 11 Institutional Report
+│       │   Part 12 Portfolio Builder Engine
+│       │   Part 13 Factory APIs
+│       │
+│
+│       └── pipeline.py
+│
+│           Part 1   Framework & Core Objects
+│           Part 2   Pipeline Inputs
+│           Part 3   Pipeline Outputs
+│
+│           Part 4   Forecast Stage
+│           Part 5   Risk Stage
+│           Part 6   Constraint Stage
+│           Part 7   Optimization Stage
+│           Part 8   Portfolio Build Stage
+│           Part 9   Rebalance Stage
+│           Part 10  Execution Stage
+│
+│           Part 11  Diagnostics Stage
+│           Part 12  Attribution Stage
+│           Part 13  Stress Testing Stage
+│           Part 14  Monitoring & Audit
+│
+│           Part 15  Master Construction Pipeline Engine
+│           Part 16  Factory & Convenience APIs
+
+├── input_adapter.py
+│       │
+│       │   Part 1  Imports & Contracts
+│       │   Part 2  Adapter Result Objects
+│       │   Part 3  Market Data Adapter
+│       │   Part 4  Forecast Adapter
+│       │   Part 5  Factor Adapter
+│       │   Part 6  Portfolio State Adapter
+│       │   Part 7  Liquidity Adapter
+│       │   Part 8  Constraint Adapter
+│       │   Part 9  Validation Layer
+│       │   Part 10 Master Input Adapter
+│       │   Part 11 Factory APIs
+
+
+
+
+
+WHAT REMAINS?
+
+portfolio_manager.py      ← orchestrates entire platform
+compliance.py             ← pre/post trade compliance
+reporting.py              ← board/investor reports
+governance.py             ← approvals & controls
+workflow.py               ← scheduling/orchestration
+api/
+    portfolio_api.py
+
+
+
+
+download_price_data()
+        ↓
+technical.py
+        ↓
+fundamentals.py
+        ↓
+target.py
+        ↓
+final_df
+        ↓
+models.py
+        ↓
+ensemble_proba
+        ↓
+forecast_df
+        ↓
+portfolio/construction/input_adapter.py
+        ↓
+PipelineInput
+        ↓
+portfolio/construction/pipeline.py
+        ↓
+portfolio/construction/portfolio_builder.py
+        ↓
+constraints.py
+risk_model.py
+optimizer.py
+        ↓
+rebalance.py
+        ↓
+execution.py
+        ↓
+analytics.py
+        ↓
+attribution.py
+        ↓
+stress_testing.py
+        ↓
+monitoring.py
+        ↓
+InstitutionalPortfolioConstructionReport
+
+
+
+main.py
+=======
+
+Part 1
+------
+Imports
+Institutional imports
+
+Part 2
+------
+Existing data pipeline
+(download/technical/fundamental/target)
+
+Part 3
+------
+IC Pipeline
+Feature selection
+
+Part 4
+------
+Model training
+
+Part 5
+------
+Ensemble generation
+
+Part 6
+------
+Live portfolio generation
+
+Part 7
+------
+Construction Adapter Integration
+
+pipeline_input =
+    build_pipeline_input_engine(...)
+
+Part 8
+------
+Institutional Pipeline Integration
+
+institutional_result =
+    institutional_pipeline(...)
+
+Part 9
+------
+Reporting
+
+full_report()
+save reports
+save diagnostics
+
+Part 10
+-------
+Smoke tests
+
+
+main.py
+│
+├── Existing Alpha Platform
+│   ├── data
+│   ├── features
+│   ├── fundamentals
+│   ├── models
+│   ├── prediction
+│   └── alpha
+│
+└── Institutional Construction Platform
+    ├── input_adapter.py
+    ├── pipeline.py
+    ├── constraints.py
+    ├── risk_model.py
+    ├── optimizer.py
+    ├── portfolio_builder.py
+    ├── rebalance.py
+    ├── execution.py
+    ├── analytics.py
+    ├── attribution.py
+    ├── stress_testing.py
+    └── monitoring.py
+
+
+DONE
+-----
+Feature Engineering
+Feature Selection
+IC Engine
+Stability Engine
+Decay Engine
+Regime Engine
+Meta Model
+Ensemble
+Backtest
+
+NEXT
+-----
+Portfolio Builder V2
+Walk Forward
+Stress Testing
+Monitoring
+Live Deployment
+
+LAST
+-----
+Paper Trading
+Broker Integration
+Execution Engine
+Dashboard

@@ -1,0 +1,5 @@
+Model,Strategy Return,Sharpe Ratio,Max Drawdown,CAGR,Volatility,% Accuracy
+xgb,,,,,,
+lgb,,,,,,
+cat,,,,,,
+ENSEMBLE,,,,,,53.3477100020538

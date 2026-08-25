@@ -1,0 +1,65 @@
+alpha/
+│
+├── ic_engine.py
+├── ic_stability.py
+├── feature_clustering.py
+├── feature_decay.py
+├── feature_category_budget.py 
+└── ic_loader.py
+
+
+
+feature_category_budget.py
+
+├── Configuration
+│
+├── Category Budget Model
+│
+├── Category IC Calculation
+│
+├── Category Stability
+│
+├── Category Budget Allocation
+│
+├── Feature Allocation inside Category
+│
+├── Final Category Multipliers
+│
+└── Diagnostics
+
+
+# ==============================
+# PIPELINE BECOMES
+# ==============================
+
+Raw Features
+      │
+      ▼
+Daily IC
+      │
+      ▼
+Rolling IC
+      │
+      ▼
+Regime IC
+      │
+      ▼
+Stability Engine
+      │
+      ▼
+Feature Clustering
+      │
+      ▼
+Feature Decay
+      │
+      ▼
+Adaptive Weights
+      │
+      ▼
+Dynamic Category Budgets
+      │
+      ▼
+Composite Score Engine
+      │
+      ▼
+Portfolio Construction

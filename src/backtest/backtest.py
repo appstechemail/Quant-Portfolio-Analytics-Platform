@@ -380,7 +380,7 @@ def _prepare_prediction_frame(
     df = _normalise_keys(df)
 
     # --------------------------------------------------------
-    # Duplicate diagnostics.
+    # Duplicate diagnostics
     # --------------------------------------------------------
 
     duplicate_mask = df.duplicated(
@@ -397,28 +397,40 @@ def _prepare_prediction_frame(
 
     if duplicate_count > 0:
 
-        logger.warning(
-            "Prediction panel contains %d duplicate "
-            "(Date, Company) rows.",
-            duplicate_count,
-        )
-
-        df = (
-            df
+        duplicate_keys = (
+            df.loc[
+                duplicate_mask,
+                [
+                    "Date",
+                    "Company",
+                ],
+            ]
+            .drop_duplicates()
             .sort_values(
                 [
                     "Date",
                     "Company",
                 ]
             )
-            .drop_duplicates(
-                [
-                    "Date",
-                    "Company",
-                ],
-                keep="first",
-            )
-            .reset_index(drop=True)
+        )
+
+        logger.error(
+            "Prediction panel contains %d duplicate "
+            "(Date, Company) rows.",
+            duplicate_count,
+        )
+
+        logger.error(
+            "Duplicate prediction keys:\n%s",
+            duplicate_keys.head(20).to_string(
+                index=False
+            ),
+        )
+
+        raise ValueError(
+            "CRITICAL: Prediction panel contains duplicate "
+            "(Date, Company) keys. "
+            "The backtest will not silently drop model predictions."
         )
 
     return df
@@ -665,6 +677,80 @@ def _create_alpha(
             lower=0.0,
             upper=1.0,
         )
+    )
+
+    # ========================================================
+    # BACKTEST PROBABILITY DISTRIBUTION DIAGNOSTIC
+    # ========================================================
+
+    print(
+        "\n" + "=" * 64
+    )
+
+    print(
+        "BACKTEST PROBABILITY DISTRIBUTION"
+    )
+
+    print(
+        "=" * 64
+    )
+
+    print(
+        f"Count        : {len(probability):,}"
+    )
+
+    print(
+        f"Mean         : {probability.mean():.6f}"
+    )
+
+    print(
+        f"Median       : {probability.median():.6f}"
+    )
+
+    print(
+        f"Std          : {probability.std():.6f}"
+    )
+
+    print(
+        f"Min          : {probability.min():.6f}"
+    )
+
+    print(
+        f"Max          : {probability.max():.6f}"
+    )
+
+    print(
+        f"P > 0.50     : "
+        f"{(probability > 0.50).sum():,} "
+        f"({(probability > 0.50).mean():.2%})"
+    )
+
+    print(
+        f"P > 0.55     : "
+        f"{(probability > 0.55).sum():,} "
+        f"({(probability > 0.55).mean():.2%})"
+    )
+
+    print(
+        f"P > 0.60     : "
+        f"{(probability > 0.60).sum():,} "
+        f"({(probability > 0.60).mean():.2%})"
+    )
+
+    print(
+        f"P > 0.65     : "
+        f"{(probability > 0.65).sum():,} "
+        f"({(probability > 0.65).mean():.2%})"
+    )
+
+    print(
+        f"P > 0.70     : "
+        f"{(probability > 0.70).sum():,} "
+        f"({(probability > 0.70).mean():.2%})"
+    )
+
+    print(
+        "=" * 64
     )
 
     # ========================================================
@@ -2563,6 +2649,44 @@ def run_backtest(
 
     df = _normalise_keys(df)
 
+    # --------------------------------------------------------
+    # Test-universe diagnostic
+    # --------------------------------------------------------
+
+    if "Company" in df.columns:
+
+        logger.info(
+            "BACKTEST UNIVERSE CHECK | "
+            "prediction companies=%d | "
+            "prediction dates=%d",
+            df["Company"].nunique(),
+            df["Date"].nunique(),
+        )
+
+    expected_universe = (
+        PORTFOLIO_CONFIG.get(
+            "UNIVERSE_SIZE",
+            None,
+        )
+    )
+
+    if expected_universe is not None:
+
+        actual_universe = int(
+            df["Company"].nunique()
+        )
+
+        if actual_universe < int(
+            expected_universe
+        ):
+
+            logger.warning(
+                "BACKTEST TEST UNIVERSE SHRINKAGE | "
+                "expected=%s actual=%s",
+                expected_universe,
+                actual_universe,
+            )
+
     df = df.loc[
         df["Date"].notna()
         &
@@ -3237,21 +3361,198 @@ def run_backtest(
     # 24. TEST-UNIVERSE DIAGNOSTIC
     # ========================================================
 
-    if df["Company"].nunique() < 39:
+    # Determine the canonical universe from final_df.
+    canonical_universe = set()
+
+    if (
+        final_df is not None
+        and not final_df.empty
+        and "Company" in final_df.columns
+    ):
+
+        canonical_universe = set(
+            final_df["Company"]
+            .dropna()
+            .astype(str)
+            .str.strip()
+            .loc[
+                lambda s: s != ""
+            ]
+            .unique()
+        )
+
+    test_universe = set(
+        df["Company"]
+        .dropna()
+        .astype(str)
+        .str.strip()
+        .loc[
+            lambda s: s != ""
+        ]
+        .unique()
+    )
+
+    missing_test_companies = sorted(
+        canonical_universe
+        -
+        test_universe
+    )
+
+    extra_test_companies = sorted(
+        test_universe
+        -
+        canonical_universe
+    )
+
+    print(
+        "\n⚠ TEST-UNIVERSE DIAGNOSTIC"
+    )
+
+    print(
+        f"Canonical universe companies : "
+        f"{len(canonical_universe):,}"
+    )
+
+    print(
+        f"Backtest test companies      : "
+        f"{len(test_universe):,}"
+    )
+
+    print(
+        f"Missing from test universe   : "
+        f"{len(missing_test_companies):,}"
+    )
+
+    print(
+        f"Unexpected test companies    : "
+        f"{len(extra_test_companies):,}"
+    )
+
+    if missing_test_companies:
 
         print(
-            "\n⚠ TEST-UNIVERSE DIAGNOSTIC"
+            "\n⚠ Companies missing from test panel:"
         )
 
         print(
-            f"Backtest test panel contains "
-            f"{df['Company'].nunique()} companies, "
-            "not the full 39-stock universe."
+            missing_test_companies
         )
 
         print(
-            "This originates upstream from "
-            "X_test/meta_test construction."
+            "\nℹ This is an upstream dataset/model-panel "
+            "coverage issue. Backtest will NOT fabricate "
+            "missing observations."
+        )
+
+    if extra_test_companies:
+
+        print(
+            "\n⚠ Companies present in test panel "
+            "but absent from canonical final_df:"
+        )
+
+        print(
+            extra_test_companies
+        )
+
+    if (
+        canonical_universe
+        and
+        test_universe
+        .issubset(canonical_universe)
+    ):
+
+        print(
+            "✓ Test companies are contained "
+            "within canonical universe."
+        )
+
+    # ========================================================
+    # 24A. TEST-PANEL COVERAGE
+    # ========================================================
+
+    if not df.empty:
+
+        company_date_counts = (
+            df.groupby(
+                "Company"
+            )["Date"]
+            .nunique()
+            .sort_values(
+                ascending=False
+            )
+        )
+
+        test_date_count = (
+            df["Date"]
+            .nunique()
+        )
+
+        coverage = (
+            company_date_counts
+            /
+            max(
+                test_date_count,
+                1,
+            )
+        )
+
+        print(
+            "\n========================================================"
+        )
+
+        print(
+            "TEST-UNIVERSE COVERAGE"
+        )
+
+        print(
+            "========================================================"
+        )
+
+        print(
+            f"Test dates                 : "
+            f"{test_date_count:,}"
+        )
+
+        print(
+            f"Companies in test panel   : "
+            f"{len(test_universe):,}"
+        )
+
+        print(
+            f"Average company coverage  : "
+            f"{coverage.mean():.2%}"
+        )
+
+        print(
+            f"Minimum company coverage  : "
+            f"{coverage.min():.2%}"
+        )
+
+        print(
+            f"Maximum company coverage  : "
+            f"{coverage.max():.2%}"
+        )
+
+        low_coverage = (
+            coverage[
+                coverage < 0.80
+            ]
+            .sort_values()
+        )
+
+        if not low_coverage.empty:
+
+            print(
+                "\n⚠ LOW TEST COVERAGE COMPANIES"
+            )
+
+            print(
+                low_coverage
+            )
+
+        print(
+            "========================================================"
         )
 
     # ========================================================

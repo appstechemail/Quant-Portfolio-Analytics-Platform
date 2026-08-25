@@ -789,7 +789,12 @@ meta_y = meta_y.astype(int)
 # --------------------
 # A date-based split prevents the classic problem where the
 # last N rows of the dataframe become the test set and therefore
-# contain only a subset of companies.
+# contain only a subset of the observations belonging to the
+# final test dates.
+#
+# This guarantees that all available observations belonging
+# to each test date remain together instead of splitting
+# individual dates across train and test.
 #
 # However, DATE-BASED SPLITTING alone does NOT guarantee that
 # every one of the current universe companies exists in the

@@ -656,6 +656,11 @@ print(
 
 print(FEATURES)
 
+Path("artifacts").mkdir(
+    parents=True,
+    exist_ok=True,
+)
+
 # ----------------------------------------------------------
 # Optional:
 # Persist final feature list
@@ -787,7 +792,7 @@ meta_y = meta_y.astype(int)
 # contain only a subset of companies.
 #
 # However, DATE-BASED SPLITTING alone does NOT guarantee that
-# every one of the 39 current universe companies exists in the
+# every one of the current universe companies exists in the
 # historical test period.
 #
 # Some companies may have:
@@ -809,15 +814,19 @@ print("=" * 60)
 # 1. Canonical date universe
 # ----------------------------------------------------------
 
+data["Date"] = pd.to_datetime(
+    data["Date"],
+    errors="coerce",
+)
+
 unique_dates = np.sort(
-    pd.to_datetime(
-        data["Date"]
-    )
+    data["Date"]
     .dropna()
     .unique()
 )
 
 if len(unique_dates) < 2:
+
     raise ValueError(
         "Insufficient unique dates for train/test split."
     )
@@ -831,8 +840,10 @@ train_size = float(
 )
 
 if not 0.0 < train_size < 1.0:
+
     raise ValueError(
-        "CONFIG['MODEL']['TRAIN_SIZE'] must be between 0 and 1."
+        "CONFIG['MODEL']['TRAIN_SIZE'] "
+        "must be between 0 and 1."
     )
 
 split_date_idx = int(
@@ -863,21 +874,16 @@ test_dates = unique_dates[
 # 4. DATE masks
 # ----------------------------------------------------------
 
-data_dates = pd.to_datetime(
-    data["Date"]
-)
-
 train_mask = (
-    data_dates.isin(train_dates)
+    data["Date"].isin(train_dates)
 )
 
 test_mask = (
-    data_dates.isin(test_dates)
+    data["Date"].isin(test_dates)
 )
 
 # ----------------------------------------------------------
-# 5. Sanity check:
-#    train/test dates must not overlap
+# 5. Train/test date leakage check
 # ----------------------------------------------------------
 
 train_date_set = set(
@@ -895,6 +901,7 @@ overlap_dates = (
 )
 
 if overlap_dates:
+
     raise RuntimeError(
         "Train/test date leakage detected. "
         f"Overlapping dates: {len(overlap_dates)}"
@@ -913,6 +920,16 @@ X_test = (
     X.loc[test_mask]
     .copy()
 )
+
+if X_train.empty:
+    raise RuntimeError(
+        "X_train is empty after date-based split."
+    )
+
+if X_test.empty:
+    raise RuntimeError(
+        "X_test is empty after date-based split."
+    )
 
 y_train = (
     y.loc[train_mask]
@@ -946,22 +963,24 @@ meta_test = (
 train_companies = set(
     data.loc[
         train_mask,
-        "Company"
+        "Company",
     ]
     .dropna()
+    .astype(str)
     .unique()
 )
 
 test_companies = set(
     data.loc[
         test_mask,
-        "Company"
+        "Company",
     ]
     .dropna()
+    .astype(str)
     .unique()
 )
 
-all_companies = (
+all_model_companies = (
     train_companies
     |
     test_companies
@@ -980,13 +999,13 @@ test_only_companies = (
 )
 
 missing_from_test = (
-    all_companies
+    all_model_companies
     -
     test_companies
 )
 
 missing_from_train = (
-    all_companies
+    all_model_companies
     -
     train_companies
 )
@@ -1032,7 +1051,7 @@ print(
 
 print(
     f"Combined companies : "
-    f"{len(all_companies):,}"
+    f"{len(all_model_companies):,}"
 )
 
 print(
@@ -1084,21 +1103,14 @@ if test_only_companies:
     )
 
 # ----------------------------------------------------------
-# 10. IMPORTANT:
-#     Do not silently remove test companies here.
-#
-#     The test set represents the actual information available
-#     after feature/target construction.
-#
-#     If a company does not have valid observations during the
-#     test period, we should diagnose it rather than fabricate
-#     observations.
+# 10. Basic test universe validation
 # ----------------------------------------------------------
 
 if len(test_companies) == 0:
 
     raise RuntimeError(
-        "Test universe is empty after dataset construction."
+        "Test universe is empty after "
+        "dataset construction."
     )
 
 # ----------------------------------------------------------
@@ -1147,6 +1159,18 @@ if len(y_test) != len(X_test):
         "Test X/y row mismatch."
     )
 
+if len(meta_y_train) != len(X_train):
+
+    raise RuntimeError(
+        "meta_y_train/X_train row mismatch."
+    )
+
+if len(meta_y_test) != len(X_test):
+
+    raise RuntimeError(
+        "meta_y_test/X_test row mismatch."
+    )
+
 if len(meta_test) != len(X_test):
 
     raise RuntimeError(
@@ -1156,27 +1180,37 @@ if len(meta_test) != len(X_test):
 # ----------------------------------------------------------
 # 13. Test panel integrity
 # ----------------------------------------------------------
+#
+# IMPORTANT:
+# Check duplicates BEFORE drop_duplicates().
+# Otherwise duplicate rows would be silently removed and
+# the validation would always report zero duplicates.
+# ----------------------------------------------------------
 
-test_panel = (
+test_panel_raw = (
     data.loc[
         test_mask,
         [
             "Date",
             "Company",
-        ]
+        ],
     ]
-    .drop_duplicates()
     .copy()
 )
 
-if test_panel.empty:
+if test_panel_raw.empty:
 
     raise RuntimeError(
         "Test panel is empty."
     )
 
+test_panel_raw["Company"] = (
+    test_panel_raw["Company"]
+    .astype(str)
+)
+
 duplicate_test_keys = (
-    test_panel
+    test_panel_raw
     .duplicated(
         ["Date", "Company"]
     )
@@ -1185,14 +1219,45 @@ duplicate_test_keys = (
 
 if duplicate_test_keys > 0:
 
+    duplicate_examples = (
+        test_panel_raw.loc[
+            test_panel_raw.duplicated(
+                ["Date", "Company"],
+                keep=False,
+            )
+        ]
+        .sort_values(
+            ["Date", "Company"]
+        )
+        .head(20)
+    )
+
+    print(
+        "\n⚠ DUPLICATE DATE/COMPANY "
+        "OBSERVATIONS DETECTED"
+    )
+
+    print(
+        duplicate_examples
+    )
+
     raise RuntimeError(
         "Duplicate Date/Company observations "
         f"detected in test panel: "
         f"{duplicate_test_keys}"
     )
 
+# Canonical test panel
+test_panel = (
+    test_panel_raw
+    .drop_duplicates(
+        ["Date", "Company"]
+    )
+    .copy()
+)
+
 # ----------------------------------------------------------
-# 14. Final split summary
+# 14. Final split validation
 # ----------------------------------------------------------
 
 print("\n" + "=" * 60)
@@ -1212,6 +1277,10 @@ print(
 )
 
 print(
+    "✓ Meta X/y alignment       : PASS"
+)
+
+print(
     "✓ Test panel uniqueness    : PASS"
 )
 
@@ -1225,24 +1294,23 @@ print("=" * 60)
 # IMPORTANT INTERPRETATION
 # ----------------------------------------------------------
 #
-# If the output is:
+# Example:
 #
 #   Train companies : 27
 #   Test companies  : 34
 #   Combined        : 39
 #
-# this is NOT automatically a split bug.
+# This is NOT automatically a split bug.
 #
 # It means the cleaned/model-ready dataset contains 39
-# companies overall, but only 34 have valid observations in
-# the selected test period.
+# companies overall, but only 34 have valid observations
+# in the selected test period.
 #
-# We should NOT force all 39 companies into X_test by filling
-# missing observations. That would create artificial data and
-# contaminate the backtest.
+# We should NOT force all 39 companies into X_test by
+# filling missing observations.
 #
-# The correct next step is to identify WHY the five companies
-# disappear from the test panel.
+# The correct action is to diagnose WHY the five companies
+# disappear from the historical test panel.
 # ----------------------------------------------------------
 
 print(
@@ -1251,7 +1319,7 @@ print(
 
 print(
     f"Canonical companies : "
-    f"{len(all_companies):,}"
+    f"{len(all_model_companies):,}"
 )
 
 print(
@@ -1284,22 +1352,13 @@ print("=" * 60)
 # 15. FINAL UNIVERSE vs TEST UNIVERSE DIAGNOSTIC
 # ----------------------------------------------------------
 #
-# IMPORTANT:
-# ----------
-# `final_df` represents the canonical/current stock universe
-# available to the prediction pipeline.
+# `final_df` represents the canonical/current universe
+# entering the model pipeline.
 #
-# `test_panel` represents the companies that actually have
+# `test_panel` represents companies that actually have
 # valid observations in the historical test period.
 #
-# These two universes are intentionally NOT forced to match.
-#
-# This diagnostic answers:
-#
-#     Which current-universe companies are absent from the
-#     historical test panel?
-#
-# We do NOT manufacture rows for missing companies.
+# These universes are intentionally NOT forced to match.
 # ----------------------------------------------------------
 
 full_universe = set(
@@ -1317,11 +1376,15 @@ test_universe = set(
 )
 
 missing_test_companies = sorted(
-    full_universe - test_universe
+    full_universe
+    -
+    test_universe
 )
 
 extra_test_companies = sorted(
-    test_universe - full_universe
+    test_universe
+    -
+    full_universe
 )
 
 print("\n" + "=" * 60)
@@ -1351,8 +1414,9 @@ print(
 if missing_test_companies:
 
     print(
-        "\n⚠ Companies present in current/full universe "
-        "but absent from historical test panel:"
+        "\n⚠ Companies present in current/full "
+        "universe but absent from historical "
+        "test panel:"
     )
 
     print(
@@ -1384,7 +1448,8 @@ if extra_test_companies:
 else:
 
     print(
-        "✓ No unexpected companies in test panel."
+        "✓ No unexpected companies "
+        "in test panel."
     )
 
 # ----------------------------------------------------------
@@ -1407,7 +1472,8 @@ else:
 if not test_universe:
 
     raise RuntimeError(
-        "Test universe is empty after model dataset construction."
+        "Test universe is empty after "
+        "model dataset construction."
     )
 
 print("=" * 60)

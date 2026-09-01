@@ -53,68 +53,87 @@ def compute_cagr(cum_returns):
 # ==========================================
 def compute_alpha_metrics(
     predictions,
-    future_returns
+    future_returns,
 ):
 
-    pred = np.asarray(
-        predictions
+    pred = pd.Series(
+        np.asarray(
+            predictions,
+            dtype=float,
+        ).reshape(-1)
     )
 
-    ret = np.asarray(
-        future_returns
+    ret = pd.Series(
+        np.asarray(
+            future_returns,
+            dtype=float,
+        ).reshape(-1)
     )
+
+    if len(pred) != len(ret):
+        raise ValueError(
+            "compute_alpha_metrics length mismatch: "
+            f"predictions={len(pred)}, "
+            f"future_returns={len(ret)}"
+        )
 
     valid = (
-        np.isfinite(pred)
+        np.isfinite(pred.to_numpy())
         &
-        np.isfinite(ret)
+        np.isfinite(ret.to_numpy())
     )
 
-    pred = pred[valid]
-    ret = ret[valid]
+    pred = (
+        pred.loc[valid]
+        .reset_index(drop=True)
+    )
+
+    ret = (
+        ret.loc[valid]
+        .reset_index(drop=True)
+    )
 
     if len(pred) < 5:
-
         return {
-
             "Spearman_IC": np.nan,
-
             "Pearson_IC": np.nan,
-
-            "Rank_IC": np.nan
-
+            "Rank_IC": np.nan,
         }
 
-    try:
+    pred_rank = pred.rank(
+        method="average"
+    )
 
-        spearman_ic = spearmanr(
-            pred,
-            ret
-        )[0]
+    ret_rank = ret.rank(
+        method="average"
+    )
 
-    except Exception:
+    spearman_ic = pred_rank.corr(
+        ret_rank,
+        method="pearson",
+    )
 
-        spearman_ic = np.nan
-
-    try:
-
-        pearson_ic = pearsonr(
-            pred,
-            ret
-        )[0]
-
-    except Exception:
-
-        pearson_ic = np.nan
+    pearson_ic = pred.corr(
+        ret,
+        method="pearson",
+    )
 
     return {
-
-        "Spearman_IC": spearman_ic,
-
-        "Pearson_IC": pearson_ic,
-
-        "Rank_IC": spearman_ic
-
+        "Spearman_IC": (
+            float(spearman_ic)
+            if pd.notna(spearman_ic)
+            else np.nan
+        ),
+        "Pearson_IC": (
+            float(pearson_ic)
+            if pd.notna(pearson_ic)
+            else np.nan
+        ),
+        "Rank_IC": (
+            float(spearman_ic)
+            if pd.notna(spearman_ic)
+            else np.nan
+        ),
     }
 
 # ==========================================

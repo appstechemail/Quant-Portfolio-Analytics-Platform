@@ -3166,11 +3166,10 @@ class MainPipelineAdapter:
     @staticmethod
     def build_forecast_input(
         *,
-        alpha_results: dict[str, Any] | None = None,
-
-        ensemble_proba: np.ndarray | None = None,
-
-        latest_universe: pd.DataFrame | None = None,
+        alpha_results=None,
+        ensemble_proba=None,
+        latest_universe=None,
+        portfolio=None,
     ) -> ForecastInput:
         """
         Create ForecastInput from:
@@ -3185,6 +3184,45 @@ class MainPipelineAdapter:
         alpha_scores = None
         expected_returns = None
         confidence = None
+        candidate_weights = None
+
+        if (
+            portfolio is not None
+            and "Position_Weight" in portfolio.columns
+        ):
+            if "Ticker" not in portfolio.columns:
+                raise ValueError(
+                    "Alpha portfolio must contain Ticker "
+                    "for institutional construction."
+                )
+
+            candidate_weights = pd.Series(
+                portfolio["Position_Weight"].astype(float).values,
+                index=portfolio["Ticker"].astype(str).values,
+                dtype=float,
+            )
+
+            candidate_weights = (
+                candidate_weights
+                .replace([np.inf, -np.inf], np.nan)
+                .dropna()
+            )
+
+            candidate_weights = (
+                candidate_weights[
+                    candidate_weights.abs() > 0
+                ]
+            )
+
+            if candidate_weights.empty:
+                raise ValueError(
+                    "Alpha portfolio contains no positive candidate weights."
+                )
+
+            candidate_weights = (
+                candidate_weights
+                / candidate_weights.abs().sum()
+            )
 
         # ----------------------------------
         # ALPHA PIPELINE
@@ -3216,22 +3254,29 @@ class MainPipelineAdapter:
 
         if latest_universe is not None:
 
+            forecast_columns = [
+                "Ticker",
+                "Company",
+                "Probability",
+                "Confidence",
+                "Expected_Return",
+            ]
+
+            available = [
+                c for c in forecast_columns
+                if c in latest_universe.columns
+            ]
+
             expected_returns = (
-                latest_universe[
-                    ["Company", "Probability", "Confidence"]
-                ]
+                latest_universe[available]
                 .copy()
-                .rename(
-                    columns={
-                        "Prediction_Prob": "ensemble_score"
-                    }
-                )
             )
 
         return ForecastInput(
             alpha_scores=alpha_scores,
             expected_returns=expected_returns,
             forecast_confidence=confidence,
+            candidate_weights=candidate_weights,
         )
     # ========================================================
     # FACTOR INPUT
@@ -3471,15 +3516,10 @@ class MainPipelineAdapter:
         forecast_data = (
             MainPipelineAdapter
             .build_forecast_input(
-
-                alpha_results=
-                alpha_results,
-
-                ensemble_proba=
-                ensemble_proba,
-
-                latest_universe=
-                latest_universe,
+                alpha_results= alpha_results,
+                ensemble_proba= ensemble_proba,
+                latest_universe= latest_universe,
+                portfolio= portfolio,
             )
         )
 

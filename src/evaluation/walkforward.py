@@ -82,6 +82,33 @@ NEUTRALITY = float(
     )
 )
 
+# ======================================================
+# CONFIG
+# ======================================================
+wf_cfg = CONFIG.get("WALKFORWARD", {})
+
+TRAIN_WINDOW = wf_cfg.get("TRAIN_WINDOW", 504)
+TEST_WINDOW = wf_cfg.get("TEST_WINDOW", 63)
+STEP_SIZE = wf_cfg.get("STEP_SIZE", 63)
+
+ROLLING_WINDOW = wf_cfg.get(
+    "EXPANDING_WINDOW",
+    True
+)
+
+THRESHOLD = CONFIG["MODEL"]["THRESHOLD"]
+
+
+ROLLING_TRAIN_YEARS = wf_cfg.get(
+    "ROLLING_TRAIN_YEARS",
+    2,
+)
+
+approx_days = (
+    252
+    * int(ROLLING_TRAIN_YEARS)
+)
+
 # ==========================================================
 # MAIN WALK-FORWARD FUNCTION
 # ==========================================================
@@ -93,21 +120,7 @@ def run_walkforward_validation(
 
     print("\n🚀 STARTING WALK-FORWARD VALIDATION")
 
-    # ======================================================
-    # CONFIG
-    # ======================================================
-    wf_cfg = CONFIG.get("WALKFORWARD", {})
-
-    train_window = wf_cfg.get("TRAIN_WINDOW", 504)
-    test_window = wf_cfg.get("TEST_WINDOW", 63)
-    step_size = wf_cfg.get("STEP_SIZE", 63)
-
-    rolling_window = wf_cfg.get(
-        "EXPANDING_WINDOW",
-        True
-    )
-
-    threshold = CONFIG["MODEL"]["THRESHOLD"]
+    
 
     # ======================================================
     # PREPARE DATA
@@ -150,7 +163,7 @@ def run_walkforward_validation(
 
     print(f"\n📅 Total unique trading dates: {n_dates}")
 
-    if n_dates < (train_window + test_window):
+    if n_dates < (TRAIN_WINDOW + TEST_WINDOW):
         print("❌ Not enough dates for walk-forward")
         return None
 
@@ -164,9 +177,9 @@ def run_walkforward_validation(
     # ======================================================
     # WALK-FORWARD LOOP
     # ======================================================
-    start_idx = train_window
+    start_idx = TRAIN_WINDOW
 
-    while start_idx + test_window <= n_dates:
+    while start_idx + TEST_WINDOW <= n_dates:
 
         print(f"\n📊 WALK-FORWARD FOLD {fold_num}")
 
@@ -174,16 +187,12 @@ def run_walkforward_validation(
         # DATE WINDOWS
         # ==================================================
 
-        if rolling_window:
+        if ROLLING_WINDOW:
 
             # ==========================================
             # ROLLING TRAIN WINDOW
             # Use only last 2 years
             # ==========================================
-
-            ROLLING_TRAIN_YEARS = 2
-
-            approx_days = 252 * ROLLING_TRAIN_YEARS
 
             train_start = max(
                 0,
@@ -201,7 +210,7 @@ def run_walkforward_validation(
             # ==========================================
 
             train_dates = unique_dates[
-                start_idx - train_window:start_idx
+                start_idx - TRAIN_WINDOW:start_idx
             ]
 
         # ==========================================
@@ -209,7 +218,7 @@ def run_walkforward_validation(
         # ==========================================
 
         test_dates = unique_dates[
-            start_idx:start_idx + test_window
+            start_idx:start_idx + TEST_WINDOW
         ]
 
 
@@ -234,7 +243,7 @@ def run_walkforward_validation(
 
             print("⚠️ Empty fold → skipping")
 
-            start_idx += step_size
+            start_idx += STEP_SIZE
             continue
 
 
@@ -306,7 +315,7 @@ def run_walkforward_validation(
 
             print("⚠️ No models trained")
 
-            start_idx += step_size
+            start_idx += STEP_SIZE
             continue
 
 
@@ -324,7 +333,7 @@ def run_walkforward_validation(
 
             print("⚠️ No probabilities generated")
 
-            start_idx += step_size
+            start_idx += STEP_SIZE
             continue
 
 
@@ -378,7 +387,7 @@ def run_walkforward_validation(
 
             print("⚠️ No ensemble signals")
 
-            start_idx += step_size
+            start_idx += STEP_SIZE
             continue
 
 
@@ -772,7 +781,7 @@ def run_walkforward_validation(
 
             print("⚠️ Empty backtest")
 
-            start_idx += step_size
+            start_idx += STEP_SIZE
             continue
 
 
@@ -799,7 +808,7 @@ def run_walkforward_validation(
                 "⚠️ Empty Backtest_DF"
             )
 
-            start_idx += step_size
+            start_idx += STEP_SIZE
             continue
 
 
@@ -808,7 +817,7 @@ def run_walkforward_validation(
         # ==================================================
 
         preds = (
-            ensemble_proba > threshold
+            ensemble_proba > THRESHOLD
         ).astype(int)
 
 
@@ -1939,7 +1948,7 @@ def run_walkforward_validation(
         # NEXT FOLD
         # ==================================================
         fold_num += 1
-        start_idx += step_size
+        start_idx += STEP_SIZE
 
     # ======================================================
     # FINAL SUMMARY
@@ -2021,30 +2030,74 @@ def run_walkforward_validation(
 
     summary_cols = [
 
+        # ----------------------------------------------
+        # Fold / Performance
+        # ----------------------------------------------
+
         "Fold",
         "Sharpe",
         "Final_Return",
+        "CAGR",
+        "Max_Drawdown",
+        "Volatility",
+        "Win_Rate",
 
+        # ----------------------------------------------
         # Probability
-        "Avg_Proba",
-        "Median_Proba",
-        "P90_Proba",
-        "P95_Proba",
-        "High_Confidence_Pct",
-        "Probability_Spread",
+        # ----------------------------------------------
 
+        "Avg_Probability",
+        "Std_Probability",
+        "Median_Probability",
+        "Min_Probability",
+        "Max_Probability",
+        "Probability_IQR",
+        "Probability_Spread_90_10",
+        "Probability_Spread_95_05",
+        "Probability_Entropy",
+
+        # ----------------------------------------------
+        # Confidence
+        # ----------------------------------------------
+
+        "Confidence_Mean",
+        "Confidence_Std",
+        "Confidence_CV",
+
+        "Mean_Adjusted_Confidence",
+        "Std_Adjusted_Confidence",
+
+        # ----------------------------------------------
         # Calibration
+        # ----------------------------------------------
+
         "Brier_Score",
         "Log_Loss",
         "Expected_Calibration_Error",
         "Reliability_Error",
         "Maximum_Calibration_Error",
         "Calibration_Gap",
+        "Overconfidence",
+        "Underconfidence",
 
-        # Regime
-        "Regime_PnL_Efficiency",
-        "BullVol_Pnl_Share",
-        "Bull_Vol_Return_Efficiency",
+        # ----------------------------------------------
+        # Accuracy / Calibration
+        # ----------------------------------------------
+
+        "Average_Confidence",
+        "Average_Accuracy",
+
+        # ----------------------------------------------
+        # IC
+        # ----------------------------------------------
+
+        "Spearman_IC",
+        "Pearson_IC",
+        "Rank_IC",
+
+        # ----------------------------------------------
+        # Market Regime Distribution
+        # ----------------------------------------------
 
         "Pct_BEAR",
         "Pct_BEAR_VOLATILE",
@@ -2053,12 +2106,19 @@ def run_walkforward_validation(
         "Pct_BULL",
         "Pct_BULL_VOLATILE",
 
-        # Score
-        "Avg_Final_Score",
-        "Min_Final_Score",
-        "Max_Final_Score",
+        # ----------------------------------------------
+        # Regime Exposure
+        # ----------------------------------------------
 
-        # Exposure
+        "AvgPos_BEAR",
+        "AvgPos_BEAR_VOLATILE",
+        "AvgPos_SIDEWAYS",
+        "AvgPos_SIDEWAYS_VOLATILE",
+        "AvgPos_BULL",
+        "AvgPos_BULL_VOLATILE",
+
+        "Overall_Avg_Position",
+
         "Bull_Exposure_Alpha",
         "BullVol_Exposure_Alpha",
         "Bear_Exposure_Alpha",
@@ -2066,17 +2126,76 @@ def run_walkforward_validation(
         "Sideways_Exposure_Alpha",
         "SidewaysVol_Exposure_Alpha",
 
+        # ----------------------------------------------
+        # Regime Efficiency
+        # ----------------------------------------------
+
+        "Fold_Quality_Score",
+        "Regime_PnL_Efficiency",
+        "BullVol_Pnl_Share",
+        "Bull_Vol_Return_Efficiency",
+
+        # ----------------------------------------------
+        # Exposure Efficiency
+        # ----------------------------------------------
+
+        "Exposure_Efficiency_BULL",
+        "Exposure_Efficiency_BEAR",
+        "Exposure_Efficiency_SIDEWAYS",
+        "Exposure_Efficiency_BULL_VOL",
+        "Exposure_Efficiency_BEAR_VOL",
+        "Exposure_Efficiency_SIDEWAYS_VOL",
+
+        # ----------------------------------------------
+        # Regime Returns
+        # ----------------------------------------------
+
+        "AvgRet_BEAR",
+        "AvgRet_BEAR_VOLATILE",
+        "AvgRet_SIDEWAYS",
+        "AvgRet_SIDEWAYS_VOLATILE",
+        "AvgRet_BULL",
+        "AvgRet_BULL_VOLATILE",
+
+        # ----------------------------------------------
+        # Regime PnL
+        # ----------------------------------------------
+
+        "SumPnL_BEAR",
+        "SumPnL_BEAR_VOLATILE",
+        "SumPnL_SIDEWAYS",
+        "SumPnL_SIDEWAYS_VOLATILE",
+        "SumPnL_BULL",
+        "SumPnL_BULL_VOLATILE",
+
+        # ----------------------------------------------
+        # Normalized Regime PnL
+        # ----------------------------------------------
+
+        "BullVol_PnL_Per_Day",
+        "Bull_PnL_Per_Day",
+        "Bear_PnL_Per_Day",
+        "Sideways_PnL_Per_Day",
+
+        # ----------------------------------------------
         # Portfolio
+        # ----------------------------------------------
+
         "Avg_Holdings",
         "Avg_Turnover",
         "Deadband_Pct",
 
-        # Return efficiency
+        # ----------------------------------------------
+        # Return Efficiency
+        # ----------------------------------------------
+
         "Return_Per_Unit_Exposure",
     ]
 
 
-    # Keep only columns actually available
+    # ======================================================
+    # KEEP ONLY AVAILABLE COLUMNS
+    # ======================================================
 
     available_summary_cols = [
         col
@@ -2099,6 +2218,7 @@ def run_walkforward_validation(
         .tolist()
     )
 
+
     worst_folds = (
         wf_summary
         .sort_values(
@@ -2108,6 +2228,7 @@ def run_walkforward_validation(
         .head(3)["Fold"]
         .tolist()
     )
+
 
     interesting_folds = (
         best_folds
@@ -2120,15 +2241,29 @@ def run_walkforward_validation(
     print("BEST / WORST WALK-FORWARD FOLDS")
     print("=" * 70)
 
-    print(
-        wf_summary.loc[
-            wf_summary["Fold"].isin(
-                interesting_folds
-            ),
-            available_summary_cols
-        ]
-        .sort_values("Fold")
-    )
+
+    if (
+        available_summary_cols
+        and not wf_summary.empty
+    ):
+
+        print(
+            wf_summary.loc[
+                wf_summary["Fold"].isin(
+                    interesting_folds
+                ),
+                available_summary_cols
+            ]
+            .sort_values(
+                "Fold"
+            )
+        )
+
+    else:
+
+        print(
+            "⚠️ No walk-forward fold diagnostics available."
+        )
 
 
     # ======================================================
@@ -2142,18 +2277,68 @@ def run_walkforward_validation(
 
     correlation_cols = [
 
-        # Performance / portfolio
+        # ----------------------------------------------
+        # Core Performance
+        # ----------------------------------------------
+
         "Sharpe",
+        "CAGR",
+        "Max_Drawdown",
+        "Volatility",
+        "Win_Rate",
+
+        # ----------------------------------------------
+        # Portfolio
+        # ----------------------------------------------
+
         "Avg_Turnover",
         "Avg_Holdings",
         "Deadband_Pct",
 
-        # Final score
+        # ----------------------------------------------
+        # Final Score
+        # ----------------------------------------------
+
         "Avg_Final_Score",
         "Min_Final_Score",
         "Max_Final_Score",
 
-        # Probability calibration
+        # ----------------------------------------------
+        # IC
+        # ----------------------------------------------
+
+        "Spearman_IC",
+        "Pearson_IC",
+        "Rank_IC",
+
+        # ----------------------------------------------
+        # Probability
+        # ----------------------------------------------
+
+        "Avg_Probability",
+        "Std_Probability",
+        "Median_Probability",
+        "Min_Probability",
+        "Max_Probability",
+        "Probability_IQR",
+        "Probability_Spread_90_10",
+        "Probability_Spread_95_05",
+        "Probability_Entropy",
+
+        # ----------------------------------------------
+        # Confidence
+        # ----------------------------------------------
+
+        "Confidence_Mean",
+        "Confidence_Std",
+        "Confidence_CV",
+        "Mean_Adjusted_Confidence",
+        "Std_Adjusted_Confidence",
+
+        # ----------------------------------------------
+        # Calibration
+        # ----------------------------------------------
+
         "Brier_Score",
         "Log_Loss",
         "Expected_Calibration_Error",
@@ -2163,33 +2348,17 @@ def run_walkforward_validation(
         "Overconfidence",
         "Underconfidence",
 
-        # Confidence
-        "Ensemble_Confidence_Mean",
-        "Ensemble_Confidence_Std",
-        "Confidence_CV",
-        "Mean_Adjusted_Confidence",
-        "Std_Adjusted_Confidence",
+        # ----------------------------------------------
+        # Accuracy / Confidence Calibration
+        # ----------------------------------------------
 
-        # Probability
-        "Avg_Proba",
-        "Std_Proba",
-        "Median_Proba",
-        "Min_Proba",
-        "Max_Proba",
-        "P05_Proba",
-        "P10_Proba",
-        "P25_Proba",
-        "P75_Proba",
-        "P90_Proba",
-        "P95_Proba",
-        "Probability_Range",
-        "Probability_Spread",
-        "High_Confidence_Pct",
-        "Low_Confidence_Pct",
-        "Neutral_Probability_Pct",
-        "Probability_Entropy",
+        "Average_Confidence",
+        "Average_Accuracy",
 
-        # Market regime distribution
+        # ----------------------------------------------
+        # Market Regime Distribution
+        # ----------------------------------------------
+
         "Pct_BEAR",
         "Pct_BEAR_VOLATILE",
         "Pct_SIDEWAYS",
@@ -2197,7 +2366,10 @@ def run_walkforward_validation(
         "Pct_BULL",
         "Pct_BULL_VOLATILE",
 
-        # Regime exposure
+        # ----------------------------------------------
+        # Regime Exposure
+        # ----------------------------------------------
+
         "AvgPos_BEAR",
         "AvgPos_BEAR_VOLATILE",
         "AvgPos_SIDEWAYS",
@@ -2209,19 +2381,24 @@ def run_walkforward_validation(
 
         "Bull_Exposure_Alpha",
         "BullVol_Exposure_Alpha",
-
         "Bear_Exposure_Alpha",
         "BearVol_Exposure_Alpha",
-
         "Sideways_Exposure_Alpha",
         "SidewaysVol_Exposure_Alpha",
+
+        # ----------------------------------------------
+        # Regime Quality / Efficiency
+        # ----------------------------------------------
 
         "Fold_Quality_Score",
         "Regime_PnL_Efficiency",
         "BullVol_Pnl_Share",
         "Bull_Vol_Return_Efficiency",
 
-        # Exposure efficiency
+        # ----------------------------------------------
+        # Exposure Efficiency
+        # ----------------------------------------------
+
         "Exposure_Efficiency_BULL",
         "Exposure_Efficiency_BEAR",
         "Exposure_Efficiency_SIDEWAYS",
@@ -2229,7 +2406,10 @@ def run_walkforward_validation(
         "Exposure_Efficiency_BEAR_VOL",
         "Exposure_Efficiency_SIDEWAYS_VOL",
 
-        # Regime returns
+        # ----------------------------------------------
+        # Regime Returns
+        # ----------------------------------------------
+
         "AvgRet_BEAR",
         "AvgRet_BEAR_VOLATILE",
         "AvgRet_SIDEWAYS",
@@ -2237,7 +2417,10 @@ def run_walkforward_validation(
         "AvgRet_BULL",
         "AvgRet_BULL_VOLATILE",
 
+        # ----------------------------------------------
         # Regime PnL
+        # ----------------------------------------------
+
         "SumPnL_BEAR",
         "SumPnL_BEAR_VOLATILE",
         "SumPnL_SIDEWAYS",
@@ -2245,18 +2428,27 @@ def run_walkforward_validation(
         "SumPnL_BULL",
         "SumPnL_BULL_VOLATILE",
 
-        # Regime normalized PnL
+        # ----------------------------------------------
+        # Normalized Regime PnL
+        # ----------------------------------------------
+
         "BullVol_PnL_Per_Day",
         "Bull_PnL_Per_Day",
         "Bear_PnL_Per_Day",
         "Sideways_PnL_Per_Day",
 
-        # Return efficiency
+        # ----------------------------------------------
+        # Return Efficiency
+        # ----------------------------------------------
+
         "Return_Per_Unit_Exposure",
     ]
 
 
-    # Keep only columns that exist
+    # ======================================================
+    # KEEP ONLY EXISTING CORRELATION COLUMNS
+    # ======================================================
+
     available_corr_cols = [
         col
         for col in correlation_cols
@@ -2264,7 +2456,10 @@ def run_walkforward_validation(
     ]
 
 
-    # Need at least Sharpe + one diagnostic
+    # ======================================================
+    # COMPUTE SHARPE CORRELATIONS
+    # ======================================================
+
     if (
         "Sharpe" in available_corr_cols
         and len(available_corr_cols) > 1
@@ -2274,7 +2469,9 @@ def run_walkforward_validation(
             wf_summary[
                 available_corr_cols
             ]
-            .corr()["Sharpe"]
+            .corr(
+                numeric_only=True
+            )["Sharpe"]
             .sort_values(
                 ascending=False
             )
@@ -2317,6 +2514,9 @@ def run_walkforward_validation(
             sharpe_corr[
                 exposure_mask
             ]
+            .sort_values(
+                ascending=False
+            )
         )
 
         print(
@@ -2380,9 +2580,17 @@ def run_walkforward_validation(
     # WALK-FORWARD SUMMARY
     # ======================================================
 
-    print("\n" + "=" * 70)
-    print("WALK-FORWARD SUMMARY")
-    print("=" * 70)
+    print(
+        "\n" + "=" * 70
+    )
+
+    print(
+        "WALK-FORWARD SUMMARY"
+    )
+
+    print(
+        "=" * 70
+    )
 
     print(
         wf_summary
@@ -2396,14 +2604,72 @@ def run_walkforward_validation(
     core_summary_cols = [
 
         "Fold",
+
         "Sharpe",
+
         "CAGR",
+
         "Max_Drawdown",
+
         "Volatility",
+
         "Final_Return",
+
+        "Accuracy",
+
+        "Win_Rate",
+
         "Avg_Turnover",
+
+        "Median_Turnover",
+
+        "Turnover95",
+
+        "Max_Turnover",
+
         "Avg_Holdings",
+
         "Deadband_Pct",
+
+        # Probability
+        "Avg_Probability",
+        "Std_Probability",
+        "Median_Probability",
+        "Min_Probability",
+        "Max_Probability",
+        "Probability_IQR",
+        "Probability_Spread_90_10",
+        "Probability_Spread_95_05",
+        "Probability_Entropy",
+
+        # Confidence
+        "Confidence_Mean",
+        "Confidence_Std",
+        "Confidence_CV",
+
+        # Calibration
+        "Brier_Score",
+        "Log_Loss",
+        "Expected_Calibration_Error",
+        "Reliability_Error",
+        "Maximum_Calibration_Error",
+        "Calibration_Gap",
+        "Overconfidence",
+        "Underconfidence",
+
+        # IC
+        "Spearman_IC",
+        "Pearson_IC",
+        "Rank_IC",
+
+        # Regime efficiency
+        "Fold_Quality_Score",
+        "Regime_PnL_Efficiency",
+        "BullVol_Pnl_Share",
+        "Bull_Vol_Return_Efficiency",
+
+        # Return efficiency
+        "Return_Per_Unit_Exposure",
     ]
 
 
@@ -2425,20 +2691,56 @@ def run_walkforward_validation(
     # WORST 5 FOLDS
     # ======================================================
 
-    print("\n" + "=" * 70)
-    print("🚨 WORST 5 FOLDS")
-    print("=" * 70)
+    print(
+        "\n" + "=" * 70
+    )
+
+    print(
+        "🚨 WORST 5 FOLDS"
+    )
+
+    print(
+        "=" * 70
+    )
 
 
     worst_cols = [
 
         "Fold",
+
+        "Test_Start",
+        "Test_End",
+
         "Sharpe",
         "CAGR",
         "Max_Drawdown",
+        "Volatility",
+
+        "Final_Return",
+        "Accuracy",
+        "Win_Rate",
 
         "Avg_Final_Score",
 
+        # Probability
+        "Avg_Probability",
+        "Std_Probability",
+        "Probability_Spread_90_10",
+        "Probability_Spread_95_05",
+
+        # Calibration
+        "Brier_Score",
+        "Log_Loss",
+        "Expected_Calibration_Error",
+        "Maximum_Calibration_Error",
+        "Calibration_Gap",
+
+        # IC
+        "Spearman_IC",
+        "Pearson_IC",
+        "Rank_IC",
+
+        # Regime
         "Pct_BEAR",
         "Pct_BEAR_VOLATILE",
         "Pct_SIDEWAYS",
@@ -2446,15 +2748,24 @@ def run_walkforward_validation(
         "Pct_BULL",
         "Pct_BULL_VOLATILE",
 
+        "AvgPos_BEAR",
+        "AvgPos_BEAR_VOLATILE",
+        "AvgPos_SIDEWAYS",
+        "AvgPos_SIDEWAYS_VOLATILE",
+        "AvgPos_BULL",
+        "AvgPos_BULL_VOLATILE",
+
+        "Regime_PnL_Efficiency",
+        "BullVol_Pnl_Share",
+        "Bull_Vol_Return_Efficiency",
+
+        # Portfolio
         "Avg_Turnover",
-        "Deadband_Pct",
         "Avg_Holdings",
-        "Win_Rate",
+        "Deadband_Pct",
 
-        "Brier_Score",
-        "Expected_Calibration_Error",
-
-        "Probability_Spread",
+        # Return efficiency
+        "Return_Per_Unit_Exposure",
     ]
 
 
@@ -2486,9 +2797,17 @@ def run_walkforward_validation(
     # BEST 5 FOLDS
     # ======================================================
 
-    print("\n" + "=" * 70)
-    print("🏆 BEST 5 FOLDS")
-    print("=" * 70)
+    print(
+        "\n" + "=" * 70
+    )
+
+    print(
+        "🏆 BEST 5 FOLDS"
+    )
+
+    print(
+        "=" * 70
+    )
 
 
     best_cols = [
@@ -2500,9 +2819,45 @@ def run_walkforward_validation(
 
         "Sharpe",
         "CAGR",
+        "Max_Drawdown",
+        "Volatility",
+
+        "Final_Return",
+        "Accuracy",
+        "Win_Rate",
 
         "Avg_Final_Score",
 
+        # Probability
+        "Avg_Probability",
+        "Std_Probability",
+        "Median_Probability",
+        "Min_Probability",
+        "Max_Probability",
+        "Probability_IQR",
+        "Probability_Spread_90_10",
+        "Probability_Spread_95_05",
+        "Probability_Entropy",
+
+        # Confidence
+        "Confidence_Mean",
+        "Confidence_Std",
+        "Confidence_CV",
+
+        # Calibration
+        "Brier_Score",
+        "Log_Loss",
+        "Expected_Calibration_Error",
+        "Reliability_Error",
+        "Maximum_Calibration_Error",
+        "Calibration_Gap",
+
+        # IC
+        "Spearman_IC",
+        "Pearson_IC",
+        "Rank_IC",
+
+        # Regime distribution
         "Pct_BEAR",
         "Pct_BEAR_VOLATILE",
         "Pct_SIDEWAYS",
@@ -2510,17 +2865,26 @@ def run_walkforward_validation(
         "Pct_BULL",
         "Pct_BULL_VOLATILE",
 
+        # Regime exposure
+        "AvgPos_BEAR",
+        "AvgPos_BEAR_VOLATILE",
+        "AvgPos_SIDEWAYS",
+        "AvgPos_SIDEWAYS_VOLATILE",
+        "AvgPos_BULL",
+        "AvgPos_BULL_VOLATILE",
+
+        "Fold_Quality_Score",
+        "Regime_PnL_Efficiency",
+        "BullVol_Pnl_Share",
+        "Bull_Vol_Return_Efficiency",
+
+        # Portfolio
         "Avg_Turnover",
-        "Deadband_Pct",
         "Avg_Holdings",
+        "Deadband_Pct",
 
-        "Max_Drawdown",
-        "Volatility",
-        "Final_Return",
-
-        "Brier_Score",
-        "Expected_Calibration_Error",
-        "Probability_Spread",
+        # Return efficiency
+        "Return_Per_Unit_Exposure",
     ]
 
 
@@ -2547,46 +2911,62 @@ def run_walkforward_validation(
     # AGGREGATED PERFORMANCE
     # ======================================================
 
-    print("\n" + "=" * 70)
-    print("📈 AGGREGATED PERFORMANCE")
-    print("=" * 70)
-
+    print(
+        "\n" + "=" * 70
+    )
 
     print(
-        f"Average Turnover       : "
-        f"{wf_summary['Avg_Turnover'].mean():.3f}"
+        "📈 AGGREGATED PERFORMANCE"
+    )
+
+    print(
+        "=" * 70
     )
 
 
-    print(
-        f"Average Holdings       : "
-        f"{wf_summary['Avg_Holdings'].mean():.2f}"
-    )
-
-
-    print(
-        f"Average Deadband       : "
-        f"{wf_summary['Deadband_Pct'].mean():.3f}"
-    )
-
-
-    print(
-        f"Average Final Score    : "
-        f"{wf_summary['Avg_Final_Score'].mean():.3f}"
-    )
-
+    # ------------------------------------------------------
+    # Core performance
+    # ------------------------------------------------------
 
     print(
         f"Average Sharpe         : "
         f"{wf_summary['Sharpe'].mean():.3f}"
     )
 
+    print(
+        f"Median Sharpe          : "
+        f"{wf_summary['Sharpe'].median():.3f}"
+    )
+
+    print(
+        f"Worst Sharpe           : "
+        f"{wf_summary['Sharpe'].min():.3f}"
+    )
+
+    print(
+        f"Best Sharpe            : "
+        f"{wf_summary['Sharpe'].max():.3f}"
+    )
 
     print(
         f"Average CAGR           : "
         f"{wf_summary['CAGR'].mean():.3f}"
     )
 
+    print(
+        f"Median CAGR            : "
+        f"{wf_summary['CAGR'].median():.3f}"
+    )
+
+    print(
+        f"Worst Drawdown         : "
+        f"{wf_summary['Max_Drawdown'].min():.3f}"
+    )
+
+    print(
+        f"Average Volatility     : "
+        f"{wf_summary['Volatility'].mean():.3f}"
+    )
 
     print(
         f"Average Accuracy       : "
@@ -2594,35 +2974,138 @@ def run_walkforward_validation(
     )
 
 
+    # ------------------------------------------------------
+    # Portfolio behaviour
+    # ------------------------------------------------------
+
     print(
-        f"Worst Drawdown         : "
-        f"{wf_summary['Max_Drawdown'].min():.3f}"
+        f"Average Turnover       : "
+        f"{wf_summary['Avg_Turnover'].mean():.3f}"
+    )
+
+    print(
+        f"Average Holdings       : "
+        f"{wf_summary['Avg_Holdings'].mean():.2f}"
+    )
+
+    print(
+        f"Average Deadband       : "
+        f"{wf_summary['Deadband_Pct'].mean():.3f}"
     )
 
 
-    print(
-        f"Average Volatility     : "
-        f"{wf_summary['Volatility'].mean():.3f}"
-    )
+    # ------------------------------------------------------
+    # Probability diagnostics
+    # ------------------------------------------------------
 
+    if "Avg_Probability" in wf_summary.columns:
+
+        print(
+            f"Average Probability    : "
+            f"{wf_summary['Avg_Probability'].mean():.4f}"
+        )
+
+        print(
+            f"Median Probability     : "
+            f"{wf_summary['Avg_Probability'].median():.4f}"
+        )
+
+
+    if "Probability_Spread_90_10" in wf_summary.columns:
+
+        print(
+            f"Avg P90-P10 Spread     : "
+            f"{wf_summary['Probability_Spread_90_10'].mean():.4f}"
+        )
+
+
+    if "Probability_Entropy" in wf_summary.columns:
+
+        print(
+            f"Average Probability Entropy : "
+            f"{wf_summary['Probability_Entropy'].mean():.4f}"
+        )
+
+
+    # ------------------------------------------------------
+    # Calibration
+    # ------------------------------------------------------
+
+    if "Brier_Score" in wf_summary.columns:
+
+        print(
+            f"Average Brier Score    : "
+            f"{wf_summary['Brier_Score'].mean():.4f}"
+        )
+
+
+    if "Log_Loss" in wf_summary.columns:
+
+        print(
+            f"Average Log Loss       : "
+            f"{wf_summary['Log_Loss'].mean():.4f}"
+        )
+
+
+    if "Expected_Calibration_Error" in wf_summary.columns:
+
+        print(
+            f"Average ECE            : "
+            f"{wf_summary['Expected_Calibration_Error'].mean():.4f}"
+        )
+
+
+    if "Maximum_Calibration_Error" in wf_summary.columns:
+
+        print(
+            f"Average MCE            : "
+            f"{wf_summary['Maximum_Calibration_Error'].mean():.4f}"
+        )
+
+
+    # ------------------------------------------------------
+    # IC diagnostics
+    # ------------------------------------------------------
 
     print(
         f"Average Rank IC        : "
         f"{wf_summary['Rank_IC'].mean():.4f}"
     )
 
-
     print(
         f"ICIR                   : "
         f"{icir:.4f}"
     )
-
 
     print(
         f"Positive IC %          : "
         f"{positive_ic_pct:.2f}%"
     )
 
+
+    # ------------------------------------------------------
+    # Regime / efficiency diagnostics
+    # ------------------------------------------------------
+
+    if "Regime_PnL_Efficiency" in wf_summary.columns:
+
+        print(
+            f"Average Regime PnL Efficiency : "
+            f"{wf_summary['Regime_PnL_Efficiency'].mean():.4f}"
+        )
+
+
+    if "Return_Per_Unit_Exposure" in wf_summary.columns:
+
+        print(
+            f"Average Return / Unit Exposure : "
+            f"{wf_summary['Return_Per_Unit_Exposure'].mean():.4f}"
+        )
+
+
+    # ------------------------------------------------------
+    # Fold count
+    # ------------------------------------------------------
 
     print(
         f"Total Folds            : "

@@ -745,7 +745,7 @@ class AlertMonitoringResult(
         default_factory=list
     )
 
-    critical_alerts: int = 0
+    total_alerts: int = 0
 
 
 # ============================================================
@@ -4817,57 +4817,49 @@ class AlertFactory:
     @staticmethod
     def create(
         *,
-        category:
-        MonitoringCategory,
-
-        severity:
-        MonitoringSeverity,
-
+        category: MonitoringCategory,
+        severity: MonitoringSeverity,
         title: str,
-
         message: str,
-
         source: str,
-
-        diagnostics:
-        dict[str, Any]
-        | None = None,
+        diagnostics: dict[str, Any] | None = None,
     ) -> AlertRecord:
+
+        # Map MonitoringSeverity -> AlertLevel
+        severity_to_level = {
+            MonitoringSeverity.LOW: AlertLevel.INFO,
+            MonitoringSeverity.MEDIUM: AlertLevel.WARNING,
+            MonitoringSeverity.HIGH: AlertLevel.ERROR,
+            MonitoringSeverity.CRITICAL: AlertLevel.CRITICAL,
+        }
 
         return AlertRecord(
 
-            alert_id=
-            str(
+            alert_id=str(
                 uuid.uuid4()
             ),
 
-            timestamp=
-            datetime.now(
+            created_at=datetime.now(
                 UTC
             ),
 
-            category=
-            category,
+            level=severity_to_level.get(
+                severity,
+                AlertLevel.WARNING,
+            ),
 
-            severity=
-            severity,
+            title=title,
 
-            title=
-            title,
+            message=message,
 
-            message=
-            message,
+            source_component=source,
 
-            source=
-            source,
-
-            diagnostics=(
+            metadata=(
                 diagnostics
-                if diagnostics
-                is not None
+                if diagnostics is not None
                 else {}
             ),
-        )
+        )   
 
 
 # ============================================================
@@ -5029,15 +5021,9 @@ class AlertRouter:
     ) -> None:
 
         print(
-
             "[ALERT]",
-
-            alert.severity,
-
-            alert.category,
-
+            alert.level,
             alert.title,
-
             alert.message,
         )
 
@@ -6677,9 +6663,12 @@ class InstitutionalMonitoringEngine:
 
         return (
             self.runtime_engine.run(
-
-                metrics=
-                inputs.runtime_metrics
+                runtime_seconds=float(
+                    inputs.runtime_metrics.get(
+                        "runtime_seconds",
+                        0.0,
+                    )
+                )
             )
         )
 
@@ -6694,12 +6683,7 @@ class InstitutionalMonitoringEngine:
     ) -> HealthMonitoringResult:
 
         return (
-            self.health_engine.run(
-
-                component_health=
-                inputs
-                .component_health
-            )
+            self.health_engine.run()
         )
 
     # ========================================================

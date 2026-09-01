@@ -131,6 +131,13 @@ USE_DYNAMIC_CONFIDENCE = bool(
     )
 )
 
+ALLOW_SELECTION_FALLBACK = bool(
+    SELECTION_CFG.get(
+        "ALLOW_SELECTION_FALLBACK",
+        False,
+    )
+)
+
 
 # ------------------------------------------------------------
 # Expected return clipping
@@ -1049,9 +1056,9 @@ def _apply_quality_filters(
     # --------------------------------------------------------
 
     if (
-        len(df)
-        <
-        MIN_PORTFOLIO_SIZE
+        ALLOW_SELECTION_FALLBACK
+        and
+        len(df) < MIN_PORTFOLIO_SIZE
     ):
 
         fallback_count = min(
@@ -1069,8 +1076,7 @@ def _apply_quality_filters(
 
             fallback_sort_columns = [
                 col
-                for col
-                in fallback_sort_columns
+                for col in fallback_sort_columns
                 if col in candidate_df.columns
             ]
 
@@ -1082,9 +1088,7 @@ def _apply_quality_filters(
                         fallback_sort_columns,
                         ascending=False,
                     )
-                    .head(
-                        fallback_count
-                    )
+                    .head(fallback_count)
                     .copy()
                 )
 
@@ -1092,9 +1096,7 @@ def _apply_quality_filters(
 
                 df = (
                     candidate_df
-                    .head(
-                        fallback_count
-                    )
+                    .head(fallback_count)
                     .copy()
                 )
 
@@ -1107,11 +1109,9 @@ def _apply_quality_filters(
             )
 
     else:
-
         df["Selection_Fallback"] = 0
 
     return df
-
 
 # ============================================================
 # FINAL SELECTION SCORE

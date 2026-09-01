@@ -40,6 +40,8 @@ from sklearn.linear_model import (
     LogisticRegression,
 )
 
+from sklearn.impute import SimpleImputer
+
 # ==========================================================
 # CONFIGURATION
 # ==========================================================
@@ -656,6 +658,11 @@ print(
 
 print(FEATURES)
 
+Path("artifacts").mkdir(
+    parents=True,
+    exist_ok=True,
+)
+
 # ----------------------------------------------------------
 # Optional:
 # Persist final feature list
@@ -705,15 +712,45 @@ extra_cols = [
     "Market_Regime",
 ]
 
+# ======================================================
+# MODEL DATASET
+# ======================================================
+#
+# Do NOT globally drop rows before the date split.
+#
+# A global dropna() here can remove complete company/date
+# observations and shrink the test universe.
+#
+# Instead:
+#   1. preserve the complete panel
+#   2. perform the date split
+#   3. remove invalid rows only from model-training inputs
+#
+# ======================================================
+
 data = (
     final_df[
         ["Date", "Company"]
         + FEATURES
         + extra_cols
     ]
-    .dropna()
+    .copy()
     .reset_index(drop=True)
 )
+
+data["Date"] = pd.to_datetime(
+    data["Date"],
+    errors="coerce",
+)
+
+data = data.dropna(
+    subset=[
+        "Date",
+        "Company",
+        TARGET,
+        "Meta_Target",
+    ]
+).reset_index(drop=True)
 
 print("\nDataset Shape:")
 print(data.shape)
@@ -739,86 +776,369 @@ if isinstance(meta_y, pd.DataFrame):
 meta_y = meta_y.astype(int)
 
 # ----------------------------------------------------------
-# TRAIN / TEST SPLIT — DATE BASED
+# TRAIN / TEST SPLIT — DATE BASED + UNIVERSE SAFE
 # ----------------------------------------------------------
 #
 # IMPORTANT:
-# Split by DATE, not by ROW.
+# ----------
+# 1. Split strictly by DATE, never by dataframe ROW.
+# 2. Preserve all observations belonging to each date.
+# 3. Build train/test masks from the canonical `data` dataset.
+# 4. Explicitly validate the company universe on both sides.
+# 5. Do NOT artificially manufacture missing historical data.
 #
-# This guarantees that every test date contains the complete
-# available stock universe instead of ending up with only the
-# last few companies in the dataframe.
+# Why this is required
+# --------------------
+# A date-based split prevents the classic problem where the
+# last N rows of the dataframe become the test set and therefore
+# contain only a subset of the observations belonging to the
+# final test dates.
+#
+# This guarantees that all available observations belonging
+# to each test date remain together instead of splitting
+# individual dates across train and test.
+#
+# However, DATE-BASED SPLITTING alone does NOT guarantee that
+# every one of the current universe companies exists in the
+# historical test period.
+#
+# Some companies may have:
+#   - incomplete history
+#   - IPO/listing dates after the training period
+#   - missing feature history
+#   - insufficient rolling-window history
+#   - rows removed by target/feature cleaning
+#
+# Therefore we explicitly diagnose the universe rather than
+# silently pretending that the test universe is complete.
 # ----------------------------------------------------------
-
-unique_dates = np.sort(
-    data["Date"].dropna().unique()
-)
-
-train_size = CONFIG["MODEL"]["TRAIN_SIZE"]
-
-split_date_idx = int(
-    len(unique_dates) * train_size
-)
-
-# Safety bounds
-split_date_idx = max(
-    1,
-    min(
-        split_date_idx,
-        len(unique_dates) - 1
-    )
-)
-
-train_dates = unique_dates[:split_date_idx]
-test_dates = unique_dates[split_date_idx:]
-
-train_mask = data["Date"].isin(train_dates)
-test_mask = data["Date"].isin(test_dates)
-
-X_train = X.loc[train_mask].copy()
-X_test = X.loc[test_mask].copy()
-
-y_train = y.loc[train_mask].copy()
-y_test = y.loc[test_mask].copy()
-
-meta_y_train = meta_y.loc[train_mask].copy()
-meta_y_test = meta_y.loc[test_mask].copy()
-
-meta_test = meta.loc[test_mask].copy()
 
 print("\n" + "=" * 60)
 print("DATE-BASED TRAIN / TEST SPLIT")
 print("=" * 60)
 
+# ----------------------------------------------------------
+# 1. Canonical date universe
+# ----------------------------------------------------------
+
+data["Date"] = pd.to_datetime(
+    data["Date"],
+    errors="coerce",
+)
+
+unique_dates = np.sort(
+    data["Date"]
+    .dropna()
+    .unique()
+)
+
+if len(unique_dates) < 2:
+
+    raise ValueError(
+        "Insufficient unique dates for train/test split."
+    )
+
+# ----------------------------------------------------------
+# 2. Train/test split ratio
+# ----------------------------------------------------------
+
+train_size = float(
+    CONFIG["MODEL"]["TRAIN_SIZE"]
+)
+
+if not 0.0 < train_size < 1.0:
+
+    raise ValueError(
+        "CONFIG['MODEL']['TRAIN_SIZE'] "
+        "must be between 0 and 1."
+    )
+
+split_date_idx = int(
+    len(unique_dates) * train_size
+)
+
+# ----------------------------------------------------------
+# 3. Safety bounds
+# ----------------------------------------------------------
+
+split_date_idx = max(
+    1,
+    min(
+        split_date_idx,
+        len(unique_dates) - 1,
+    ),
+)
+
+train_dates = unique_dates[
+    :split_date_idx
+]
+
+test_dates = unique_dates[
+    split_date_idx:
+]
+
+# ----------------------------------------------------------
+# 4. DATE masks
+# ----------------------------------------------------------
+
+train_mask = (
+    data["Date"].isin(train_dates)
+)
+
+test_mask = (
+    data["Date"].isin(test_dates)
+)
+
+# ----------------------------------------------------------
+# 5. Train/test date leakage check
+# ----------------------------------------------------------
+
+train_date_set = set(
+    train_dates
+)
+
+test_date_set = set(
+    test_dates
+)
+
+overlap_dates = (
+    train_date_set
+    &
+    test_date_set
+)
+
+if overlap_dates:
+
+    raise RuntimeError(
+        "Train/test date leakage detected. "
+        f"Overlapping dates: {len(overlap_dates)}"
+    )
+
+# ----------------------------------------------------------
+# 6. Build model datasets
+# ----------------------------------------------------------
+
+X_train = (
+    X.loc[train_mask]
+    .copy()
+)
+
+X_test = (
+    X.loc[test_mask]
+    .copy()
+)
+
+imputer = SimpleImputer(
+    strategy="median"
+)
+
+X_train = pd.DataFrame(
+    imputer.fit_transform(X_train),
+    columns=X_train.columns,
+    index=X_train.index,
+)
+
+X_test = pd.DataFrame(
+    imputer.transform(X_test),
+    columns=X_test.columns,
+    index=X_test.index,
+)
+
+if X_train.empty:
+    raise RuntimeError(
+        "X_train is empty after date-based split."
+    )
+
+if X_test.empty:
+    raise RuntimeError(
+        "X_test is empty after date-based split."
+    )
+
+y_train = (
+    y.loc[train_mask]
+    .copy()
+)
+
+y_test = (
+    y.loc[test_mask]
+    .copy()
+)
+
+meta_y_train = (
+    meta_y.loc[train_mask]
+    .copy()
+)
+
+meta_y_test = (
+    meta_y.loc[test_mask]
+    .copy()
+)
+
+meta_test = (
+    meta.loc[test_mask]
+    .copy()
+)
+
+# ----------------------------------------------------------
+# 7. Build explicit train/test universe diagnostics
+# ----------------------------------------------------------
+
+train_companies = set(
+    data.loc[
+        train_mask,
+        "Company",
+    ]
+    .dropna()
+    .astype(str)
+    .unique()
+)
+
+test_companies = set(
+    data.loc[
+        test_mask,
+        "Company",
+    ]
+    .dropna()
+    .astype(str)
+    .unique()
+)
+
+all_model_companies = (
+    train_companies
+    |
+    test_companies
+)
+
+train_only_companies = (
+    train_companies
+    -
+    test_companies
+)
+
+test_only_companies = (
+    test_companies
+    -
+    train_companies
+)
+
+missing_from_test = (
+    all_model_companies
+    -
+    test_companies
+)
+
+missing_from_train = (
+    all_model_companies
+    -
+    train_companies
+)
+
+# ----------------------------------------------------------
+# 8. Detailed split diagnostics
+# ----------------------------------------------------------
+
 print(
-    f"Total dates : {len(unique_dates):,}"
+    f"Total dates : "
+    f"{len(unique_dates):,}"
 )
 
 print(
-    f"Train dates : {len(train_dates):,}"
+    f"Train dates : "
+    f"{len(train_dates):,}"
 )
 
 print(
-    f"Test dates  : {len(test_dates):,}"
+    f"Test dates  : "
+    f"{len(test_dates):,}"
 )
 
 print(
-    f"Train rows  : {len(X_train):,}"
+    f"Train rows  : "
+    f"{len(X_train):,}"
 )
 
 print(
-    f"Test rows   : {len(X_test):,}"
+    f"Test rows   : "
+    f"{len(X_test):,}"
 )
 
 print(
     f"Train companies : "
-    f"{data.loc[train_mask, 'Company'].nunique():,}"
+    f"{len(train_companies):,}"
 )
 
 print(
     f"Test companies  : "
-    f"{data.loc[test_mask, 'Company'].nunique():,}"
+    f"{len(test_companies):,}"
 )
+
+print(
+    f"Combined companies : "
+    f"{len(all_model_companies):,}"
+)
+
+print(
+    f"Train-only companies : "
+    f"{len(train_only_companies):,}"
+)
+
+print(
+    f"Test-only companies : "
+    f"{len(test_only_companies):,}"
+)
+
+print(
+    f"Missing from test universe : "
+    f"{len(missing_from_test):,}"
+)
+
+print(
+    f"Missing from train universe : "
+    f"{len(missing_from_train):,}"
+)
+
+# ----------------------------------------------------------
+# 9. Print company differences
+# ----------------------------------------------------------
+
+if train_only_companies:
+
+    print(
+        "\n⚠ TRAIN-ONLY COMPANIES"
+    )
+
+    print(
+        sorted(
+            train_only_companies
+        )
+    )
+
+if test_only_companies:
+
+    print(
+        "\nℹ TEST-ONLY COMPANIES"
+    )
+
+    print(
+        sorted(
+            test_only_companies
+        )
+    )
+
+# ----------------------------------------------------------
+# 10. Basic test universe validation
+# ----------------------------------------------------------
+
+if len(test_companies) == 0:
+
+    raise RuntimeError(
+        "Test universe is empty after "
+        "dataset construction."
+    )
+
+# ----------------------------------------------------------
+# 11. Date-period diagnostics
+# ----------------------------------------------------------
 
 print(
     f"Train period : "
@@ -834,7 +1154,353 @@ print(
     f"{pd.Timestamp(test_dates[-1]).date()}"
 )
 
+# ----------------------------------------------------------
+# 12. Row/date integrity checks
+# ----------------------------------------------------------
+
+if len(X_train) != int(train_mask.sum()):
+
+    raise RuntimeError(
+        "X_train row count does not match train mask."
+    )
+
+if len(X_test) != int(test_mask.sum()):
+
+    raise RuntimeError(
+        "X_test row count does not match test mask."
+    )
+
+if len(y_train) != len(X_train):
+
+    raise RuntimeError(
+        "Training X/y row mismatch."
+    )
+
+if len(y_test) != len(X_test):
+
+    raise RuntimeError(
+        "Test X/y row mismatch."
+    )
+
+if len(meta_y_train) != len(X_train):
+
+    raise RuntimeError(
+        "meta_y_train/X_train row mismatch."
+    )
+
+if len(meta_y_test) != len(X_test):
+
+    raise RuntimeError(
+        "meta_y_test/X_test row mismatch."
+    )
+
+if len(meta_test) != len(X_test):
+
+    raise RuntimeError(
+        "meta_test/X_test row mismatch."
+    )
+
+# ----------------------------------------------------------
+# 13. Test panel integrity
+# ----------------------------------------------------------
+#
+# IMPORTANT:
+# Check duplicates BEFORE drop_duplicates().
+# Otherwise duplicate rows would be silently removed and
+# the validation would always report zero duplicates.
+# ----------------------------------------------------------
+
+test_panel_raw = (
+    data.loc[
+        test_mask,
+        [
+            "Date",
+            "Company",
+        ],
+    ]
+    .copy()
+)
+
+if test_panel_raw.empty:
+
+    raise RuntimeError(
+        "Test panel is empty."
+    )
+
+test_panel_raw["Company"] = (
+    test_panel_raw["Company"]
+    .astype(str)
+)
+
+duplicate_test_keys = (
+    test_panel_raw
+    .duplicated(
+        ["Date", "Company"]
+    )
+    .sum()
+)
+
+if duplicate_test_keys > 0:
+
+    duplicate_examples = (
+        test_panel_raw.loc[
+            test_panel_raw.duplicated(
+                ["Date", "Company"],
+                keep=False,
+            )
+        ]
+        .sort_values(
+            ["Date", "Company"]
+        )
+        .head(20)
+    )
+
+    print(
+        "\n⚠ DUPLICATE DATE/COMPANY "
+        "OBSERVATIONS DETECTED"
+    )
+
+    print(
+        duplicate_examples
+    )
+
+    raise RuntimeError(
+        "Duplicate Date/Company observations "
+        f"detected in test panel: "
+        f"{duplicate_test_keys}"
+    )
+
+# Canonical test panel
+test_panel = (
+    test_panel_raw
+    .drop_duplicates(
+        ["Date", "Company"]
+    )
+    .copy()
+)
+
+# ----------------------------------------------------------
+# 14. Final split validation
+# ----------------------------------------------------------
+
+print("\n" + "=" * 60)
+print("DATE SPLIT VALIDATION")
 print("=" * 60)
+
+print(
+    "✓ Date leakage check       : PASS"
+)
+
+print(
+    "✓ Train X/y alignment      : PASS"
+)
+
+print(
+    "✓ Test X/y alignment       : PASS"
+)
+
+print(
+    "✓ Meta X/y alignment       : PASS"
+)
+
+print(
+    "✓ Test panel uniqueness    : PASS"
+)
+
+print(
+    "✓ Test universe diagnosed  : PASS"
+)
+
+print("=" * 60)
+
+# ----------------------------------------------------------
+# IMPORTANT INTERPRETATION
+# ----------------------------------------------------------
+#
+# Example:
+#
+#   Train companies : 27
+#   Test companies  : 34
+#   Combined        : 39
+#
+# This is NOT automatically a split bug.
+#
+# It means the cleaned/model-ready dataset contains 39
+# companies overall, but only 34 have valid observations
+# in the selected test period.
+#
+# We should NOT force all 39 companies into X_test by
+# filling missing observations.
+#
+# The correct action is to diagnose WHY the five companies
+# disappear from the historical test panel.
+# ----------------------------------------------------------
+
+print(
+    "\n📊 MODEL TEST UNIVERSE"
+)
+
+print(
+    f"Canonical companies : "
+    f"{len(all_model_companies):,}"
+)
+
+print(
+    f"Companies in test   : "
+    f"{len(test_companies):,}"
+)
+
+if missing_from_test:
+
+    print(
+        "\n⚠ Companies absent from test period:"
+    )
+
+    print(
+        sorted(
+            missing_from_test
+        )
+    )
+
+else:
+
+    print(
+        "✓ All canonical companies "
+        "have test observations."
+    )
+
+print("=" * 60)
+
+# ----------------------------------------------------------
+# 15. FINAL UNIVERSE vs TEST UNIVERSE DIAGNOSTIC
+# ----------------------------------------------------------
+#
+# `final_df` represents the canonical/current universe
+# entering the model pipeline.
+#
+# `test_panel` represents companies that actually have
+# valid observations in the historical test period.
+#
+# These universes are intentionally NOT forced to match.
+# ----------------------------------------------------------
+
+full_universe = set(
+    final_df["Company"]
+    .dropna()
+    .astype(str)
+    .unique()
+)
+
+test_universe = set(
+    test_panel["Company"]
+    .dropna()
+    .astype(str)
+    .unique()
+)
+
+missing_test_companies = sorted(
+    full_universe
+    -
+    test_universe
+)
+
+extra_test_companies = sorted(
+    test_universe
+    -
+    full_universe
+)
+
+print("\n" + "=" * 60)
+print("FINAL UNIVERSE vs TEST UNIVERSE")
+print("=" * 60)
+
+print(
+    f"Full universe companies : "
+    f"{len(full_universe):,}"
+)
+
+print(
+    f"Test universe companies : "
+    f"{len(test_universe):,}"
+)
+
+print(
+    f"Missing test companies  : "
+    f"{len(missing_test_companies):,}"
+)
+
+print(
+    f"Unexpected test companies : "
+    f"{len(extra_test_companies):,}"
+)
+
+if missing_test_companies:
+
+    print(
+        "\n⚠ Companies present in current/full "
+        "universe but absent from historical "
+        "test panel:"
+    )
+
+    print(
+        sorted(
+            missing_test_companies
+        )
+    )
+
+else:
+
+    print(
+        "\n✓ All current-universe companies "
+        "have test-period observations."
+    )
+
+if extra_test_companies:
+
+    print(
+        "\n⚠ Companies present in test panel "
+        "but absent from current/full universe:"
+    )
+
+    print(
+        sorted(
+            extra_test_companies
+        )
+    )
+
+else:
+
+    print(
+        "✓ No unexpected companies "
+        "in test panel."
+    )
+
+# ----------------------------------------------------------
+# 16. DO NOT MODIFY THE TEST SET
+# ----------------------------------------------------------
+#
+# Missing companies are diagnostic information only.
+#
+# DO NOT:
+#   - add artificial rows
+#   - forward-fill entire historical panels
+#   - copy current observations backward
+#   - inject missing companies into X_test
+#   - alter train/test masks to force 39 companies
+#
+# The backtest must use only observations that genuinely
+# existed in the historical test period.
+# ----------------------------------------------------------
+
+if not test_universe:
+
+    raise RuntimeError(
+        "Test universe is empty after "
+        "model dataset construction."
+    )
+
+print("=" * 60)
+
 
 # ----------------------------------------------------------
 # REMOVE HIGHLY CORRELATED FEATURES
@@ -1196,6 +1862,11 @@ joblib.dump(
 )
 
 joblib.dump(
+    imputer,
+    "artifacts/imputer.pkl",
+)
+
+joblib.dump(
     models,
     "artifacts/models.pkl",
 )
@@ -1418,10 +2089,8 @@ logger.info(
 # META FILTER
 # ----------------------------------------------------------
 
-final_proba = np.where(
-    meta_proba >  thresholds,
-    ensemble_proba,
-    0.0,
+meta_pass = (
+    meta_proba > thresholds
 )
 
 # For Integration of Alpha Stage
@@ -1480,35 +2149,14 @@ regime_multiplier = np.ones(
     dtype=float,
 )
 
-regime_multiplier[
-    test_regimes == "BULL"
-] = 1.00
+regime_multiplier[test_regimes == "BULL"] = 1.00
+regime_multiplier[test_regimes == "SIDEWAYS"] = 0.85
+regime_multiplier[test_regimes == "BULL_VOLATILE"] = 0.75
+regime_multiplier[test_regimes == "SIDEWAYS_VOLATILE"] = 0.60
+regime_multiplier[test_regimes == "BEAR"] = 0.50
+regime_multiplier[test_regimes == "BEAR_VOLATILE"] = 0.25
 
-regime_multiplier[
-    test_regimes == "SIDEWAYS"
-] = 0.85
-
-regime_multiplier[
-    test_regimes == "BULL_VOLATILE"
-] = 0.75
-
-regime_multiplier[
-    test_regimes == "SIDEWAYS_VOLATILE"
-] = 0.60
-
-regime_multiplier[
-    test_regimes == "BEAR"
-] = 0.50
-
-regime_multiplier[
-    test_regimes == "BEAR_VOLATILE"
-] = 0.25
-
-final_proba = (
-    final_proba
-    *
-    regime_multiplier
-)
+regime_exposure = regime_multiplier.copy()
 
 # For Integration with Alpha Stage
 regime_df = meta_df.copy()
@@ -1599,11 +2247,7 @@ logger.info(
     (final_proba > 0).sum(),
 )
 
-final_proba = np.where(
-    vol_filter,
-    final_proba,
-    0.0,
-)
+volatility_pass = vol_filter.astype(bool)
 
 # For Integration of Alpha Stage
 volatility_df = regime_df.copy()
@@ -1772,10 +2416,135 @@ logger.info(
 
 logger.info("=" * 80)
 
+backtest_meta = meta_test.copy()
+
+backtest_meta["Meta_Pass"] = (
+    meta_pass
+)
+
+backtest_meta["Volatility_Pass"] = (
+    volatility_pass
+)
+
+backtest_meta["Regime_Exposure"] = (
+    regime_exposure
+)
+
+# ==========================================================
+# CANONICAL BACKTEST SIGNAL CONTRACT
+# ==========================================================
+#
+# IMPORTANT:
+# The backtest must consume exactly the final probability
+# produced by the Alpha Engine after Meta / Regime /
+# Volatility processing.
+#
+# Do NOT allow the backtest to independently reconstruct
+# probability from:
+#   - ensemble_proba
+#   - Prediction_Alpha
+#   - Alpha_Score
+#   - Final_Score
+#   - Signal
+#
+# `Prediction_Prob` is the canonical Alpha Engine probability.
+# ==========================================================
+
+final_df = final_df.copy()
+
+if len(final_df) != len(final_proba):
+    raise ValueError(
+        "CRITICAL: Canonical probability alignment failure: "
+        f"final_df={len(final_df)}, "
+        f"final_proba={len(final_proba)}"
+    )
+
+final_df["Prediction_Prob"] = (
+    pd.to_numeric(
+        np.asarray(final_proba).reshape(-1),
+        errors="coerce",
+    )
+)
+
+if final_df["Prediction_Prob"].isna().any():
+    raise ValueError(
+        "CRITICAL: Prediction_Prob contains NaN values."
+    )
+
+final_df["Prediction_Prob"] = (
+    final_df["Prediction_Prob"]
+    .clip(0.0, 1.0)
+)
+
+# Canonical continuous alpha.
+final_df["Prediction_Alpha"] = (
+    final_df["Prediction_Prob"] - 0.50
+)
+
+# Canonical confidence.
+final_df["Confidence"] = (
+    final_df["Prediction_Alpha"]
+    .abs()
+    * 2.0
+)
+
+print("\n" + "=" * 72)
+print("CANONICAL ALPHA SIGNAL CONTRACT")
+print("=" * 72)
+
+print(
+    f"Rows              : {len(final_df):,}"
+)
+
+print(
+    f"Probability count : "
+    f"{final_df['Prediction_Prob'].notna().sum():,}"
+)
+
+print(
+    f"Probability mean  : "
+    f"{final_df['Prediction_Prob'].mean():.6f}"
+)
+
+print(
+    f"Probability min   : "
+    f"{final_df['Prediction_Prob'].min():.6f}"
+)
+
+print(
+    f"Probability max   : "
+    f"{final_df['Prediction_Prob'].max():.6f}"
+)
+
+print(
+    f"Positive Alpha    : "
+    f"{(final_df['Prediction_Alpha'] > 0).sum():,}"
+)
+
+print(
+    f"Negative Alpha    : "
+    f"{(final_df['Prediction_Alpha'] < 0).sum():,}"
+)
+
+print("=" * 72)
+
+print("\nCANONICAL BACKTEST PROBABILITY CHECK")
+print(
+    final_df[
+        [
+            "Date",
+            "Company",
+            "Prediction_Prob",
+            "Prediction_Alpha",
+            "Confidence",
+        ]
+    ].head(10)
+)
+
 ensemble_bt = run_backtest(
-    proba=final_proba,
+    proba=final_df["Prediction_Prob"].to_numpy(),
     X_test=X_test,
-    meta_test=meta_test,
+    meta_test=backtest_meta,
     final_df=final_df,
 )
 

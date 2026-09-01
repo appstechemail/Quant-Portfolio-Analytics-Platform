@@ -40,6 +40,8 @@ from sklearn.linear_model import (
     LogisticRegression,
 )
 
+from sklearn.impute import SimpleImputer
+
 # ==========================================================
 # CONFIGURATION
 # ==========================================================
@@ -202,6 +204,7 @@ from src.portfolio.construction.pipeline import (
     create_pipeline,
     run_pipeline,
     institutional_pipeline,
+    InstitutionalPipelineConfig,
 )
 
 # ==========================================================
@@ -251,6 +254,13 @@ SIDEWAYS_VOL_META_THRESHOLD = CONFIG["TARGET"]["SIDEWAYS_VOL_META_THRESHOLD"]
 SELECTED_MODELS = CONFIG["MODEL"].get(
     "MODEL_LIST",
     ["xgb", "lgb", "cat"]
+)
+
+NEUTRALITY = float(
+    CONFIG["BACKTEST"].get(
+        "NEUTRALITY",
+        0.50,
+    )
 )
 
 # INITIALIZE
@@ -648,6 +658,8 @@ FEATURES = FEATURES[:MAX_FEATURES]
 
 TARGET = "Target"
 
+target_col=TARGET
+
 print("\n🛡 Institutional Feature Set")
 
 print(
@@ -726,6 +738,23 @@ extra_cols = [
 #
 # ======================================================
 
+# ==========================================================
+# CANONICAL SOURCE ROW ID
+# ==========================================================
+#
+# Preserve the exact original final_df row identity.
+#
+# This ID is used later to map X_test/meta_test probabilities
+# back to the correct Date/Company rows in final_df.
+#
+# Do NOT rely on the reset positional index of `data`.
+# ==========================================================
+
+source_row_id = np.arange(
+    len(final_df),
+    dtype=np.int64,
+)
+
 data = (
     final_df[
         ["Date", "Company"]
@@ -733,7 +762,12 @@ data = (
         + extra_cols
     ]
     .copy()
-    .reset_index(drop=True)
+)
+
+data["_source_row_id"] = source_row_id
+
+data = data.reset_index(
+    drop=True
 )
 
 data["Date"] = pd.to_datetime(
@@ -926,6 +960,22 @@ X_test = (
     .copy()
 )
 
+imputer = SimpleImputer(
+    strategy="median"
+)
+
+X_train = pd.DataFrame(
+    imputer.fit_transform(X_train),
+    columns=X_train.columns,
+    index=X_train.index,
+)
+
+X_test = pd.DataFrame(
+    imputer.transform(X_test),
+    columns=X_test.columns,
+    index=X_test.index,
+)
+
 if X_train.empty:
     raise RuntimeError(
         "X_train is empty after date-based split."
@@ -957,9 +1007,46 @@ meta_y_test = (
 )
 
 meta_test = (
-    meta.loc[test_mask]
+    data.loc[
+        test_mask,
+        [
+            "Date",
+            "Company",
+            "Market_Regime",
+        ],
+    ]
     .copy()
+    .reset_index(drop=True)
 )
+
+# ==========================================================
+# CANONICAL TEST SOURCE ROW IDS
+# ==========================================================
+
+test_source_row_ids = (
+    data.loc[
+        test_mask,
+        "_source_row_id"
+    ]
+    .to_numpy(
+        dtype=np.int64
+    )
+)
+
+if len(test_source_row_ids) != len(X_test):
+    raise RuntimeError(
+        "CRITICAL: Test source-row alignment failure: "
+        f"source_ids={len(test_source_row_ids)}, "
+        f"X_test={len(X_test)}"
+    )
+
+if len(np.unique(test_source_row_ids)) != len(
+    test_source_row_ids
+):
+    raise RuntimeError(
+        "CRITICAL: Duplicate source row IDs detected "
+        "in test panel."
+    )
 
 # ----------------------------------------------------------
 # 7. Build explicit train/test universe diagnostics
@@ -1757,57 +1844,6 @@ meta_proba = (
     )[:, 1]
 )
 
-# ----------------------------------------------------------
-# BUILD ENSEMBLE
-# ----------------------------------------------------------
-
-signals = []
-
-for values in probas.values():
-
-    arr = np.asarray(values)
-
-    if len(arr.shape) > 1:
-
-        arr = arr[:, 1]
-
-    signals.append(arr)
-
-signals = np.column_stack(
-    signals
-)
-
-ensemble_weights = (
-    np.ones(
-        signals.shape[1]
-    )
-    /
-    signals.shape[1]
-)
-
-ensemble_proba = np.dot(
-    signals,
-    ensemble_weights,
-)
-
-logger.info("=" * 80)
-logger.info("BACKTEST DEBUG Before Meta Filter")
-logger.info("Rows after merge: %d", len(final_df))
-
-logger.info(
-    "Unique Dates=%d | Companies=%d",
-    final_df["Date"].nunique(),
-    final_df["Company"].nunique()
-)
-# ----------------------------------------------------------
-# APPLY META FILTER
-# ----------------------------------------------------------
-
-final_proba = np.where(
-    meta_proba > META_THRESHOLD,
-    ensemble_proba,
-    0.0,
-)
 
 # ================================
 
@@ -1821,15 +1857,15 @@ logger.info(
     final_df["Company"].nunique()
 )
 
-print(
-    "\nSignals after meta filter:",
-    (final_proba > 0).sum(),
+logger.info(
+    f"Meta-positive observations: "
+    f"{(meta_proba > META_THRESHOLD).sum()}"
 )
 
 print(
-    "Average signal:",
+    "Average Meta:",
     round(
-        final_proba.mean(),
+        meta_proba.mean(),
         4,
     ),
 )
@@ -1841,6 +1877,11 @@ print(
 joblib.dump(
     scaler,
     "artifacts/scaler.pkl",
+)
+
+joblib.dump(
+    imputer,
+    "artifacts/imputer.pkl",
 )
 
 joblib.dump(
@@ -2066,15 +2107,42 @@ logger.info(
 # META FILTER
 # ----------------------------------------------------------
 
+meta_pass = (
+    meta_proba > thresholds
+)
+
+# ----------------------------------------------------------
+# CANONICAL FINAL PROBABILITY
+# ----------------------------------------------------------
+#
+# This is the ONLY place where final_proba is created.
+#
+# Flow:
+#
+# weighted ensemble
+#        ↓
+# ensemble_proba
+#        ↓
+# meta model
+#        ↓
+# regime-specific meta threshold
+#        ↓
+# final_proba
+#
+# final_proba is the canonical Alpha Engine probability.
+# ----------------------------------------------------------
+
 final_proba = np.where(
-    meta_proba >  thresholds,
+    meta_pass,
     ensemble_proba,
-    0.0,
+    NEUTRALITY,
 )
 
 # For Integration of Alpha Stage
 meta_df = meta_test.copy()
 
+meta_df["Meta_Proba"] = meta_proba
+meta_df["Meta_Pass"] = meta_pass
 meta_df["Probability"] = final_proba
 
 tracker.add_stage(
@@ -2084,7 +2152,7 @@ tracker.add_stage(
 
 print(
     "Signals after Meta Filter:",
-    (final_proba > 0).sum(),
+    int(meta_pass.sum()),
 )
 
 logger.info("=" * 80)
@@ -2097,7 +2165,7 @@ logger.info(
     final_df["Company"].nunique()
 )
 # ----------------------------------------------------------
-# REGIME FILTER
+# REGIME EXPOSURE DIAGNOSTICS
 # ----------------------------------------------------------
 
 print(
@@ -2116,11 +2184,60 @@ allowed_regimes = [
 # REGIME ADJUSTMENT
 # ----------------------------------------------------------
 #
-# Do not convert valid BUY probabilities to zero solely
-# because of market regime.
+# CANONICAL ALPHA CONTRACT
 #
-# Regime is a risk/exposure modifier.
-# Portfolio construction / risk engine can reduce exposure.
+# Do not convert a valid BUY probability to zero solely
+# because of the market regime.
+#
+# The Alpha Engine probability remains the canonical
+# probability.
+#
+# Regime is a RISK / EXPOSURE MODIFIER only.
+#
+# Therefore:
+#
+#     final_proba
+#         ↓
+#     remains unchanged
+#
+#     regime_exposure
+#         ↓
+#     is passed downstream
+#
+# Portfolio construction / risk engine may reduce
+# exposure using this modifier.
+#
+# IMPORTANT:
+# ----------------------------------------------------------
+# DO NOT do:
+#
+#     final_proba[test_regimes == "BEAR"] = 0
+#
+# DO NOT do:
+#
+#     final_proba *= regime_multiplier
+#
+# DO NOT use regime to destroy the canonical probability.
+#
+# The canonical probability must remain the probability
+# produced by the Alpha Engine after Meta processing.
+# ----------------------------------------------------------
+
+test_regimes = (
+    meta_test["Market_Regime"]
+    .astype(str)
+    .fillna("SIDEWAYS")
+    .to_numpy()
+)
+
+# ----------------------------------------------------------
+# Regime exposure multipliers
+# ----------------------------------------------------------
+#
+# These values represent the maximum directional exposure
+# allowed downstream for each market regime.
+#
+# They DO NOT modify final_proba.
 # ----------------------------------------------------------
 
 regime_multiplier = np.ones(
@@ -2128,63 +2245,271 @@ regime_multiplier = np.ones(
     dtype=float,
 )
 
-regime_multiplier[
-    test_regimes == "BULL"
-] = 1.00
+regime_multiplier[test_regimes == "BULL"] = 1.00
+regime_multiplier[test_regimes == "SIDEWAYS"] = 0.85
+regime_multiplier[test_regimes == "BULL_VOLATILE"] = 0.75
+regime_multiplier[test_regimes == "SIDEWAYS_VOLATILE"] = 0.60
+regime_multiplier[test_regimes == "BEAR"] = 0.50
+regime_multiplier[test_regimes == "BEAR_VOLATILE"] = 0.25
 
-regime_multiplier[
-    test_regimes == "SIDEWAYS"
-] = 0.85
+# ----------------------------------------------------------
+# Regime validity
+# ----------------------------------------------------------
+#
+# A valid regime always has a positive exposure multiplier.
+# No probability is rejected here.
+# ----------------------------------------------------------
 
-regime_multiplier[
-    test_regimes == "BULL_VOLATILE"
-] = 0.75
-
-regime_multiplier[
-    test_regimes == "SIDEWAYS_VOLATILE"
-] = 0.60
-
-regime_multiplier[
-    test_regimes == "BEAR"
-] = 0.50
-
-regime_multiplier[
-    test_regimes == "BEAR_VOLATILE"
-] = 0.25
-
-final_proba = (
-    final_proba
-    *
-    regime_multiplier
+regime_pass = (
+    regime_multiplier > 0.0
 )
 
-# For Integration with Alpha Stage
-regime_df = meta_df.copy()
+# ----------------------------------------------------------
+# Canonical regime exposure
+# ----------------------------------------------------------
+#
+# This is the ONLY regime-adjusted quantity.
+#
+# final_proba remains untouched.
+#
+# Downstream portfolio / risk engines may use:
+#
+#     final_proba
+#     regime_exposure
+#
+# to determine final position size.
+# ----------------------------------------------------------
 
-regime_df["Probability"] = final_proba
+regime_exposure = (
+    regime_multiplier.copy()
+)
+
+# ----------------------------------------------------------
+# Defensive validation
+# ----------------------------------------------------------
+
+if len(regime_exposure) != len(final_proba):
+    raise ValueError(
+        "CRITICAL: Regime exposure alignment failure: "
+        f"final_proba={len(final_proba)}, "
+        f"regime_exposure={len(regime_exposure)}"
+    )
+
+if not np.isfinite(
+    regime_exposure
+).all():
+    raise ValueError(
+        "CRITICAL: Regime exposure contains "
+        "NaN or infinite values."
+    )
+
+if (
+    np.asarray(regime_exposure) < 0
+).any():
+    raise ValueError(
+        "CRITICAL: Regime exposure contains "
+        "negative values."
+    )
+
+# ----------------------------------------------------------
+# IMPORTANT CANONICAL PROBABILITY CHECK
+# ----------------------------------------------------------
+#
+# Regime adjustment must NOT change final_proba.
+#
+# Therefore we explicitly retain final_proba as the
+# canonical Alpha Engine probability.
+# ----------------------------------------------------------
+
+final_proba = np.asarray(
+    final_proba,
+    dtype=float,
+).reshape(-1)
+
+if not np.isfinite(
+    final_proba
+).all():
+    raise ValueError(
+        "CRITICAL: Canonical final_proba contains "
+        "NaN or infinite values after Regime processing."
+    )
+
+final_proba = np.clip(
+    final_proba,
+    0.0,
+    1.0,
+)
+
+# ----------------------------------------------------------
+# For Integration with Alpha Stage
+# ----------------------------------------------------------
+#
+# The REGIME stage records:
+#
+#     Probability      = canonical Alpha probability
+#     Regime_Exposure  = regime risk/exposure modifier
+#
+# Probability is intentionally NOT multiplied by the
+# regime multiplier.
+# ----------------------------------------------------------
+
+regime_df = meta_test.copy()
+
+regime_df["Probability"] = (
+    final_proba
+)
+
+regime_df["Regime_Exposure"] = (
+    regime_exposure
+)
+
+regime_df["Regime_Pass"] = (
+    regime_pass
+)
+
+# ----------------------------------------------------------
+# Optional regime diagnostics
+# ----------------------------------------------------------
+
+regime_diagnostics = pd.DataFrame(
+    {
+        "Market_Regime": test_regimes,
+        "Regime_Exposure": regime_exposure,
+        "Regime_Pass": regime_pass,
+        "Probability": final_proba,
+    }
+)
+
+print(
+    "\n===== REGIME EXPOSURE DIAGNOSTICS ====="
+)
+
+print(
+    regime_diagnostics[
+        "Market_Regime"
+    ].value_counts()
+    .rename("Observations")
+)
+
+print(
+    "\nRegime Exposure:"
+)
+
+print(
+    regime_diagnostics
+    .groupby("Market_Regime")[
+        "Regime_Exposure"
+    ]
+    .first()
+    .sort_values(
+        ascending=False
+    )
+)
+
+print(
+    "\nMean Canonical Probability by Regime:"
+)
+
+print(
+    regime_diagnostics
+    .groupby("Market_Regime")[
+        "Probability"
+    ]
+    .mean()
+    .sort_values(
+        ascending=False
+    )
+)
+
+print(
+    "\nSignals with Positive Canonical Alpha:",
+    int(
+        (
+            regime_diagnostics[
+                "Probability"
+            ] > NEUTRALITY
+        ).sum()
+    ),
+)
+
+print(
+    "Signals with Positive Regime Exposure:",
+    int(
+        regime_diagnostics[
+            "Regime_Pass"
+        ].sum()
+    ),
+)
+
+# ----------------------------------------------------------
+# Alpha Stage Tracker
+# ----------------------------------------------------------
 
 tracker.add_stage(
     AlphaStage.REGIME,
     regime_df
 )
 
+# ----------------------------------------------------------
+# IMPORTANT:
+# Do NOT report this as "signals after Regime Filter"
+# because Regime does not filter probabilities anymore.
+# ----------------------------------------------------------
+
 print(
-    "Signals after Regime Filter:",
-    (final_proba > 0).sum(),
+    "Positive Alpha entering downstream stages:",
+    int(
+        (
+            final_proba > NEUTRALITY
+        ).sum()
+    ),
+)
+
+print(
+    "Regime-adjusted exposure observations:",
+    int(
+        (
+            regime_exposure > 0
+        ).sum()
+    ),
 )
 
 logger.info("=" * 80)
-logger.info("BACKTEST DEBUG After - Regime Filter and Before Volatility Filter")
-logger.info("Rows after merge: %d", len(final_df))
+
+logger.info(
+    "BACKTEST DEBUG After - Regime Adjustment "
+    "and Before Volatility Filter"
+)
+
+logger.info(
+    "Rows after merge: %d",
+    len(final_df)
+)
 
 logger.info(
     "Unique Dates=%d | Companies=%d",
     final_df["Date"].nunique(),
-    final_df["Company"].nunique()
+    final_df["Company"].nunique(),
+)
+
+logger.info(
+    "Canonical Probability Mean=%.6f | "
+    "Min=%.6f | Max=%.6f",
+    float(final_proba.mean()),
+    float(final_proba.min()),
+    float(final_proba.max()),
+)
+
+logger.info(
+    "Regime Exposure Mean=%.6f | "
+    "Min=%.6f | Max=%.6f",
+    float(regime_exposure.mean()),
+    float(regime_exposure.min()),
+    float(regime_exposure.max()),
 )
 
 # ----------------------------------------------------------
-# VOLATILITY FILTER
+# VOLATILITY CONTROL DIAGNOSTICS
 # ----------------------------------------------------------
 
 print(
@@ -2197,25 +2522,51 @@ test_atr = (
     .reset_index(drop=True)
 )
 
+VOL_FILTER_WINDOW = int(
+    CONFIG["BACKTEST"].get(
+        "VOL_FILTER_WINDOW",
+        60,
+    )
+)
+
+VOL_FILTER_QUANTILE = float(
+    CONFIG["BACKTEST"].get(
+        "VOL_FILTER_QUANTILE",
+        0.80,
+    )
+)
+
 atr_mean = (
     test_atr
     .rolling(
-        60,
+        VOL_FILTER_WINDOW,
         min_periods=20,
     )
     .mean()
 )
 
+atr_threshold = (
+    test_atr
+    .rolling(
+        VOL_FILTER_WINDOW,
+        min_periods=20,
+    )
+    .quantile(
+        VOL_FILTER_QUANTILE
+    )
+)
+
 vol_filter = (
-    test_atr <
-    atr_mean * 1.8
+    test_atr <= atr_threshold
 )
 
 vol_filter = (
     vol_filter
     .fillna(True)
+    .astype(bool)
     .values
 )
+
 
 logger.info("=" * 80)
 logger.info("VOLATILITY FILTER DEBUG")
@@ -2243,15 +2594,15 @@ logger.info(
 )
 
 logger.info(
-    "Signals BEFORE volatility filter: %d",
-    (final_proba > 0).sum(),
+    "Positive Alpha BEFORE volatility filter: %d",
+    int(
+        (
+            final_proba > NEUTRALITY
+        ).sum()
+    ),
 )
 
-final_proba = np.where(
-    vol_filter,
-    final_proba,
-    0.0,
-)
+volatility_pass = vol_filter.astype(bool)
 
 # For Integration of Alpha Stage
 volatility_df = regime_df.copy()
@@ -2264,8 +2615,13 @@ tracker.add_stage(
 )
 
 print(
-    "Signals after Volatility Filter:",
-    (final_proba > 0).sum(),
+    "Positive Alpha after Volatility Filter:",
+    int(
+        (
+            (final_proba > NEUTRALITY)
+            & volatility_pass
+        ).sum()
+    ),
 )
 
 
@@ -2312,8 +2668,14 @@ tracker.add_stage(
 )
 
 print(
-    "Signals entering backtest:",
-    int((final_proba > 0).sum()),
+    "Positive Alpha entering backtest:",
+    int(
+        (
+            (final_proba > NEUTRALITY)
+            & meta_pass
+            & volatility_pass
+        ).sum()
+    ),
 )
 
 logger.info("=" * 80)
@@ -2420,25 +2782,490 @@ logger.info(
 
 logger.info("=" * 80)
 
-ensemble_bt = run_backtest(
-    proba=final_proba,
-    X_test=X_test,
-    meta_test=meta_test,
-    final_df=final_df,
+backtest_meta = meta_test.copy().reset_index(drop=True)
+
+backtest_meta["Meta_Pass"] = (
+    meta_pass
 )
 
-results["ENSEMBLE"] = (
-    ensemble_bt
+backtest_meta["Regime_Pass"] = (
+    regime_pass
 )
+
+backtest_meta["Volatility_Pass"] = (
+    volatility_pass
+)
+
+backtest_meta["Regime_Multiplier"] = (
+    regime_multiplier
+)
+
+# ==========================================================
+# CANONICAL BACKTEST SIGNAL CONTRACT
+# ==========================================================
+#
+# IMPORTANT:
+#
+# The backtest must consume exactly the final probability
+# produced by the Alpha Engine after Meta / Regime /
+# Volatility processing.
+#
+# Do NOT allow the backtest to independently reconstruct
+# probability from:
+#
+#   - ensemble_proba
+#   - Prediction_Alpha
+#   - Alpha_Score
+#   - Final_Score
+#   - Signal
+#
+# `Prediction_Prob` is the canonical Alpha Engine probability.
+#
+# IMPORTANT ALIGNMENT RULE:
+#
+# final_df contains the COMPLETE cleaned dataset.
+# final_proba contains probabilities ONLY for the TEST panel.
+#
+# Therefore:
+#
+#     len(final_df)    != len(final_proba)
+#
+# is expected.
+#
+# The canonical backtest dataframe must contain exactly the
+# same rows as the test prediction panel.
+# ==========================================================
+
+final_df = final_df.copy()
+
+
+# ============================================================
+# CANONICAL PROBABILITY ALIGNMENT
+# ============================================================
+
+# ------------------------------------------------------------
+# 1. Validate probability length against TEST panel
+# ------------------------------------------------------------
+
+expected_test_rows = len(meta_test)
+
+if len(final_proba) != expected_test_rows:
+    raise ValueError(
+        "CRITICAL: Canonical probability alignment failure: "
+        f"meta_test={expected_test_rows}, "
+        f"final_proba={len(final_proba)}"
+    )
+
+
+# ------------------------------------------------------------
+# 2. Validate probability length against X_test
+# ------------------------------------------------------------
+
+if len(final_proba) != len(X_test):
+    raise ValueError(
+        "CRITICAL: Test probability alignment failure: "
+        f"X_test={len(X_test)}, "
+        f"final_proba={len(final_proba)}"
+    )
+
+
+# ------------------------------------------------------------
+# 3. Convert canonical probabilities to numeric array
+# ------------------------------------------------------------
+
+canonical_proba = pd.to_numeric(
+    np.asarray(final_proba).reshape(-1),
+    errors="coerce",
+)
+
+
+# ------------------------------------------------------------
+# 4. Validate probability values
+# ------------------------------------------------------------
+
+if np.isnan(canonical_proba).any():
+    raise ValueError(
+        "CRITICAL: Canonical Prediction_Prob contains NaN values."
+    )
+
+
+if np.isinf(canonical_proba).any():
+    raise ValueError(
+        "CRITICAL: Canonical Prediction_Prob contains "
+        "infinite values."
+    )
+
+
+# ------------------------------------------------------------
+# 5. Probability must represent a valid probability
+# ------------------------------------------------------------
+
+if (
+    (canonical_proba < 0.0).any()
+    or (canonical_proba > 1.0).any()
+):
+    raise ValueError(
+        "CRITICAL: Canonical Prediction_Prob contains values "
+        "outside [0, 1]."
+    )
+
+
+# ============================================================
+# 6. CONSTRUCT CANONICAL BACKTEST PANEL
+# ============================================================
+#
+# IMPORTANT:
+# X_test/meta_test are derived from `data`.
+# `data` has its own reset index.
+#
+# Therefore DO NOT use:
+#
+#     final_df.loc[X_test.index]
+#
+# because that index belongs to `data`, not necessarily
+# to the original final_df.
+#
+# `_source_row_id` is the only authoritative mapping.
+# ============================================================
+
+if len(test_source_row_ids) != expected_test_rows:
+    raise ValueError(
+        "CRITICAL: Test source-row count mismatch: "
+        f"expected={expected_test_rows}, "
+        f"actual={len(test_source_row_ids)}"
+    )
+
+if (
+    test_source_row_ids.min() < 0
+    or
+    test_source_row_ids.max() >= len(final_df)
+):
+    raise ValueError(
+        "CRITICAL: Test source-row IDs contain values "
+        "outside final_df bounds."
+    )
+
+backtest_df = (
+    final_df
+    .iloc[test_source_row_ids]
+    .copy()
+)
+
+backtest_df = (
+    backtest_df
+    .reset_index(drop=True)
+)
+
+# ============================================================
+# CANONICAL DATE / COMPANY ALIGNMENT CHECK
+# ============================================================
+
+expected_meta = (
+    meta_test[
+        ["Date", "Company"]
+    ]
+    .copy()
+    .reset_index(drop=True)
+)
+
+actual_meta = (
+    backtest_df[
+        ["Date", "Company"]
+    ]
+    .copy()
+    .reset_index(drop=True)
+)
+
+expected_meta["Date"] = pd.to_datetime(
+    expected_meta["Date"],
+    errors="coerce",
+)
+
+actual_meta["Date"] = pd.to_datetime(
+    actual_meta["Date"],
+    errors="coerce",
+)
+
+expected_meta["Company"] = (
+    expected_meta["Company"]
+    .astype(str)
+    .str.strip()
+)
+
+actual_meta["Company"] = (
+    actual_meta["Company"]
+    .astype(str)
+    .str.strip()
+)
+
+if not expected_meta.equals(actual_meta):
+    mismatch_mask = (
+        expected_meta["Date"]
+        != actual_meta["Date"]
+    ) | (
+        expected_meta["Company"]
+        != actual_meta["Company"]
+    )
+
+    mismatch_count = int(
+        mismatch_mask.sum()
+    )
+
+    raise ValueError(
+        "CRITICAL: Canonical Date/Company alignment "
+        "failure between meta_test and backtest_df. "
+        f"Mismatched rows={mismatch_count}"
+    )
+
+print(
+    f"✓ Canonical Date/Company alignment PASS | "
+    f"Rows={len(backtest_df):,}"
+)
+
+
+
+# ------------------------------------------------------------
+# 7. Validate canonical backtest panel size
+# ------------------------------------------------------------
+
+if len(backtest_df) != expected_test_rows:
+    raise ValueError(
+        "CRITICAL: Canonical backtest panel alignment failure: "
+        f"expected={expected_test_rows}, "
+        f"actual={len(backtest_df)}"
+    )
+
+
+# ------------------------------------------------------------
+# 8. Validate test panel index uniqueness
+# ------------------------------------------------------------
+
+if not backtest_df.index.is_unique:
+    raise ValueError(
+        "CRITICAL: Canonical backtest panel contains "
+        "duplicate index values."
+    )
+
+
+# ============================================================
+# ASSIGN CANONICAL PROBABILITY
+# ============================================================
+
+backtest_df["Prediction_Prob"] = canonical_proba
+
+
+# ------------------------------------------------------------
+# 9. Final probability integrity checks
+# ------------------------------------------------------------
+
+if backtest_df["Prediction_Prob"].isna().any():
+    raise ValueError(
+        "CRITICAL: Prediction_Prob contains NaN values "
+        "after canonical assignment."
+    )
+
+
+if np.isinf(
+    backtest_df["Prediction_Prob"].to_numpy(dtype=float)
+).any():
+    raise ValueError(
+        "CRITICAL: Prediction_Prob contains infinite values."
+    )
+
+
+if (
+    (backtest_df["Prediction_Prob"] < 0.0).any()
+    or
+    (backtest_df["Prediction_Prob"] > 1.0).any()
+):
+    raise ValueError(
+        "CRITICAL: Prediction_Prob contains values "
+        "outside [0, 1] after canonical assignment."
+    )
+
+
+# ============================================================
+# CANONICAL CONTINUOUS ALPHA
+# ============================================================
+
+backtest_df["Prediction_Alpha"] = (
+    backtest_df["Prediction_Prob"]
+    - NEUTRALITY
+)
+
+# ============================================================
+# CANONICAL CONFIDENCE
+# ============================================================
+
+backtest_df["Confidence"] = (
+    backtest_df["Prediction_Alpha"].abs() * 2.0
+)
+
+# ============================================================
+# CANONICAL ALPHA SIGNAL CONTRACT
+# ============================================================
+
+print("\n" + "=" * 72)
+print("CANONICAL ALPHA SIGNAL CONTRACT")
+print("=" * 72)
+
+print(
+    f"Full dataset rows       : {len(final_df):,}"
+)
+
+print(
+    f"Test panel rows         : {len(backtest_df):,}"
+)
+
+print(
+    f"Probability count       : "
+    f"{backtest_df['Prediction_Prob'].notna().sum():,}"
+)
+
+print(
+    f"Probability mean        : "
+    f"{backtest_df['Prediction_Prob'].mean():.6f}"
+)
+
+print(
+    f"Probability min         : "
+    f"{backtest_df['Prediction_Prob'].min():.6f}"
+)
+
+print(
+    f"Probability max         : "
+    f"{backtest_df['Prediction_Prob'].max():.6f}"
+)
+
+print(
+    f"Positive Alpha          : "
+    f"{(backtest_df['Prediction_Alpha'] > 0).sum():,}"
+)
+
+print(
+    f"Negative Alpha          : "
+    f"{(backtest_df['Prediction_Alpha'] < 0).sum():,}"
+)
+
+print(
+    f"Zero Alpha              : "
+    f"{(backtest_df['Prediction_Alpha'] == 0).sum():,}"
+)
+
+print("=" * 72)
+
+
+# ============================================================
+# CANONICAL BACKTEST PROBABILITY CHECK
+# ============================================================
+
+print("\nCANONICAL BACKTEST PROBABILITY CHECK")
+
+diagnostic_columns = [
+    "Date",
+    "Company",
+    "Prediction_Prob",
+    "Prediction_Alpha",
+    "Confidence",
+]
+
+available_diagnostic_columns = [
+    col
+    for col in diagnostic_columns
+    if col in backtest_df.columns
+]
+
+print(
+    backtest_df[
+        available_diagnostic_columns
+    ].head(10)
+)
+
+
+# ============================================================
+# FINAL CANONICAL ALIGNMENT CHECK
+# ============================================================
+
+if len(backtest_df) != len(canonical_proba):
+    raise ValueError(
+        "CRITICAL: Final canonical backtest alignment failure: "
+        f"backtest_df={len(backtest_df)}, "
+        f"canonical_proba={len(canonical_proba)}"
+    )
+
+
+if len(backtest_df) != len(X_test):
+    raise ValueError(
+        "CRITICAL: Final test-panel alignment failure: "
+        f"backtest_df={len(backtest_df)}, "
+        f"X_test={len(X_test)}"
+    )
+
+
+print(
+    f"\n✓ Canonical probability alignment PASS | "
+    f"TestRows={len(backtest_df):,} | "
+    f"ProbabilityRows={len(canonical_proba):,}"
+)
+
+
+# ============================================================
+# BACKTEST
+# ============================================================
+#
+# IMPORTANT:
+#
+# Pass ONLY canonical Prediction_Prob to the backtest.
+#
+# The backtest must NOT reconstruct probability from any
+# other score or model output.
+# ============================================================
+
+ensemble_bt = run_backtest(
+    proba=backtest_df["Prediction_Prob"].to_numpy(
+        dtype=float
+    ),
+    X_test=X_test,
+    meta_test=backtest_meta,
+    final_df=backtest_df,
+)
+
+results["ENSEMBLE"] = ensemble_bt
+
+
+# ============================================================
+# BACKTEST DEBUG
+# ============================================================
 
 logger.info("=" * 80)
 logger.info("BACKTEST DEBUG After - Backtest")
-logger.info("Rows after merge: %d", len(final_df))
+
+logger.info(
+    "Full dataset rows: %d",
+    len(final_df)
+)
+
+logger.info(
+    "Backtest test-panel rows: %d",
+    len(backtest_df)
+)
+
+logger.info(
+    "Canonical probability rows: %d",
+    len(canonical_proba)
+)
 
 logger.info(
     "Unique Dates=%d | Companies=%d",
-    final_df["Date"].nunique(),
-    final_df["Company"].nunique()
+    backtest_df["Date"].nunique(),
+    backtest_df["Company"].nunique()
+)
+
+logger.info(
+    "Canonical Probability Mean=%.6f | Min=%.6f | Max=%.6f",
+    backtest_df["Prediction_Prob"].mean(),
+    backtest_df["Prediction_Prob"].min(),
+    backtest_df["Prediction_Prob"].max(),
 )
 
 
@@ -2465,6 +3292,89 @@ print(
     "\n✅ Institutional Alpha Signal Ready"
 )
 
+# ==========================================================
+# PART 5A
+# QUANTITATIVE VALIDATION & ROBUSTNESS
+# ==========================================================
+
+print("\n" + "=" * 60)
+print("PART 5A — QUANTITATIVE VALIDATION & ROBUSTNESS")
+print("=" * 60)
+
+print("\nRunning walk-forward validation...")
+
+walkforward_summary = run_walkforward_validation(
+    final_df=final_df,
+    feature_cols=FEATURES,
+    target_col=TARGET,
+)
+
+if walkforward_summary is None:
+    raise RuntimeError(
+        "Walk-forward validation produced no valid folds."
+    )
+
+print("\n✅ Walk-forward validation completed.")
+
+print(
+    f"Walk-forward folds: "
+    f"{len(walkforward_summary):,}"
+)
+
+print(
+    f"Median fold Sharpe: "
+    f"{walkforward_summary['Sharpe'].median():.3f}"
+)
+
+print(
+    f"Mean fold Sharpe: "
+    f"{walkforward_summary['Sharpe'].mean():.3f}"
+)
+
+print(
+    f"Positive Sharpe folds: "
+    f"{(walkforward_summary['Sharpe'] > 0).mean():.2%}"
+)
+
+print(
+    f"Median fold CAGR: "
+    f"{walkforward_summary['CAGR'].median():.3%}"
+)
+
+print(
+    f"Positive CAGR folds: "
+    f"{(walkforward_summary['CAGR'] > 0).mean():.2%}"
+)
+
+print(
+    f"Mean Rank IC: "
+    f"{walkforward_summary['Rank_IC'].mean():.4f}"
+)
+
+print(
+    f"Positive IC folds: "
+    f"{(walkforward_summary['Rank_IC'] > 0).mean():.2%}"
+)
+
+print(
+    f"Worst fold Sharpe: "
+    f"{walkforward_summary['Sharpe'].min():.3f}"
+)
+
+print(
+    f"Worst fold DD: "
+    f"{walkforward_summary['Max_Drawdown'].min():.3%}"
+)
+
+joblib.dump(
+    walkforward_summary,
+    "artifacts/walkforward_summary.pkl",
+)
+
+walkforward_summary.to_csv(
+    "data/walkforward_summary.csv",
+    index=False,
+)
 
 # ==========================================================
 # PART 6
@@ -2959,11 +3869,23 @@ print(
     "\nExecuting Institutional Pipeline"
 )
 
+
 institutional_result = (
     institutional_pipeline(
         inputs=pipeline_input,
         metadata=metadata,
     )
+)
+
+print(
+    "\nAnalytics Error:"
+)
+
+print(
+    institutional_result
+    .context
+    .shared_objects
+    .get("analytics_error")
 )
 
 
@@ -3129,8 +4051,11 @@ if attribution is not None:
 # STRESS TEST
 # ----------------------------------------------------------
 
-stress = institutional_result.diagnostics.get(
-    "stress_testing"
+stress = (
+    institutional_result
+    .report
+    .runtime_diagnostics
+    .get("stress_testing")
 )
 
 if stress is not None:
@@ -3139,6 +4064,22 @@ if stress is not None:
         "Stress Testing Available"
     )
 
+# ----------------------------------------------------------
+# Monitoring TEST
+# ----------------------------------------------------------
+
+monitoring_result = (
+    institutional_result
+    .report
+    .runtime_diagnostics
+    .get("monitoring")
+)
+
+if monitoring_result is not None:
+
+    print(
+        "Monitoring Testing Available"
+    )
 # ----------------------------------------------------------
 # SAVE RESULT
 # ----------------------------------------------------------
@@ -3201,15 +4142,14 @@ print("=" * 60)
 # ----------------------------------------------------------
 
 institutional_report = (
-    full_report(
-
-        inputs=
-        pipeline_input,
-
-        metadata=
-        metadata,
-    )
+    institutional_result.report
 )
+
+if institutional_report is None:
+    raise RuntimeError(
+        "Institutional pipeline did not produce a report."
+    )
+
 
 print(
     "\nInstitutional Report Created"
@@ -3283,6 +4223,16 @@ analytics_result = (
     .runtime_diagnostics
     .get("analytics")
 )
+
+analytics_error = (
+    institutional_result
+    .context
+    .shared_objects
+    .get("analytics_error")
+)
+
+print("\nAnalytics Error Detail")
+print(analytics_error)
 
 print(
     "\nAnalytics Result"
@@ -3909,23 +4859,6 @@ print(
 )
 
 # ----------------------------------------------------------
-# FINAL DEPLOYMENT CHECK
-# ----------------------------------------------------------
-
-deployment_ready = (
-
-    overall
-    and len(portfolio) > 0
-    and len(models) > 0
-    and len(FEATURES) > 0
-)
-
-print(
-    "\nDeployment Ready:",
-    deployment_ready
-)
-
-# ----------------------------------------------------------
 # OPTIONAL ASSERTIONS
 # ----------------------------------------------------------
 
@@ -3939,20 +4872,44 @@ assert (
     is not None
 )
 
-assert (
-    portfolio_result
-    is not None
+portfolio_available = (
+    portfolio_result is not None
 )
 
-assert (
-    rebalance_result
-    is not None
+print(
+    "Portfolio Available:",
+    portfolio_available,
+)
+
+rebalance_available = (
+    rebalance_result is not None
+)
+
+print(
+    "Rebalance Available:",
+    rebalance_available,
+)
+
+# ----------------------------------------------------------
+# FINAL DEPLOYMENT CHECK
+# ----------------------------------------------------------
+
+deployment_ready = (
+    overall
+    and portfolio_available
+    and rebalance_available
+    and len(models) > 0
+    and len(FEATURES) > 0
+)
+
+print(
+    "\nDeployment Ready:",
+    deployment_ready
 )
 
 # ----------------------------------------------------------
 # FINAL MESSAGE
 # ----------------------------------------------------------
-
 print("\n" + "=" * 60)
 
 print(

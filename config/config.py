@@ -202,9 +202,12 @@ CONFIG = {
         "MAX_PORTFOLIO_SIZE": 3,
         "MAX_POSITION_SIZE": 0.50,
         "MAX_GROSS_EXPOSURE": 1.00,
+        "VOLATILITY_EXPOSURE": 0.50,
 
         "VOL_WINDOW": 20,
         "TARGET_VOL": 0.02,
+        "VOL_FILTER_WINDOW": 60,
+        "VOL_FILTER_QUANTILE": 0.80,
 
         "TRANSACTION_COST": 0.0005,
         "SLIPPAGE": 0.0005,
@@ -223,6 +226,7 @@ CONFIG = {
         "USE_VOL_TARGET": True,
         "USE_REGIME_EXPOSURE": True,
         "USE_DEADBAND": False,
+        "ALLOW_SELECTION_FALLBACK": False,
     },
 
     # =========================
@@ -248,6 +252,7 @@ CONFIG = {
         "MIN_CONFIDENCE": 0.30,
         "MIN_PORTFOLIO_SIZE":5,
         "USE_DYNAMIC_CONFIDENCE": True,
+        "AUM":10_000_000,
     },
 
     # =========================
@@ -361,6 +366,17 @@ CONFIG = {
             "kendall",
         }
 
+    },
+
+    # =========================
+    # 12. Walkforward CONFIG
+    # =========================
+    "WALKFORWARD": {
+        "TRAIN_WINDOW": 504,
+        "TEST_WINDOW": 63,
+        "STEP_SIZE": 63,
+        "EXPANDING_WINDOW": True,
+        "ROLLING_TRAIN_YEARS": 2,
     }
 
 }

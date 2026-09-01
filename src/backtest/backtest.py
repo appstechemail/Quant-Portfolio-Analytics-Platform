@@ -164,20 +164,6 @@ EXECUTION_LAG = int(
 
 
 # ============================================================
-# REGIME EXPOSURE
-# ============================================================
-
-REGIME_EXPOSURE = {
-    "BULL": 1.00,
-    "BULL_VOLATILE": 1.20,
-    "SIDEWAYS": 0.60,
-    "SIDEWAYS_VOLATILE": 0.30,
-    "BEAR": 0.15,
-    "BEAR_VOLATILE": 0.00,
-}
-
-
-# ============================================================
 # HELPERS
 # ============================================================
 
@@ -328,6 +314,60 @@ def _prepare_prediction_frame(
         )
 
     df["Proba"] = proba_arr
+
+    # ========================================================
+    # CANONICAL PROBABILITY CONTRACT
+    # ========================================================
+    #
+    # `Proba` is the ONLY probability consumed by the
+    # backtest engine.
+    #
+    # The caller is responsible for providing the final
+    # Alpha Engine probability.
+    #
+    # The backtest must NOT reconstruct probability from:
+    #   - Prediction_Alpha
+    #   - Alpha_Score
+    #   - Final_Score
+    #   - Signal
+    #   - ensemble probability
+    #
+    # ========================================================
+
+    df["Proba"] = (
+        pd.to_numeric(
+            df["Proba"],
+            errors="coerce",
+        )
+        .replace(
+            [
+                np.inf,
+                -np.inf,
+            ],
+            np.nan,
+        )
+    )
+
+    if df["Proba"].isna().any():
+        raise ValueError(
+            "CRITICAL: Canonical backtest probability "
+            "contains NaN/inf values."
+        )
+
+    if (
+        (df["Proba"] < 0.0)
+        | (df["Proba"] > 1.0)
+    ).any():
+
+        raise ValueError(
+            "CRITICAL: Canonical backtest probability "
+            "contains values outside [0, 1]."
+        )
+
+    df["Proba"] = df["Proba"].clip(
+        0.0,
+        1.0,
+    )
 
     # --------------------------------------------------------
     # Recover keys from X_test if necessary.
@@ -659,13 +699,11 @@ def _create_alpha(
             "contain canonical 'Proba'."
         )
 
-    probability = pd.to_numeric(
-        out["Proba"],
-        errors="coerce",
-    )
-
     probability = (
-        probability
+        pd.to_numeric(
+            out["Proba"],
+            errors="coerce",
+        )
         .replace(
             [
                 np.inf,
@@ -673,11 +711,23 @@ def _create_alpha(
             ],
             np.nan,
         )
-        .clip(
-            lower=0.0,
-            upper=1.0,
-        )
     )
+
+    if probability.isna().any():
+        raise ValueError(
+            "CRITICAL: Canonical Proba contains "
+            "NaN/invalid values."
+        )
+
+    if (
+        (probability < 0.0)
+        |
+        (probability > 1.0)
+    ).any():
+        raise ValueError(
+            "CRITICAL: Canonical Proba contains "
+            "values outside [0, 1]."
+        )
 
     # ========================================================
     # BACKTEST PROBABILITY DISTRIBUTION DIAGNOSTIC
@@ -753,6 +803,28 @@ def _create_alpha(
         "=" * 64
     )
 
+    print(
+        "\nCANONICAL SIGNAL INTEGRITY"
+    )
+
+    print(
+        f"Probability source : Proba"
+    )
+
+    print(
+        f"Neutrality         : {neutrality:.6f}"
+    )
+
+    print(
+        f"Alpha mean         : "
+        f"{(probability - neutrality).mean():.6f}"
+    )
+
+    print(
+        f"Confidence mean    : "
+        f"{((probability - neutrality).abs() * 2).mean():.6f}"
+    )
+
     # ========================================================
     # 2. VALIDATION
     # ========================================================
@@ -775,6 +847,18 @@ def _create_alpha(
     out["Prediction_Prob"] = probability
 
     out["Probability"] = probability
+
+    # ========================================================
+    # 3A CANONICAL PROBABILITY IMMUTABILITY
+    # ========================================================
+
+    canonical_probability = (
+        probability
+        .to_numpy(
+            dtype=float,
+            copy=True,
+        )
+    )
 
     # ========================================================
     # 4. EXPLICIT ALPHA CONTRACT
@@ -1025,6 +1109,27 @@ def _create_alpha(
 
     print("=" * 64)
 
+    # ========================================================
+    # CANONICAL PROBABILITY INTEGRITY CHECK
+    # ========================================================
+
+    final_probability = (
+        out["Prediction_Prob"]
+        .to_numpy(
+            dtype=float,
+            copy=False,
+        )
+    )
+
+    if not np.array_equal(
+        canonical_probability,
+        final_probability,
+    ):
+        raise ValueError(
+            "CRITICAL: Canonical Prediction_Prob "
+            "was modified during alpha construction."
+        )
+
     return out
 
 
@@ -1218,16 +1323,16 @@ def _cross_sectional_signal(
     # Canonical probability / confidence
     # --------------------------------------------------------
 
-    if "Probability" not in out.columns:
+    if "Prediction_Prob" not in out.columns:
 
         raise ValueError(
-            "CRITICAL: Probability column missing "
-            "before cross-sectional signal generation."
+            "CRITICAL: Canonical Prediction_Prob column "
+            "missing before cross-sectional signal generation."
         )
 
-    out["Probability"] = (
+    out["Prediction_Prob"] = (
         pd.to_numeric(
-            out["Probability"],
+            out["Prediction_Prob"],
             errors="coerce",
         )
         .replace(
@@ -1237,20 +1342,46 @@ def _cross_sectional_signal(
             ],
             np.nan,
         )
-        .clip(
-            lower=0.0,
-            upper=1.0,
-        )
     )
 
+    if out["Prediction_Prob"].isna().any():
+
+        raise ValueError(
+            "CRITICAL: Prediction_Prob contains NaN/inf "
+            "before cross-sectional signal generation."
+        )
+
+    if (
+        (out["Prediction_Prob"] < 0.0)
+        |
+        (out["Prediction_Prob"] > 1.0)
+    ).any():
+
+        raise ValueError(
+            "CRITICAL: Prediction_Prob contains values "
+            "outside [0, 1]."
+        )
+
+    # --------------------------------------------------------
+    # Canonical probability alias.
+    # --------------------------------------------------------
+
+    out["Probability"] = (
+        out["Prediction_Prob"]
+    )
+
+    # --------------------------------------------------------
+    # Alpha is derived ONLY from canonical probability.
+    # --------------------------------------------------------
+
     out["Alpha"] = (
-        out["Probability"]
+        out["Prediction_Prob"]
         - NEUTRALITY
     )
 
     out["Confidence"] = (
         np.abs(
-            out["Probability"]
+            out["Prediction_Prob"]
             - NEUTRALITY
         )
         * 2.0
@@ -1313,6 +1444,29 @@ def _cross_sectional_signal(
         out["Probability"]
         > NEUTRALITY
     )
+
+    if "Meta_Pass" in out.columns:
+        out["Eligible"] &= (
+            out["Meta_Pass"]
+            .fillna(False)
+            .astype(bool)
+        )
+
+    if "Volatility_Pass" in out.columns:
+        out["Volatility_Exposure"] = np.where(
+            out["Volatility_Pass"]
+            .fillna(True)
+            .astype(bool),
+            1.0,
+            float(
+                BACKTEST_CONFIG.get(
+                    "VOLATILITY_EXPOSURE",
+                    0.50,
+                )
+            ),
+        )
+    else:
+        out["Volatility_Exposure"] = 1.0
 
     out.loc[
         out["Confidence"] < MIN_CONFIDENCE,
@@ -1891,32 +2045,98 @@ def _risk_adjust_position(
             .fillna(1.0)
         )
 
-    # --------------------------------------------------------
-    # Regime exposure
-    # --------------------------------------------------------
+        # --------------------------------------------------------
+        # RE-APPLY HARD POSITION CAP AFTER VOLATILITY TARGETING
+        # --------------------------------------------------------
 
-    if (
-        USE_REGIME_EXPOSURE
-        and
-        "Market_Regime" in out.columns
-    ):
-
-        out["Portfolio_Exposure"] = (
-            out["Market_Regime"]
-            .map(
-                REGIME_EXPOSURE
+        out["Position"] = (
+            out["Position"]
+            .clip(
+                lower=0.0,
+                upper=MAX_POSITION_SIZE,
             )
-            .fillna(1.0)
         )
+
+    # --------------------------------------------------------
+    # REGIME EXPOSURE
+    # --------------------------------------------------------
+    #
+    # Regime is an exposure/risk modifier.
+    #
+    # IMPORTANT:
+    # Do NOT reconstruct regime exposure from Market_Regime.
+    #
+    # main.py is the canonical owner of the regime multiplier.
+    # It provides:
+    #
+    #     backtest_meta["Regime_Multiplier"]
+    #
+    # The backtest consumes that value only for position sizing.
+    #
+    # It MUST NOT modify:
+    #
+    #     Proba
+    #     Prediction_Prob
+    #     Prediction_Alpha
+    #     Alpha
+    #
+    # --------------------------------------------------------
+
+    if USE_REGIME_EXPOSURE:
+
+        if "Regime_Multiplier" in out.columns:
+
+            regime_exposure = (
+                pd.to_numeric(
+                    out["Regime_Multiplier"],
+                    errors="coerce",
+                )
+                .replace(
+                    [
+                        np.inf,
+                        -np.inf,
+                    ],
+                    np.nan,
+                )
+                .fillna(1.0)
+                .clip(
+                    lower=0.0,
+                    upper=1.0,
+                )
+            )
+
+        else:
+
+            # Backward-compatible fallback.
+            #
+            # This should normally NOT execute because main.py
+            # now supplies Regime_Multiplier explicitly.
+            regime_exposure = pd.Series(
+                1.0,
+                index=out.index,
+                dtype=float,
+            )
 
     else:
 
-        out["Portfolio_Exposure"] = 1.0
+        regime_exposure = pd.Series(
+            1.0,
+            index=out.index,
+            dtype=float,
+        )
+
+    out["Portfolio_Exposure"] = (
+        regime_exposure
+    )
 
     out["Position"] *= (
         out["Portfolio_Exposure"]
     )
 
+    if "Volatility_Exposure" in out.columns:
+        out["Position"] *= (
+            out["Volatility_Exposure"]
+        )
     # --------------------------------------------------------
     # Gross exposure cap
     # --------------------------------------------------------
@@ -2536,7 +2756,9 @@ def run_backtest(
     Parameters
     ----------
     proba :
-        Model probability array or continuous alpha.
+    Canonical Alpha Engine BUY probability array.
+    This must be the final probability after the
+    Alpha Engine's Meta / Regime / Volatility processing.
 
     X_test :
         Test feature matrix.
@@ -2557,6 +2779,73 @@ def run_backtest(
     print("=" * 72)
     print("📊 BACKTEST STARTED")
     print("=" * 72)
+
+    # ==========================================================
+    # CANONICAL BACKTEST PROBABILITY CONTRACT
+    # ==========================================================
+    #
+    # `proba` is the FINAL probability produced by the Alpha
+    # Engine after:
+    #
+    #   Meta Model
+    #   Regime Filter
+    #   Volatility Filter
+    #
+    # The backtest must NOT reconstruct or replace probability
+    # using:
+    #
+    #   ensemble_proba
+    #   Prediction_Alpha
+    #   Alpha_Score
+    #   Final_Score
+    #   Signal
+    #
+    # Cross-sectional ranking is allowed later, but it must rank
+    # this canonical probability rather than create a new one.
+    # ==========================================================
+
+    if proba is None:
+        raise ValueError(
+            "CRITICAL: Backtest received None as canonical probability."
+        )
+
+    proba = np.asarray(proba, dtype=float).reshape(-1)
+
+    if len(proba) != len(meta_test):
+        raise ValueError(
+            "CRITICAL: Backtest probability alignment failure: "
+            f"proba={len(proba)}, "
+            f"meta_test={len(meta_test)}"
+        )
+
+    if len(proba) != len(X_test):
+        raise ValueError(
+            "CRITICAL: Backtest probability/X_test alignment failure: "
+            f"proba={len(proba)}, "
+            f"X_test={len(X_test)}"
+        )
+
+    if np.isnan(proba).any():
+        raise ValueError(
+            "CRITICAL: Backtest canonical probability contains NaN."
+        )
+
+    if np.isinf(proba).any():
+        raise ValueError(
+            "CRITICAL: Backtest canonical probability contains "
+            "infinite values."
+        )
+
+    if (
+        (proba < 0.0).any()
+        or (proba > 1.0).any()
+    ):
+        raise ValueError(
+            "CRITICAL: Backtest canonical probability contains "
+            "values outside [0, 1]."
+        )
+
+    canonical_proba = proba.copy()
 
     # ========================================================
     # 1. INPUT VALIDATION
@@ -2834,7 +3123,55 @@ def run_backtest(
     # 6. UNIQUE PANEL
     # ========================================================
 
-    before = len(df)
+    duplicate_mask = df.duplicated(
+        [
+            "Date",
+            "Company",
+        ],
+        keep=False,
+    )
+
+    duplicate_rows = int(
+        duplicate_mask.sum()
+    )
+
+    if duplicate_rows > 0:
+
+        duplicate_keys = (
+            df.loc[
+                duplicate_mask,
+                [
+                    "Date",
+                    "Company",
+                ],
+            ]
+            .drop_duplicates()
+            .sort_values(
+                [
+                    "Date",
+                    "Company",
+                ]
+            )
+        )
+
+        logger.error(
+            "CRITICAL: Duplicate prediction keys detected "
+            "after market-data merge: %d rows",
+            duplicate_rows,
+        )
+
+        logger.error(
+            "Duplicate keys:\n%s",
+            duplicate_keys.head(20).to_string(
+                index=False
+            ),
+        )
+
+        raise ValueError(
+            "CRITICAL: Backtest prediction panel contains "
+            "duplicate (Date, Company) keys after merge. "
+            "No prediction rows will be silently removed."
+        )
 
     df = (
         df
@@ -2844,28 +3181,8 @@ def run_backtest(
                 "Company",
             ]
         )
-        .drop_duplicates(
-            [
-                "Date",
-                "Company",
-            ],
-            keep="first",
-        )
         .reset_index(drop=True)
     )
-
-    duplicate_rows_removed = (
-        before
-        -
-        len(df)
-    )
-
-    if duplicate_rows_removed > 0:
-
-        print(
-            "⚠ Duplicate prediction keys removed: "
-            f"{duplicate_rows_removed:,}"
-        )
 
     # ========================================================
     # 7. ALPHA

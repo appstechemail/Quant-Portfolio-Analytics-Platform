@@ -124,6 +124,13 @@ from src.evaluation.walkforward import (
     run_walkforward_validation,
 )
 
+from src.evaluation.robustness import (
+    evaluate_fold_consistency,
+    evaluate_worst_quartile,
+    evaluate_regime_robustness,
+    evaluate_activity_quality,
+)
+
 # ==========================================================
 # PREDICTION
 # ==========================================================
@@ -3297,6 +3304,21 @@ print(
 # QUANTITATIVE VALIDATION & ROBUSTNESS
 # ==========================================================
 
+# PART 5A
+#    │
+#    ├── WALKFORWARD.ENABLED = True
+#    │       │
+#    │       └── Run expensive 36+ fold validation
+#    │
+#    └── WALKFORWARD.ENABLED = False
+#            │
+#            └── Load existing walkforward_summary.csv
+#                     │
+#                     ├── Fold consistency
+#                     ├── Worst quartile
+#                     ├── Regime robustness
+#                     └── Activity quality
+
 print("\n" + "=" * 60)
 print("PART 5A — QUANTITATIVE VALIDATION & ROBUSTNESS")
 print("=" * 60)
@@ -3393,6 +3415,174 @@ else:
         "\n⏭ Walk-forward validation skipped "
         "(CONFIG['WALKFORWARD']['ENABLED'] = False)"
     )
+
+    # ======================================================
+    # ANALYSE SAVED WALK-FORWARD RESULTS
+    # ======================================================
+
+    saved_walkforward_path = (
+        "data/walkforward_summary.csv"
+    )
+
+    if Path(
+        saved_walkforward_path
+    ).exists():
+
+        print(
+            "\n📊 Analysing saved walk-forward results..."
+        )
+
+        saved_walkforward = pd.read_csv(
+            saved_walkforward_path
+        )
+
+        walkforward_summary = (
+            saved_walkforward.copy()
+        )
+
+        # --------------------------------------------------
+        # FOLD CONSISTENCY
+        # --------------------------------------------------
+
+        fold_consistency = (
+            evaluate_fold_consistency(
+                walkforward_summary
+            )
+        )
+
+        print(
+            "\n===== FOLD CONSISTENCY ====="
+        )
+
+        for key, value in (
+            fold_consistency.items()
+        ):
+
+            print(
+                f"{key}: {value}"
+            )
+
+        # --------------------------------------------------
+        # WORST QUARTILE
+        # --------------------------------------------------
+
+        worst_quartile = (
+            evaluate_worst_quartile(
+                walkforward_summary
+            )
+        )
+
+        print(
+            "\n===== WORST QUARTILE ====="
+        )
+
+        for key, value in (
+            worst_quartile.items()
+        ):
+
+            print(
+                f"{key}: {value}"
+            )
+
+        # --------------------------------------------------
+        # REGIME ROBUSTNESS
+        # --------------------------------------------------
+
+        regime_robustness = (
+            evaluate_regime_robustness(
+                walkforward_summary
+            )
+        )
+
+        print(
+            "\n===== REGIME ROBUSTNESS ====="
+        )
+
+        for regime, metrics in (
+            regime_robustness.items()
+        ):
+
+            print(
+                f"{regime}: {metrics}"
+            )
+
+        # --------------------------------------------------
+        # ACTIVITY QUALITY
+        # --------------------------------------------------
+
+        activity_cfg = (
+            CONFIG["WALKFORWARD"]
+            .get(
+                "ACTIVITY_QUALIFICATION",
+                {}
+            )
+        )
+
+        activity_result, activity_df = (
+            evaluate_activity_quality(
+                walkforward_summary,
+                minimum_active_days_pct=(
+                    activity_cfg.get(
+                        "MIN_ACTIVE_DAYS_PCT",
+                        0.50,
+                    )
+                ),
+                minimum_holdings=(
+                    activity_cfg.get(
+                        "MIN_AVG_HOLDINGS",
+                        0.25,
+                    )
+                ),
+            )
+        )
+
+        print(
+            "\n===== ACTIVITY QUALITY ====="
+        )
+
+        for key, value in (
+            activity_result.items()
+        ):
+
+            print(
+                f"{key}: {value}"
+            )
+
+        # --------------------------------------------------
+        # SAVE ACTIVITY DIAGNOSTICS
+        # --------------------------------------------------
+
+        activity_df.to_csv(
+            "data/walkforward_activity_diagnostics.csv",
+            index=False,
+        )
+
+        joblib.dump(
+            activity_result,
+            "artifacts/walkforward_activity_quality.pkl",
+        )
+
+        print(
+            "\n✅ Saved:"
+        )
+
+        print(
+            "data/walkforward_activity_diagnostics.csv"
+        )
+
+        print(
+            "artifacts/walkforward_activity_quality.pkl"
+        )
+
+    else:
+
+        print(
+            "\n⚠️ Saved walk-forward file not found:"
+        )
+
+        print(
+            saved_walkforward_path
+        )
 
 # ==========================================================
 # PART 6

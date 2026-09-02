@@ -533,3 +533,145 @@ def build_quantitative_validation_scorecard(
             )
         ),
     }
+
+
+def evaluate_activity_quality(
+    walkforward_summary,
+    minimum_active_days_pct=0.50,
+    minimum_holdings=0.25,
+):
+    """
+    Evaluate whether walk-forward folds have
+    sufficient trading activity to make performance
+    statistics economically meaningful.
+
+    This does NOT remove sparse folds.
+
+    It classifies them separately so that:
+        1. all folds remain visible
+        2. activity-qualified folds can be analysed
+        3. sparse-fold statistics are not mistaken
+           for robust strategy behaviour
+    """
+
+    if (
+        walkforward_summary is None
+        or walkforward_summary.empty
+    ):
+        raise ValueError(
+            "No walk-forward summary available."
+        )
+
+    required = [
+        "Fold",
+        "Test_Days",
+        "Active_Days",
+        "Avg_Holdings",
+        "Sharpe",
+        "CAGR",
+        "Max_Drawdown",
+    ]
+
+    missing = [
+        col
+        for col in required
+        if col not in walkforward_summary.columns
+    ]
+
+    if missing:
+        raise ValueError(
+            "Activity quality missing columns: "
+            f"{missing}"
+        )
+
+    df = walkforward_summary.copy()
+
+    df["Activity_Pct"] = (
+        pd.to_numeric(
+            df["Active_Days"],
+            errors="coerce",
+        )
+        /
+        pd.to_numeric(
+            df["Test_Days"],
+            errors="coerce",
+        )
+    )
+
+    df["Activity_Qualified"] = (
+        df["Activity_Pct"]
+        >= float(minimum_active_days_pct)
+    ) & (
+        pd.to_numeric(
+            df["Avg_Holdings"],
+            errors="coerce",
+        )
+        >= float(minimum_holdings)
+    )
+
+    qualified = df.loc[
+        df["Activity_Qualified"]
+    ].copy()
+
+    sparse = df.loc[
+        ~df["Activity_Qualified"]
+    ].copy()
+
+    result = {
+        "total_folds": int(len(df)),
+        "qualified_folds": int(len(qualified)),
+        "sparse_folds": int(len(sparse)),
+        "qualified_pct": float(
+            len(qualified) / len(df)
+        ),
+        "sparse_pct": float(
+            len(sparse) / len(df)
+        ),
+        "qualified_mean_sharpe": (
+            float(qualified["Sharpe"].mean())
+            if not qualified.empty
+            else np.nan
+        ),
+        "qualified_median_sharpe": (
+            float(qualified["Sharpe"].median())
+            if not qualified.empty
+            else np.nan
+        ),
+        "qualified_positive_sharpe_pct": (
+            float(
+                (qualified["Sharpe"] > 0).mean()
+            )
+            if not qualified.empty
+            else np.nan
+        ),
+        "qualified_mean_cagr": (
+            float(qualified["CAGR"].mean())
+            if not qualified.empty
+            else np.nan
+        ),
+        "qualified_mean_drawdown": (
+            float(
+                qualified["Max_Drawdown"].mean()
+            )
+            if not qualified.empty
+            else np.nan
+        ),
+        "sparse_mean_sharpe": (
+            float(sparse["Sharpe"].mean())
+            if not sparse.empty
+            else np.nan
+        ),
+        "sparse_median_sharpe": (
+            float(sparse["Sharpe"].median())
+            if not sparse.empty
+            else np.nan
+        ),
+        "activity_threshold_pct": float(
+            minimum_active_days_pct
+        ),
+        "holdings_threshold": float(
+            minimum_holdings
+        ),
+    }
+
+    return result, df

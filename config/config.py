@@ -371,9 +371,6 @@ CONFIG = {
     # =========================
     # 12. Walkforward CONFIG
     # =========================
-    # =========================
-    # 12. Walkforward CONFIG
-    # =========================
     "WALKFORWARD": {
         "ENABLED": False,
 
@@ -382,6 +379,11 @@ CONFIG = {
         "STEP_SIZE": 63,
         "EXPANDING_WINDOW": True,
         "ROLLING_TRAIN_YEARS": 2,
+
+        "ACTIVITY_QUALIFICATION": {
+            "MIN_ACTIVE_DAYS_PCT": 0.50,
+            "MIN_AVG_HOLDINGS": 0.25,
+        },
     }
 
 }

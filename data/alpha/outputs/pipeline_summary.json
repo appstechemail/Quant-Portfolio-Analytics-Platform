@@ -1,0 +1,8 @@
+{
+    "best_stage": "RAW",
+    "worst_stage": "RAW",
+    "max_pipeline_sharpe": 0.0,
+    "final_sharpe": 0.0,
+    "alpha_decay": 0.0,
+    "pipeline_efficiency": 0
+}

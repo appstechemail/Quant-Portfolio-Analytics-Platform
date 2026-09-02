@@ -1,0 +1,7 @@
+stage,rows,signals,unique_dates,companies,avg_position,sharpe,cagr,max_dd,volatility,win_rate,turnover,mean_return,median_return,signal_retention,sharpe_contribution
+RAW,78562,0,3021,39,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0
+META,20551,0,605,39,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0
+REGIME,20551,0,605,39,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0
+VOLATILITY,20551,0,605,39,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0
+CROSS_SECTION,20551,0,605,39,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0
+PORTFOLIO,1,1,1,1,1.0,0.0,0.0,0.0,,0.0,0.0,0.0,0.0,1.0,0

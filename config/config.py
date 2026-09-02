@@ -371,7 +371,12 @@ CONFIG = {
     # =========================
     # 12. Walkforward CONFIG
     # =========================
+    # =========================
+    # 12. Walkforward CONFIG
+    # =========================
     "WALKFORWARD": {
+        "ENABLED": False,
+
         "TRAIN_WINDOW": 504,
         "TEST_WINDOW": 63,
         "STEP_SIZE": 63,

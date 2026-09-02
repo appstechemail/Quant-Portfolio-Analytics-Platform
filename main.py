@@ -3301,80 +3301,98 @@ print("\n" + "=" * 60)
 print("PART 5A — QUANTITATIVE VALIDATION & ROBUSTNESS")
 print("=" * 60)
 
-print("\nRunning walk-forward validation...")
-
-walkforward_summary = run_walkforward_validation(
-    final_df=final_df,
-    feature_cols=FEATURES,
-    target_col=TARGET,
+WALKFORWARD_ENABLED = (
+    CONFIG["WALKFORWARD"]
+    .get("ENABLED", False)
 )
 
-if walkforward_summary is None:
-    raise RuntimeError(
-        "Walk-forward validation produced no valid folds."
+walkforward_summary = None
+
+if WALKFORWARD_ENABLED:
+
+    print("\nRunning walk-forward validation...")
+
+    walkforward_summary = run_walkforward_validation(
+        final_df=final_df,
+        feature_cols=FEATURES,
+        target_col=TARGET,
     )
 
-print("\n✅ Walk-forward validation completed.")
+    if walkforward_summary is None:
+        raise RuntimeError(
+            "Walk-forward validation produced no valid folds."
+        )
 
-print(
-    f"Walk-forward folds: "
-    f"{len(walkforward_summary):,}"
-)
+    print(
+        "\n✅ Walk-forward validation completed."
+    )
 
-print(
-    f"Median fold Sharpe: "
-    f"{walkforward_summary['Sharpe'].median():.3f}"
-)
+    print(
+        f"Walk-forward folds: "
+        f"{len(walkforward_summary):,}"
+    )
 
-print(
-    f"Mean fold Sharpe: "
-    f"{walkforward_summary['Sharpe'].mean():.3f}"
-)
+    print(
+        f"Median fold Sharpe: "
+        f"{walkforward_summary['Sharpe'].median():.3f}"
+    )
 
-print(
-    f"Positive Sharpe folds: "
-    f"{(walkforward_summary['Sharpe'] > 0).mean():.2%}"
-)
+    print(
+        f"Mean fold Sharpe: "
+        f"{walkforward_summary['Sharpe'].mean():.3f}"
+    )
 
-print(
-    f"Median fold CAGR: "
-    f"{walkforward_summary['CAGR'].median():.3%}"
-)
+    print(
+        f"Positive Sharpe folds: "
+        f"{(walkforward_summary['Sharpe'] > 0).mean():.2%}"
+    )
 
-print(
-    f"Positive CAGR folds: "
-    f"{(walkforward_summary['CAGR'] > 0).mean():.2%}"
-)
+    print(
+        f"Median fold CAGR: "
+        f"{walkforward_summary['CAGR'].median():.3%}"
+    )
 
-print(
-    f"Mean Rank IC: "
-    f"{walkforward_summary['Rank_IC'].mean():.4f}"
-)
+    print(
+        f"Positive CAGR folds: "
+        f"{(walkforward_summary['CAGR'] > 0).mean():.2%}"
+    )
 
-print(
-    f"Positive IC folds: "
-    f"{(walkforward_summary['Rank_IC'] > 0).mean():.2%}"
-)
+    print(
+        f"Mean Rank IC: "
+        f"{walkforward_summary['Rank_IC'].mean():.4f}"
+    )
 
-print(
-    f"Worst fold Sharpe: "
-    f"{walkforward_summary['Sharpe'].min():.3f}"
-)
+    print(
+        f"Positive IC folds: "
+        f"{(walkforward_summary['Rank_IC'] > 0).mean():.2%}"
+    )
 
-print(
-    f"Worst fold DD: "
-    f"{walkforward_summary['Max_Drawdown'].min():.3%}"
-)
+    print(
+        f"Worst fold Sharpe: "
+        f"{walkforward_summary['Sharpe'].min():.3f}"
+    )
 
-joblib.dump(
-    walkforward_summary,
-    "artifacts/walkforward_summary.pkl",
-)
+    print(
+        f"Worst fold DD: "
+        f"{walkforward_summary['Max_Drawdown'].min():.3%}"
+    )
 
-walkforward_summary.to_csv(
-    "data/walkforward_summary.csv",
-    index=False,
-)
+    joblib.dump(
+        walkforward_summary,
+        "artifacts/walkforward_summary.pkl",
+    )
+
+    walkforward_summary.to_csv(
+        "data/walkforward_summary.csv",
+        index=False,
+    )
+
+else:
+
+    print(
+        "\n⏭ Walk-forward validation skipped "
+        "(CONFIG['WALKFORWARD']['ENABLED'] = False)"
+    )
 
 # ==========================================================
 # PART 6
@@ -3822,18 +3840,10 @@ print(
 metadata = (
     PipelineFrameworkFactory
     .create_metadata(
-
-        strategy_name=
-        "StockPredictionV1",
-
-        universe_name=
-        "NSE500",
-
-        benchmark_name=
-        "NIFTY50",
-
-        owner=
-        "QuantResearch",
+        strategy_name="StockPredictionV1",
+        universe_name="NSE500",
+        benchmark_name="NIFTY50",
+        owner="QuantResearch",
     )
 )
 

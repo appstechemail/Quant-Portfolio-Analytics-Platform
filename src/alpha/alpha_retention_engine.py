@@ -206,20 +206,69 @@ class AlphaRetentionEngine:
             "Position_Change"
         )
 
-        if "Signal" in df.columns:
+        # ========================================================
+        # CANONICAL STAGE SIGNAL COUNT
+        # ========================================================
+        #
+        # Prefer probability/alpha evidence.
+        # Do not require the human-readable Signal column.
+        # ========================================================
+
+        if "Prediction_Prob" in df.columns:
+
+            probability = pd.to_numeric(
+                df["Prediction_Prob"],
+                errors="coerce",
+            )
 
             signals = int(
                 (
-                    df["Signal"]
-                    .astype(str)
-                    .str.upper()
-                    .isin(
-                        [
-                            "BUY",
-                            "STRONG BUY"
-                        ]
-                    )
+                    probability
+                    > 0.50
                 ).sum()
+            )
+
+        elif "Probability" in df.columns:
+
+            probability = pd.to_numeric(
+                df["Probability"],
+                errors="coerce",
+            )
+
+            signals = int(
+                (
+                    probability
+                    > 0.50
+                ).sum()
+            )
+
+        elif "Prediction_Alpha" in df.columns:
+
+            alpha = pd.to_numeric(
+                df["Prediction_Alpha"],
+                errors="coerce",
+            )
+
+            signals = int(
+                (
+                    alpha
+                    > 0.0
+                ).sum()
+            )
+
+        elif "Signal" in df.columns:
+
+            signals = int(
+                df["Signal"]
+                .astype(str)
+                .str.upper()
+                .isin(
+                    [
+                        "BUY",
+                        "STRONG BUY",
+                    ]
+                )
+                .sum()
             )
 
         else:

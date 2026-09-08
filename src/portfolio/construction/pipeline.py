@@ -8644,6 +8644,62 @@ class InstitutionalPortfolioPipeline:
             "monitoring_result"
         ] = monitoring_result
 
+
+        # ============================================================
+        # DEPLOYMENT HEALTH GATE
+        # ============================================================
+
+        monitoring_health_failed = False
+        monitoring_health_reason = None
+
+        try:
+
+            monitoring_report = (
+                monitoring_result
+                .report
+            )
+
+            monitoring_status = (
+                monitoring_report
+                .summary
+                .overall_status
+            )
+
+            monitoring_health_failed = (
+                str(
+                    monitoring_status
+                ).upper()
+                in {
+                    "FAILED",
+                    "CRITICAL",
+                    "MONITORINGSTATUS.FAILED",
+                }
+            )
+
+            if monitoring_health_failed:
+
+                monitoring_health_reason = (
+                    "Monitoring overall status is FAILED."
+                )
+
+        except Exception as exc:
+
+            monitoring_health_failed = True
+
+            monitoring_health_reason = (
+                "Unable to validate monitoring result: "
+                f"{exc}"
+            )
+
+
+        context.shared_objects[
+            "monitoring_health_failed"
+        ] = monitoring_health_failed
+
+        context.shared_objects[
+            "monitoring_health_reason"
+        ] = monitoring_health_reason
+
         # ----------------------------------------------------
         # DIAGNOSTICS
         # ----------------------------------------------------

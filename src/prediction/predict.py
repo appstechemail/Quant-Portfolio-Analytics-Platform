@@ -63,6 +63,13 @@ MIN_TARGET_RETURN = float(
     )
 )
 
+MIN_PORTFOLIO_SIZE = int(
+        PORTFOLIO_CONFIG.get(
+            "MIN_PORTFOLIO_SIZE",
+            5,
+        )
+    )
+
 
 # =============================================================================
 # HELPERS
@@ -1309,70 +1316,181 @@ def predict_today(
         )
 
     # =========================================================================
-    # 27. SAFETY CHECK AFTER PORTFOLIO BUILDER
+    # 27. FINAL PORTFOLIO SAFETY FILTERS
     # =========================================================================
     #
-    # The portfolio builder currently has fallback behaviour.
-    # We therefore enforce the long-only probability invariant AGAIN.
+    # Institutional rule:
     #
-    # This prevents fallback logic from re-introducing SELL stocks.
-    # =========================================================================
+    #   Portfolio Builder
+    #       ↓
+    #   Probability Safety Filter
+    #       ↓
+    #   Selected Filter
+    #       ↓
+    #   Minimum Portfolio Size Gate
+    #       ↓
+    #   Weight Normalization
+    #       ↓
+    #   Final Validation
+    #
+    # IMPORTANT:
+    # The minimum portfolio-size gate MUST be evaluated AFTER all
+    # final eligibility/safety filters. Otherwise a portfolio can
+    # appear sufficiently large before invalid rows are removed.
+    # ============================================================================
+
+    if portfolio is None:
+        portfolio = pd.DataFrame()
+
+    portfolio = portfolio.copy()
+
+
+    # ---------------------------------------------------------------------------
+    # 27A. Probability safety invariant
+    # ---------------------------------------------------------------------------
+    #
+    # Long-only portfolio invariant:
+    #
+    #     Probability >= BUY_THRESHOLD
+    #
+    # No stock below the BUY threshold may survive into the final
+    # live portfolio, regardless of any downstream fallback behaviour.
+    # ---------------------------------------------------------------------------
 
     if not portfolio.empty:
 
-        if "Probability" in portfolio.columns:
+        if "Probability" not in portfolio.columns:
 
-            before_safety = len(
-                portfolio
+            logger.error(
+                "CRITICAL: Final portfolio missing 'Probability' column."
             )
 
-            portfolio = portfolio[
-                portfolio["Probability"]
-                >=
-                BUY_THRESHOLD
-            ].copy()
+            portfolio = portfolio.iloc[0:0].copy()
 
-            removed_by_safety = (
-                before_safety
-                -
-                len(portfolio)
+        else:
+
+            probability = pd.to_numeric(
+                portfolio["Probability"],
+                errors="coerce",
             )
 
-            if removed_by_safety > 0:
+            invalid_probability_mask = (
+                probability.isna()
+                |
+                (probability < BUY_THRESHOLD)
+            )
 
-                logger.warning(
-                    "Removed %d portfolio rows "
-                    "below BUY_THRESHOLD %.2f.",
-                    removed_by_safety,
-                    BUY_THRESHOLD
+            invalid_probability_count = int(
+                invalid_probability_mask.sum()
+            )
+
+            if invalid_probability_count > 0:
+
+                logger.error(
+                    "CRITICAL: Removing %d portfolio rows "
+                    "below BUY_THRESHOLD %.2f or with invalid probability.",
+                    invalid_probability_count,
+                    BUY_THRESHOLD,
                 )
 
-        # ---------------------------------------------------------------------
-        # Final Selected filter
-        # ---------------------------------------------------------------------
+                portfolio = portfolio.loc[
+                    ~invalid_probability_mask
+                ].copy()
+
+
+    # ---------------------------------------------------------------------------
+    # 27B. Final Selected filter
+    # ---------------------------------------------------------------------------
+    #
+    # If the portfolio builder provides the explicit Selected flag,
+    # only Selected == 1 rows are allowed into the final portfolio.
+    # ---------------------------------------------------------------------------
+
+    if not portfolio.empty:
 
         if "Selected" in portfolio.columns:
 
-            portfolio = portfolio[
-                portfolio["Selected"] == 1
+            selected_mask = (
+                pd.to_numeric(
+                    portfolio["Selected"],
+                    errors="coerce",
+                )
+                .fillna(0)
+                == 1
+            )
+
+            removed_unselected = int(
+                (~selected_mask).sum()
+            )
+
+            if removed_unselected > 0:
+
+                logger.warning(
+                    "Removed %d portfolio rows with Selected != 1.",
+                    removed_unselected,
+                )
+
+            portfolio = portfolio.loc[
+                selected_mask
             ].copy()
 
-    # =========================================================================
-    # 28. PORTFOLIO WEIGHT NORMALIZATION
-    # =========================================================================
+
+    # =======================================================================
+    # 28. INSTITUTIONAL LIVE PORTFOLIO SIZE GATE
+    # =======================================================================
     #
-    # After the safety filter, weights must be re-normalized.
-    # =========================================================================
+    # This gate is intentionally AFTER all final safety filters.
+    #
+    # Current configuration:
+    #
+    #     MIN_PORTFOLIO_SIZE = 5
+    #
+    # Therefore:
+    #
+    #     1 valid stock  -> REJECT
+    #     2 valid stocks -> REJECT
+    #     3 valid stocks -> REJECT
+    #     4 valid stocks -> REJECT
+    #     5+ valid stocks -> ACCEPT
+    #
+    # We do NOT manufacture additional positions merely to satisfy
+    # the minimum size.
+    # =======================================================================
 
     if (
         not portfolio.empty
-        and
-        "Position_Weight" in portfolio.columns
+        and len(portfolio) < MIN_PORTFOLIO_SIZE
+    ):
+
+        logger.warning(
+            "Live portfolio rejected: "
+            "only %d valid candidates survived final safety filters; "
+            "minimum required=%d.",
+            len(portfolio),
+            MIN_PORTFOLIO_SIZE,
+        )
+
+        portfolio = portfolio.iloc[0:0].copy()
+
+
+    # =======================================================================
+    # 29. PORTFOLIO WEIGHT NORMALIZATION
+    # =======================================================================
+    #
+    # Normalize only AFTER the portfolio has passed all eligibility filters.
+    #
+    # Never assign an artificial 1/N weight merely because the surviving
+    # portfolio is too small. A portfolio that fails the size gate is empty.
+    # =======================================================================
+
+    if (
+        not portfolio.empty
+        and "Position_Weight" in portfolio.columns
     ):
 
         portfolio["Position_Weight"] = pd.to_numeric(
             portfolio["Position_Weight"],
-            errors="coerce"
+            errors="coerce",
         ).fillna(0.0)
 
         portfolio["Position_Weight"] = (
@@ -1380,11 +1498,11 @@ def predict_today(
             .clip(lower=0.0)
         )
 
-        weight_sum = (
+        weight_sum = float(
             portfolio["Position_Weight"].sum()
         )
 
-        if weight_sum > 0:
+        if weight_sum > 0.0:
 
             portfolio["Position_Weight"] = (
                 portfolio["Position_Weight"]
@@ -1394,35 +1512,44 @@ def predict_today(
 
         else:
 
-            portfolio["Position_Weight"] = (
-                1.0
-                /
-                len(portfolio)
+            logger.error(
+                "CRITICAL: Final portfolio has no positive "
+                "Position_Weight."
             )
 
-    # =========================================================================
-    # 29. FINAL PORTFOLIO SORT
-    # =========================================================================
+            portfolio = portfolio.iloc[0:0].copy()
+
+
+    # =======================================================================
+    # 30. FINAL PORTFOLIO SORT
+    # =======================================================================
 
     if (
         not portfolio.empty
-        and
-        "Position_Weight" in portfolio.columns
+        and "Position_Weight" in portfolio.columns
     ):
 
-        portfolio = portfolio.sort_values(
-            "Position_Weight",
-            ascending=False
-        ).copy()
+        portfolio = (
+            portfolio
+            .sort_values(
+                "Position_Weight",
+                ascending=False,
+            )
+            .copy()
+        )
 
-    # =========================================================================
-    # 30. FINAL SCORE DIAGNOSTICS
-    # =========================================================================
+
+    # =======================================================================
+    # 31. FINAL SCORE DIAGNOSTICS
+    # =======================================================================
+    #
+    # Final_Score is a ranking/selection signal.
+    # It is NOT the authoritative portfolio weight.
+    # =======================================================================
 
     if (
         not portfolio.empty
-        and
-        "Final_Score" in portfolio.columns
+        and "Final_Score" in portfolio.columns
     ):
 
         print(
@@ -1436,91 +1563,187 @@ def predict_today(
                     0.25,
                     0.50,
                     0.75,
-                    0.90
+                    0.90,
                 ]
             )
         )
 
-    # =========================================================================
-    # 31. FINAL PORTFOLIO VALIDATION
-    # =========================================================================
+
+    # =======================================================================
+    # 32. FINAL PORTFOLIO VALIDATION
+    # =======================================================================
 
     if not portfolio.empty:
 
-        # Probability invariant
-        invalid_probability = (
-            portfolio["Probability"]
-            <
-            BUY_THRESHOLD
-        ).sum()
+        validation_errors = []
 
-        if invalid_probability > 0:
 
-            logger.error(
-                "CRITICAL: %d portfolio stocks "
-                "are below BUY_THRESHOLD.",
-                invalid_probability
+        # -------------------------------------------------------------------
+        # 32A. Probability invariant
+        # -------------------------------------------------------------------
+
+        if "Probability" not in portfolio.columns:
+
+            validation_errors.append(
+                "Missing Probability column"
             )
 
-            portfolio = portfolio[
-                portfolio["Probability"]
-                >=
-                BUY_THRESHOLD
-            ].copy()
+        else:
 
-        # Weight invariant
-        if "Position_Weight" in portfolio.columns:
+            probability = pd.to_numeric(
+                portfolio["Probability"],
+                errors="coerce",
+            )
 
-            weight_sum = (
-                portfolio["Position_Weight"].sum()
+            invalid_probability = (
+                probability.isna()
+                |
+                (probability < BUY_THRESHOLD)
+            )
+
+            invalid_count = int(
+                invalid_probability.sum()
+            )
+
+            if invalid_count > 0:
+
+                validation_errors.append(
+                    f"{invalid_count} stocks below BUY_THRESHOLD"
+                )
+
+
+        # -------------------------------------------------------------------
+        # 32B. Selected invariant
+        # -------------------------------------------------------------------
+
+        if "Selected" in portfolio.columns:
+
+            invalid_selected = (
+                pd.to_numeric(
+                    portfolio["Selected"],
+                    errors="coerce",
+                )
+                .fillna(0)
+                != 1
+            )
+
+            invalid_selected_count = int(
+                invalid_selected.sum()
+            )
+
+            if invalid_selected_count > 0:
+
+                validation_errors.append(
+                    f"{invalid_selected_count} stocks have Selected != 1"
+                )
+
+
+        # -------------------------------------------------------------------
+        # 32C. Weight invariant
+        # ---------------------------------------------------------------
+
+        if "Position_Weight" not in portfolio.columns:
+
+            validation_errors.append(
+                "Missing Position_Weight column"
+            )
+
+        else:
+
+            weights = pd.to_numeric(
+                portfolio["Position_Weight"],
+                errors="coerce",
+            )
+
+            invalid_weight = (
+                weights.isna()
+                |
+                (weights < 0.0)
+            )
+
+            invalid_weight_count = int(
+                invalid_weight.sum()
+            )
+
+            if invalid_weight_count > 0:
+
+                validation_errors.append(
+                    f"{invalid_weight_count} invalid portfolio weights"
+                )
+
+            weight_sum = float(
+                weights.sum()
             )
 
             if not np.isclose(
                 weight_sum,
                 1.0,
-                atol=1e-6
+                atol=1e-6,
             ):
 
-                if weight_sum > 0:
+                validation_errors.append(
+                    f"Portfolio weight sum={weight_sum:.8f}, expected 1.0"
+                )
 
-                    portfolio["Position_Weight"] = (
-                        portfolio["Position_Weight"]
-                        /
-                        weight_sum
-                    )
 
-        print(
-            "\n🏆 FINAL PORTFOLIO"
-        )
+        # -------------------------------------------------------------------
+        # 32D. Portfolio-size invariant
+        # --------------------------------------------------------------------
 
-        portfolio_display_cols = [
-            column
-            for column in [
-                "Company",
-                "Signal",
-                "Probability",
-                "Confidence",
-                "Expected_Return",
-                "Final_Score",
-                "Portfolio_Rank",
-                "Position_Weight",
-                "Market_Regime"
-            ]
-            if column in portfolio.columns
-        ]
+        if len(portfolio) < MIN_PORTFOLIO_SIZE:
 
-        print(
-            portfolio[
-                portfolio_display_cols
-            ]
-        )
+            validation_errors.append(
+                "Portfolio size below minimum required threshold"
+            )
 
-        if "Position_Weight" in portfolio.columns:
+
+        # -------------------------------------------------------------------
+        # 32E. Final response
+        # -------------------------------------------------------------------
+
+        if validation_errors:
+
+            logger.error(
+                "CRITICAL: Final portfolio validation failed: %s",
+                validation_errors,
+            )
+
+            portfolio = portfolio.iloc[0:0].copy()
+
+        else:
 
             print(
-                "\nTotal Weight:",
-                portfolio["Position_Weight"].sum()
+                "\n🏆 FINAL PORTFOLIO"
             )
+
+            portfolio_display_cols = [
+                column
+                for column in [
+                    "Company",
+                    "Signal",
+                    "Probability",
+                    "Confidence",
+                    "Expected_Return",
+                    "Final_Score",
+                    "Portfolio_Rank",
+                    "Position_Weight",
+                    "Market_Regime",
+                ]
+                if column in portfolio.columns
+            ]
+
+            print(
+                portfolio[
+                    portfolio_display_cols
+                ]
+            )
+
+            if "Position_Weight" in portfolio.columns:
+
+                print(
+                    "\nTotal Weight:",
+                    portfolio["Position_Weight"].sum(),
+                )
 
     else:
 
@@ -1528,16 +1751,17 @@ def predict_today(
             "\n⚠ FINAL PORTFOLIO IS EMPTY"
         )
 
-    # =========================================================================
-    # 32. FINAL SUMMARY
-    # =========================================================================
+
+    # =======================================================================
+    # 33. FINAL SUMMARY
+    # =======================================================================
 
     print(
         "\n============================================================"
     )
 
     print(
-        "PREDICTION COMPLETE"
+        "FINAL PORTFOLIO SUMMARY"
     )
 
     print(
@@ -1545,30 +1769,37 @@ def predict_today(
     )
 
     print(
-        f"Final signals       : {len(signal_output)}"
+        f"Portfolio Size        : {len(portfolio)}"
     )
 
     print(
-        f"BUY candidates      : {len(buy_candidates)}"
+        f"Minimum Required      : {MIN_PORTFOLIO_SIZE}"
     )
 
     print(
-        f"Portfolio stocks    : {len(portfolio)}"
+        f"BUY Threshold         : {BUY_THRESHOLD:.2f}"
     )
 
     print(
-        f"BUY threshold       : {BUY_THRESHOLD:.2f}"
+        f"Portfolio Accepted    : "
+        f"{'YES' if not portfolio.empty else 'NO'}"
     )
 
-    print(
-        f"Minimum confidence  : {MIN_CONFIDENCE:.4f}"
-    )
+    if portfolio.empty:
 
-    print(
-        "============================================================"
-    )
+        print(
+            "Portfolio Status      : REJECTED / NO DEPLOYABLE PORTFOLIO"
+        )
 
-    return (
-        signal_output,
-        portfolio
-    )
+    else:
+
+        print(
+            "Portfolio Status      : ACCEPTED"
+        )
+
+        if "Position_Weight" in portfolio.columns:
+
+            print(
+                f"Total Weight          : "
+                f"{portfolio['Position_Weight'].sum():.6f}"
+            )

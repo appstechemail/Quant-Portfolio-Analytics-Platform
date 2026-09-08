@@ -2118,31 +2118,34 @@ meta_pass = (
     meta_proba > thresholds
 )
 
-# ----------------------------------------------------------
+# ==========================================================
 # CANONICAL FINAL PROBABILITY
-# ----------------------------------------------------------
+# ==========================================================
 #
-# This is the ONLY place where final_proba is created.
+# Meta model is an eligibility gate.
 #
-# Flow:
+# It must NOT rewrite the canonical BUY probability.
 #
-# weighted ensemble
-#        ↓
-# ensemble_proba
-#        ↓
-# meta model
-#        ↓
-# regime-specific meta threshold
-#        ↓
+# Canonical flow:
+#
+# Base Models
+#      ↓
+# Weighted Ensemble
+#      ↓
 # final_proba
 #
-# final_proba is the canonical Alpha Engine probability.
-# ----------------------------------------------------------
+# Meta_Pass is retained separately and consumed downstream.
+# ==========================================================
 
-final_proba = np.where(
-    meta_pass,
-    ensemble_proba,
-    NEUTRALITY,
+final_proba = (
+    np.asarray(
+        ensemble_proba,
+        dtype=float,
+    )
+    .clip(
+        0.0,
+        1.0,
+    )
 )
 
 # For Integration of Alpha Stage

@@ -787,92 +787,80 @@ def _standardize_model_columns(
     df = df.copy()
 
     # --------------------------------------------------------
-    # Prediction Alpha
+    # Canonical Prediction Probability
     # --------------------------------------------------------
 
-    if (
-        "Prediction_Alpha"
-        not in df.columns
-    ):
-
-        if "Prediction_Prob" in df.columns:
-
-            df["Prediction_Alpha"] = (
-                _safe_numeric(
-                    df["Prediction_Prob"],
-                    default=0.50,
-                )
-            )
-
-        elif "Probability" in df.columns:
-
-            df["Prediction_Alpha"] = (
-                _safe_numeric(
-                    df["Probability"],
-                    default=0.50,
-                )
-            )
-
-        else:
-
-            df["Prediction_Alpha"] = 0.50
-
-    else:
-
-        df["Prediction_Alpha"] = (
-            _safe_numeric(
-                df["Prediction_Alpha"],
-                default=0.50,
-            )
-        )
-
-    # --------------------------------------------------------
-    # Prediction probability compatibility
-    # --------------------------------------------------------
-
-    if (
-        "Prediction_Prob"
-        not in df.columns
-    ):
-
-        df["Prediction_Prob"] = (
-            df["Prediction_Alpha"]
-        )
-
-    else:
+    if "Prediction_Prob" in df.columns:
 
         df["Prediction_Prob"] = (
             _safe_numeric(
                 df["Prediction_Prob"],
                 default=0.50,
             )
-        )
-
-    # --------------------------------------------------------
-    # Confidence
-    # --------------------------------------------------------
-
-    if (
-        "Confidence"
-        not in df.columns
-    ):
-
-        df["Confidence"] = (
-            np.abs(
-                df["Prediction_Alpha"]
-                - 0.50
+            .clip(
+                0.0,
+                1.0,
             )
-            * 2.0
         )
+
+    elif "Probability" in df.columns:
+
+        df["Prediction_Prob"] = (
+            _safe_numeric(
+                df["Probability"],
+                default=0.50,
+            )
+            .clip(
+                0.0,
+                1.0,
+            )
+        )
+
+    else:
+
+        df["Prediction_Prob"] = 0.50
+
+
+    # --------------------------------------------------------
+    # Canonical Prediction Alpha
+    # --------------------------------------------------------
+    #
+    # Alpha is the probability edge over neutrality.
+    #
+    #     Alpha = P(BUY) - 0.50
+    #
+    # Example:
+    #
+    #     P = 0.733
+    #     Alpha = 0.233
+    #
+    # --------------------------------------------------------
+
+    df["Prediction_Alpha"] = (
+        df["Prediction_Prob"]
+        - 0.50
+    )
+
+
+    # --------------------------------------------------------
+    # Canonical Probability Alias
+    # --------------------------------------------------------
+
+    df["Probability"] = (
+        df["Prediction_Prob"]
+    )
+
+    # --------------------------------------------------------
+    # Canonical Confidence
+    # --------------------------------------------------------
 
     df["Confidence"] = (
-        _safe_numeric(
-            df["Confidence"]
-        )
-        .clip(
-            0.0,
-            1.0,
-        )
+        df["Prediction_Alpha"]
+        .abs()
+        * 2.0
+    ).clip(
+        0.0,
+        1.0,
     )
 
     # --------------------------------------------------------
@@ -981,7 +969,7 @@ def _apply_quality_filters(
     # --------------------------------------------------------
 
     probability_mask = (
-        df["Prediction_Alpha"]
+        df["Prediction_Prob"]
         >=
         df["Min_Prob"]
     )

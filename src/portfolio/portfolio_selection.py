@@ -366,6 +366,47 @@ def safe_zscore(
         std + 1e-9
     )
 
+# ============================================================
+# FINAL SCORE GROUP NORMALIZATION
+# ============================================================
+
+def _normalize_final_score_group(
+    x: pd.Series,
+) -> pd.Series:
+    """
+    Final selection-score normalization.
+
+    Multi-stock groups:
+        retain cross-sectional z-score ranking.
+
+    Singleton groups:
+        preserve the pre-normalized composite score.
+
+    This prevents a singleton candidate from being converted
+    to zero merely because cross-sectional normalization has
+    no dispersion.
+    """
+
+    values = _safe_numeric(
+        x,
+        default=0.0,
+    )
+
+    n = len(values)
+
+    if n == 0:
+        return pd.Series(
+            0.0,
+            index=x.index,
+        )
+
+    if n == 1:
+        return values
+
+    return safe_zscore(
+        values
+    )                               
+
 
 # ============================================================
 # CROSS-SECTIONAL Z-SCORE
@@ -1329,6 +1370,18 @@ def compute_final_score(
     # ========================================================
     # FINAL CROSS-SECTIONAL NORMALIZATION
     # ========================================================
+    #
+    # Multi-stock dates:
+    #     preserve existing cross-sectional z-score behaviour.
+    #
+    # Singleton dates:
+    #     preserve the underlying composite score instead of
+    #     converting it to zero.
+    #
+    # This prevents a one-stock candidate set from receiving
+    # Final_Score = 0 solely because z-score normalization has
+    # no cross-sectional dispersion.
+    # ========================================================
 
     df["Final_Score"] = (
         df.groupby(
@@ -1336,7 +1389,7 @@ def compute_final_score(
             sort=False,
         )["Final_Score"]
         .transform(
-            safe_zscore
+            _normalize_final_score_group
         )
     )
 

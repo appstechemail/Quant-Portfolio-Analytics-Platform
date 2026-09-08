@@ -53,6 +53,9 @@ from typing import (
     Any,
 )
 
+import hashlib
+import json
+
 import uuid
 
 # ============================================================
@@ -415,19 +418,43 @@ class BaseMonitoringEngine:
             MonitoringSeverity
             .CRITICAL
         )
+
+    def determine_health_status(
+        self,
+        *,
+        score: float,
+        alerts: list[AlertRecord] | None = None,
+    ) -> MonitoringStatus:
+        """
+        Determine operational monitoring health.
+
+        A CRITICAL or ERROR alert is never considered healthy,
+        regardless of the aggregate score.
+
+        Execution success is intentionally independent from
+        monitoring health.
+        """
+
+        alerts = alerts or []
+
+        levels = {
+            alert.level
+            for alert in alerts
+        }
+
+        if (
+            AlertLevel.CRITICAL in levels
+            or AlertLevel.ERROR in levels
+        ):
+            return MonitoringStatus.FAILED
+
+        return self.determine_status(
+            score
+        )
     
 # ============================================================
 # PART 2 — MONITORING RESULT OBJECTS
 # ============================================================
-
-from dataclasses import (
-    dataclass,
-    field,
-)
-
-from typing import (
-    Any,
-)
 
 # ============================================================
 # AUDIT RECORD
@@ -773,44 +800,96 @@ class MonitoringDiagnosticsResult(
 class InstitutionalMonitoringResult:
     """
     Aggregated monitoring result.
+
+    This object contains the individual monitoring results
+    produced by each monitoring component.
+
+    Important
+    ---------
+    Component-level monitoring status is determined by each
+    individual monitoring engine.
+
+    Overall operational health, including ERROR / CRITICAL
+    alert escalation, must be determined separately by the
+    master monitoring orchestration layer using:
+
+        determine_health_status(
+            score=...,
+            alerts=...,
+        )
+
+    This dataclass intentionally remains a passive result
+    container. It does not itself calculate monitoring health.
     """
 
     metadata: MonitoringMetadata
+
+    # --------------------------------------------------------
+    # AUDIT TRAIL
+    # --------------------------------------------------------
 
     audit_result: (
         AuditTrailResult
         | None
     ) = None
 
+    # --------------------------------------------------------
+    # CONFIGURATION
+    # --------------------------------------------------------
+
     configuration_result: (
         ConfigurationMonitoringResult
         | None
     ) = None
+
+    # --------------------------------------------------------
+    # MODEL LINEAGE
+    # --------------------------------------------------------
 
     lineage_result: (
         ModelLineageMonitoringResult
         | None
     ) = None
 
+    # --------------------------------------------------------
+    # RUNTIME
+    # --------------------------------------------------------
+
     runtime_result: (
         RuntimeMonitoringResult
         | None
     ) = None
+
+    # --------------------------------------------------------
+    # HEALTH
+    # --------------------------------------------------------
 
     health_result: (
         HealthMonitoringResult
         | None
     ) = None
 
+    # --------------------------------------------------------
+    # COMPLIANCE
+    # --------------------------------------------------------
+
     compliance_result: (
         ComplianceMonitoringResult
         | None
     ) = None
 
+    # --------------------------------------------------------
+    # ALERTING
+    # --------------------------------------------------------
+
     alert_result: (
         AlertMonitoringResult
         | None
     ) = None
+
+    # --------------------------------------------------------
+    # DIAGNOSTICS
+    # --------------------------------------------------------
 
     diagnostics_result: (
         MonitoringDiagnosticsResult
@@ -821,11 +900,6 @@ class InstitutionalMonitoringResult:
 # ============================================================
 # PART 3 — AUDIT TRAIL ENGINE
 # ============================================================
-
-import hashlib
-import json
-
-from typing import Any
 
 
 # ============================================================
@@ -6891,109 +6965,250 @@ class InstitutionalMonitoringEngine:
             )
         )
 
+    # ============================================================
+# MASTER RUN
+# ============================================================
+
+def run(
+    self,
+    inputs: MonitoringInput,
+) -> (
+    MonitoringEngineResult
+):
+
     # ========================================================
-    # MASTER RUN
+    # RUNTIME MONITORING
     # ========================================================
 
-    def run(
-        self,
-        inputs:
-        MonitoringInput,
-    ) -> (
-        MonitoringEngineResult
-    ):
+    runtime_result = (
+        self.run_runtime(
+            inputs
+        )
+    )
 
-        runtime_result = (
-            self.run_runtime(
-                inputs
+    # ========================================================
+    # HEALTH MONITORING
+    # ========================================================
+
+    health_result = (
+        self.run_health(
+            inputs
+        )
+    )
+
+    # ========================================================
+    # COMPLIANCE MONITORING
+    # ========================================================
+
+    compliance_result = (
+        self.run_compliance(
+            inputs
+        )
+    )
+
+    # ========================================================
+    # ALERT MONITORING
+    # ========================================================
+
+    alert_result = (
+        self.run_alerts(
+            runtime_result=
+            runtime_result,
+
+            health_result=
+            health_result,
+
+            compliance_result=
+            compliance_result,
+        )
+    )
+
+    # ========================================================
+    # CALCULATE OVERALL MONITORING SCORE
+    # ========================================================
+    #
+    # The individual monitoring engines already produce scores.
+    #
+    # We calculate the master score from the available
+    # component scores.
+    #
+    # IMPORTANT:
+    # This score is used for the normal PASS/WARNING/FAILED
+    # threshold evaluation.
+    #
+    # ERROR / CRITICAL alerts are handled separately below
+    # through determine_health_status().
+    # ========================================================
+
+    component_scores = []
+
+    if runtime_result is not None:
+        if pd.notna(
+            runtime_result.score
+        ):
+            component_scores.append(
+                float(
+                    runtime_result.score
+                )
+            )
+
+    if health_result is not None:
+        if pd.notna(
+            health_result.score
+        ):
+            component_scores.append(
+                float(
+                    health_result.score
+                )
+            )
+
+    if compliance_result is not None:
+        if pd.notna(
+            compliance_result.score
+        ):
+            component_scores.append(
+                float(
+                    compliance_result.score
+                )
+            )
+
+    if alert_result is not None:
+        if pd.notna(
+            alert_result.score
+        ):
+            component_scores.append(
+                float(
+                    alert_result.score
+                )
+            )
+
+    # --------------------------------------------------------
+    # Overall score
+    # --------------------------------------------------------
+
+    if component_scores:
+
+        score = self.clamp_score(
+            float(
+                np.mean(
+                    component_scores
+                )
             )
         )
 
-        health_result = (
-            self.run_health(
-                inputs
-            )
+    else:
+
+        # Fail closed when no monitoring
+        # component produced a valid score.
+        score = 0.0
+
+    # ========================================================
+    # EXTRACT ALERT RECORDS
+    # ========================================================
+
+    alerts = (
+        alert_result.alerts
+        if alert_result is not None
+        else []
+    )
+
+    # ========================================================
+    # DETERMINE OVERALL MONITORING HEALTH
+    # ========================================================
+    #
+    # DO NOT replace the individual component-level
+    # determine_status() calls with this function.
+    #
+    # This call is specifically for the MASTER monitoring
+    # health decision.
+    #
+    # Any ERROR / CRITICAL alert forces FAILED status,
+    # regardless of the aggregate score.
+    # ========================================================
+
+    status = self.determine_health_status(
+        score=score,
+        alerts=alerts,
+    )
+
+    # ========================================================
+    # DETERMINE OVERALL SEVERITY
+    # ========================================================
+
+    severity = (
+        self.determine_severity(
+            score
         )
+    )
 
-        compliance_result = (
-            self.run_compliance(
-                inputs
-            )
+    # ========================================================
+    # DIAGNOSTICS
+    # ========================================================
+
+    snapshot = (
+        self.run_diagnostics(
+            runtime_result=
+            runtime_result,
+
+            health_result=
+            health_result,
+
+            compliance_result=
+            compliance_result,
+
+            alert_result=
+            alert_result,
         )
+    )
 
-        alert_result = (
-            self.run_alerts(
+    # ========================================================
+    # BUILD MASTER REPORT
+    # ========================================================
 
-                runtime_result=
-                runtime_result,
+    report = (
+        self.build_report(
+            runtime_result=
+            runtime_result,
 
-                health_result=
-                health_result,
+            health_result=
+            health_result,
 
-                compliance_result=
-                compliance_result,
-            )
+            compliance_result=
+            compliance_result,
+
+            alert_result=
+            alert_result,
+
+            snapshot=
+            snapshot,
         )
+    )
 
-        snapshot = (
-            self.run_diagnostics(
+    # ========================================================
+    # RETURN MASTER MONITORING RESULT
+    # ========================================================
 
-                runtime_result=
-                runtime_result,
+    return (
+        MonitoringEngineResult(
+            report=
+            report,
 
-                health_result=
-                health_result,
+            runtime_result=
+            runtime_result,
 
-                compliance_result=
-                compliance_result,
+            health_result=
+            health_result,
 
-                alert_result=
-                alert_result,
-            )
+            compliance_result=
+            compliance_result,
+
+            alert_result=
+            alert_result,
+
+            diagnostic_snapshot=
+            snapshot,
         )
-
-        report = (
-            self.build_report(
-
-                runtime_result=
-                runtime_result,
-
-                health_result=
-                health_result,
-
-                compliance_result=
-                compliance_result,
-
-                alert_result=
-                alert_result,
-
-                snapshot=
-                snapshot,
-            )
-        )
-
-        return (
-            MonitoringEngineResult(
-
-                report=
-                report,
-
-                runtime_result=
-                runtime_result,
-
-                health_result=
-                health_result,
-
-                compliance_result=
-                compliance_result,
-
-                alert_result=
-                alert_result,
-
-                diagnostic_snapshot=
-                snapshot,
-            )
-        )
+    )
     
 # ============================================================
 # PART 13 — FACTORY & CONVENIENCE APIS

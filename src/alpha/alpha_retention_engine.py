@@ -81,7 +81,7 @@ class StageMetrics:
     stage: str
 
     rows: int
-    signals: int
+    signals: float
 
     unique_dates: int
     companies: int
@@ -101,6 +101,8 @@ class StageMetrics:
 
     signal_retention: float = 1.0
     sharpe_contribution: float = 0.0
+
+    signal_measurement: str = "UNAVAILABLE"
 
 
 class AlphaRetentionEngine:
@@ -179,6 +181,29 @@ class AlphaRetentionEngine:
 
         return float(drawdown.min())
 
+    def _stage_signal_definition(
+        self,
+        stage_name: str,
+    ) -> str:
+        """
+        Return the intended signal representation for each
+        alpha-pipeline stage.
+        """
+
+        definitions = {
+            "RAW": "Prediction_Alpha",
+            "META": "Prediction_Alpha",
+            "REGIME": "Prediction_Alpha",
+            "VOLATILITY": "Prediction_Alpha",
+            "CROSS_SECTION": "Prediction_Alpha",
+            "PORTFOLIO": "Position",
+        }
+
+        return definitions.get(
+            str(stage_name).upper(),
+            "AUTO",
+        )
+
     def evaluate_stage(
         self,
         stage: AlphaStage | str,
@@ -210,11 +235,74 @@ class AlphaRetentionEngine:
         # CANONICAL STAGE SIGNAL COUNT
         # ========================================================
         #
-        # Prefer probability/alpha evidence.
-        # Do not require the human-readable Signal column.
+        # A stage signal must represent evidence that alpha survived
+        # the stage. We therefore use an explicit priority:
+        #
+        # 1. Position
+        #    Final portfolio/tradable stage.
+        #
+        # 2. Explicit Selected flag
+        #    Candidate-selection stage.
+        #
+        # 3. Prediction probability
+        #    Model-signal stage.
+        #
+        # 4. Prediction alpha
+        #    Alpha-edge stage.
+        #
+        # 5. Signal label
+        #    Legacy compatibility only.
+        #
+        # 6. Otherwise:
+        #    signal count is undefined, not zero.
+        #
+        # IMPORTANT:
+        # "No signal column" does NOT mean "zero alpha".
         # ========================================================
 
-        if "Prediction_Prob" in df.columns:
+        signals = np.nan
+
+        signal_measurement = "NONE"
+
+        # --------------------------------------------------------
+        # 1. Tradable position
+        # --------------------------------------------------------
+
+        if "Position" in df.columns:
+
+            position_values = pd.to_numeric(
+                df["Position"],
+                errors="coerce",
+            ).fillna(0.0)
+
+            signals = int(
+                (position_values.abs() > 1e-12).sum()
+            )
+
+            signal_measurement = "Position"
+
+        # --------------------------------------------------------
+        # 2. Explicit candidate selection
+        # --------------------------------------------------------
+
+        elif "Selected" in df.columns:
+
+            selected = pd.to_numeric(
+                df["Selected"],
+                errors="coerce",
+            ).fillna(0)
+
+            signals = int(
+                (selected == 1).sum()
+            )
+
+            signal_measurement = "Selected"
+
+        # --------------------------------------------------------
+        # 3. Prediction probability
+        # --------------------------------------------------------
+
+        elif "Prediction_Prob" in df.columns:
 
             probability = pd.to_numeric(
                 df["Prediction_Prob"],
@@ -222,11 +310,14 @@ class AlphaRetentionEngine:
             )
 
             signals = int(
-                (
-                    probability
-                    > 0.50
-                ).sum()
+                (probability > 0.50).sum()
             )
+
+            signal_measurement = "Prediction_Prob"
+
+        # --------------------------------------------------------
+        # 4. Probability compatibility column
+        # --------------------------------------------------------
 
         elif "Probability" in df.columns:
 
@@ -236,11 +327,14 @@ class AlphaRetentionEngine:
             )
 
             signals = int(
-                (
-                    probability
-                    > 0.50
-                ).sum()
+                (probability > 0.50).sum()
             )
+
+            signal_measurement = "Probability"
+
+        # --------------------------------------------------------
+        # 5. Prediction alpha
+        # --------------------------------------------------------
 
         elif "Prediction_Alpha" in df.columns:
 
@@ -250,32 +344,43 @@ class AlphaRetentionEngine:
             )
 
             signals = int(
-                (
-                    alpha
-                    > 0.0
-                ).sum()
+                (alpha > 0.0).sum()
             )
+
+            signal_measurement = "Prediction_Alpha"
+
+        # --------------------------------------------------------
+        # 6. Legacy human-readable signal
+        # --------------------------------------------------------
 
         elif "Signal" in df.columns:
 
-            signals = int(
+            signal_values = (
                 df["Signal"]
                 .astype(str)
                 .str.upper()
-                .isin(
+            )
+
+            signals = int(
+                signal_values.isin(
                     [
                         "BUY",
                         "STRONG BUY",
                     ]
-                )
-                .sum()
+                ).sum()
             )
+
+            signal_measurement = "Signal"
+
+        # --------------------------------------------------------
+        # 7. No valid signal representation
+        # --------------------------------------------------------
 
         else:
 
-            signals = int(
-                (position > 0).sum()
-            )
+            signals = 0
+
+            signal_measurement = "UNAVAILABLE"
 
         win_rate = (
             float((returns > 0).mean())
@@ -308,6 +413,7 @@ class AlphaRetentionEngine:
             turnover=float(turnover.mean()),
             mean_return=float(returns.mean()),
             median_return=float(returns.median()),
+            signal_measurement=signal_measurement,
         )
 
         self.stage_reports.append(metrics)
@@ -315,41 +421,128 @@ class AlphaRetentionEngine:
         return metrics
 
     def compare_stages(
-        self
+        self,
     ) -> pd.DataFrame:
+        """
+        Compare alpha pipeline stages.
+
+        Signal retention:
+            - Uses the first stage with a valid positive signal count
+            as the baseline.
+            - Returns NaN when a stage's signal count is unavailable.
+            - Never treats an unavailable signal count as zero.
+
+        Sharpe contribution:
+            - Normalized against the maximum valid stage Sharpe.
+            - Returns NaN when the stage Sharpe is unavailable.
+            - Returns 0 when the maximum Sharpe is zero.
+
+        This prevents missing stage-level signal information from being
+        incorrectly interpreted as zero alpha/signal retention.
+        """
 
         if not self.stage_reports:
             return pd.DataFrame()
 
-        base_signals = max(
-            self.stage_reports[0].signals,
-            1
+        # ============================================================
+        # FIND BASELINE SIGNAL COUNT
+        # ============================================================
+        #
+        # Use the first stage having a valid positive signal count.
+        #
+        # Do NOT use:
+        #     max(..., 1)
+        #
+        # because an unavailable signal count must not be interpreted
+        # as zero or one.
+        # ============================================================
+
+        base_signals = np.nan
+
+        for metrics in self.stage_reports:
+            if (
+                pd.notna(metrics.signals)
+                and metrics.signals > 0
+            ):
+                base_signals = float(
+                    metrics.signals
+                )
+                break
+
+        # ============================================================
+        # FIND MAXIMUM VALID SHARPE
+        # ============================================================
+
+        valid_sharpes = [
+            float(metrics.sharpe)
+            for metrics in self.stage_reports
+            if pd.notna(metrics.sharpe)
+        ]
+
+        max_sharpe = (
+            max(valid_sharpes)
+            if valid_sharpes
+            else np.nan
         )
 
-        max_sharpe = max(
-            (
-                x.sharpe
-                for x in self.stage_reports
-            ),
-            default=1.0
-        )
+        # ============================================================
+        # BUILD COMPARISON TABLE
+        # ============================================================
 
         rows = []
 
-        for m in self.stage_reports:
+        for metrics in self.stage_reports:
 
-            row = asdict(m)
-            row["signal_retention"] = (
-                m.signals / base_signals
-            )
-            row["sharpe_contribution"] = (
-                0
-                if max_sharpe == 0
-                else m.sharpe / max_sharpe
-            )
+            row = asdict(metrics)
+
+            # --------------------------------------------------------
+            # SIGNAL RETENTION
+            # --------------------------------------------------------
+            #
+            # If either the baseline or current-stage signal count is
+            # unavailable, retention remains NaN.
+            #
+            # This is intentionally different from zero:
+            #
+            #   NaN = measurement unavailable
+            #   0   = measurement available and zero
+            # --------------------------------------------------------
+
+            if (
+                pd.isna(base_signals)
+                or pd.isna(metrics.signals)
+            ):
+                row["signal_retention"] = np.nan
+
+            else:
+                row["signal_retention"] = (
+                    float(metrics.signals)
+                    / base_signals
+                )
+
+            # --------------------------------------------------------
+            # SHARPE CONTRIBUTION
+            # --------------------------------------------------------
+
+            if pd.isna(metrics.sharpe):
+                row["sharpe_contribution"] = np.nan
+
+            elif pd.isna(max_sharpe):
+                row["sharpe_contribution"] = np.nan
+
+            elif max_sharpe == 0:
+                row["sharpe_contribution"] = 0.0
+
+            else:
+                row["sharpe_contribution"] = (
+                    float(metrics.sharpe)
+                    / max_sharpe
+                )
+
             rows.append(row)
 
         return pd.DataFrame(rows)
+
 
     def pipeline_summary(
         self
@@ -365,33 +558,84 @@ class AlphaRetentionEngine:
         max_sharpe = report["sharpe"].max()
         final_sharpe = report.iloc[-1]["sharpe"]
 
+        portfolio_rows = report[
+            report["stage"].astype(str).str.upper()
+            == "PORTFOLIO"
+        ]
+
+        final_sharpe = (
+            float(
+                portfolio_rows.iloc[-1]["sharpe"]
+            )
+            if not portfolio_rows.empty
+            and pd.notna(
+                portfolio_rows.iloc[-1]["sharpe"]
+            )
+            else np.nan
+        )
+
+        measured = report[
+            report["sharpe"].notna()
+        ]
+
+        if measured.empty:
+            best_stage = None
+            worst_stage = None
+            max_pipeline_sharpe = np.nan
+        else:
+            best_idx = measured["sharpe"].idxmax()
+            worst_idx = measured["sharpe"].idxmin()
+
+            best_stage = measured.loc[
+                best_idx,
+                "stage"
+            ]
+
+            worst_stage = measured.loc[
+                worst_idx,
+                "stage"
+            ]
+
+            max_pipeline_sharpe = float(
+                measured["sharpe"].max()
+            )
+
         return {
 
             "best_stage":
-                report.loc[best, "stage"],
+                best_stage,
 
             "worst_stage":
-                report.loc[worst, "stage"],
+                worst_stage,
 
             "max_pipeline_sharpe":
-                float(max_sharpe),
+                max_pipeline_sharpe,
 
-            "final_sharpe":
-                float(final_sharpe),
+            "final_portfolio_sharpe":
+                final_sharpe,
 
             "alpha_decay":
-                float(
+                (
                     final_sharpe
-                    - max_sharpe
-                ),
+                    - max_pipeline_sharpe
+                )
+                if (
+                    pd.notna(final_sharpe)
+                    and pd.notna(max_pipeline_sharpe)
+                )
+                else np.nan,
 
             "pipeline_efficiency":
-                float(
+                (
                     final_sharpe
-                    / max_sharpe
+                    / max_pipeline_sharpe
                 )
-                if max_sharpe != 0
-                else 0,
+                if (
+                    pd.notna(final_sharpe)
+                    and pd.notna(max_pipeline_sharpe)
+                    and abs(max_pipeline_sharpe) > 1e-12
+                )
+                else np.nan,
         }
 
     def export(

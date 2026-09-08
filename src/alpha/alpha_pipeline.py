@@ -3,7 +3,7 @@
 File: alpha_pipeline.py
 Author: Parmod Chaudhary
 Created: 2026
-
+    
 Institutional-Grade Quant Platform
 ----------------------------------
 

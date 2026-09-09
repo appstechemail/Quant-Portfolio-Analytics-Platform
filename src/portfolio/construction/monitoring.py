@@ -5803,17 +5803,11 @@ class MonitoringDiagnosticsEngine(
     def create_snapshot(
         self,
         *,
-        runtime_result:
-        RuntimeMonitoringResult,
-
-        health_result:
-        HealthMonitoringResult,
-
-        compliance_result:
-        ComplianceMonitoringResult,
-
-        alert_result:
-        AlertMonitoringResult,
+        runtime_result: RuntimeMonitoringResult,
+        health_result: HealthMonitoringResult,
+        compliance_result: ComplianceMonitoringResult,
+        alert_result: AlertMonitoringResult,
+        overall_status: MonitoringStatus | None = None,
     ) -> MonitoringDiagnosticSnapshot:
 
         overall_score = (
@@ -5835,14 +5829,13 @@ class MonitoringDiagnosticsEngine(
             )
         )
 
-        overall_status = (
-
-            MonitoringScoreAggregator
-            .determine_status(
-
-                overall_score
+        if overall_status is None:
+            overall_status = (
+                MonitoringScoreAggregator
+                .determine_status(
+                    overall_score
+                )
             )
-        )
 
         snapshot = (
             MonitoringDiagnosticSnapshot(
@@ -6047,33 +6040,20 @@ class MonitoringDiagnosticsEngine(
     def run(
         self,
         *,
-        runtime_result:
-        RuntimeMonitoringResult,
-
-        health_result:
-        HealthMonitoringResult,
-
-        compliance_result:
-        ComplianceMonitoringResult,
-
-        alert_result:
-        AlertMonitoringResult,
+        runtime_result: RuntimeMonitoringResult,
+        health_result: HealthMonitoringResult,
+        compliance_result: ComplianceMonitoringResult,
+        alert_result: AlertMonitoringResult,
+        overall_status: MonitoringStatus | None = None,
     ) -> MonitoringDiagnosticSnapshot:
 
         return (
             self.create_snapshot(
-
-                runtime_result=
-                runtime_result,
-
-                health_result=
-                health_result,
-
-                compliance_result=
-                compliance_result,
-
-                alert_result=
-                alert_result,
+                runtime_result=runtime_result,
+                health_result=health_result,
+                compliance_result=compliance_result,
+                alert_result=alert_result,
+                overall_status=overall_status,
             )
         )
     
@@ -6876,35 +6856,22 @@ class InstitutionalMonitoringEngine:
     def run_diagnostics(
         self,
         *,
-        runtime_result:
-        RuntimeMonitoringResult,
-
-        health_result:
-        HealthMonitoringResult,
-
-        compliance_result:
-        ComplianceMonitoringResult,
-
-        alert_result:
-        AlertMonitoringResult,
+        runtime_result: RuntimeMonitoringResult,
+        health_result: HealthMonitoringResult,
+        compliance_result: ComplianceMonitoringResult,
+        alert_result: AlertMonitoringResult,
+        overall_status: MonitoringStatus | None = None,
     ) -> (
         MonitoringDiagnosticSnapshot
     ):
 
         return (
             self.diagnostics_engine.run(
-
-                runtime_result=
-                runtime_result,
-
-                health_result=
-                health_result,
-
-                compliance_result=
-                compliance_result,
-
-                alert_result=
-                alert_result,
+                runtime_result=runtime_result,
+                health_result=health_result,
+                compliance_result=compliance_result,
+                alert_result=alert_result,
+                overall_status=overall_status,
             )
         )
 
@@ -7158,6 +7125,9 @@ def run(
 
             alert_result=
             alert_result,
+
+            overall_status=
+            status,
         )
     )
 

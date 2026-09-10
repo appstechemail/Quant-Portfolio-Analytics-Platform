@@ -1437,6 +1437,80 @@ def _cross_sectional_signal(
     )
 
     # --------------------------------------------------------
+    # SELECTION FUNNEL DIAGNOSTICS
+    # --------------------------------------------------------
+    #
+    # Diagnostic only.
+    #
+    # These masks do NOT alter the strategy.
+    #
+    # Funnel:
+    #
+    #   Universe
+    #       ↓
+    #   Positive Alpha
+    #       ↓
+    #   Confidence
+    #       ↓
+    #   Meta
+    #       ↓
+    #   Rank
+    #       ↓
+    #   Daily Portfolio Cap
+    #       ↓
+    #   Final Selected
+    #
+    # --------------------------------------------------------
+
+    out["_Funnel_Universe"] = True
+
+    out["_Funnel_PositiveAlpha"] = (
+        out["Probability"]
+        > NEUTRALITY
+    )
+
+    out["_Funnel_Confidence"] = (
+        out["_Funnel_PositiveAlpha"]
+        &
+        (
+            out["Confidence"]
+            >= MIN_CONFIDENCE
+        )
+    )
+
+    if "Meta_Pass" in out.columns:
+
+        out["_Funnel_Meta"] = (
+            out["_Funnel_Confidence"]
+            &
+            out["Meta_Pass"]
+            .fillna(False)
+            .astype(bool)
+        )
+
+    else:
+
+        out["_Funnel_Meta"] = (
+            out["_Funnel_Confidence"]
+        )
+
+    if "Volatility_Pass" in out.columns:
+
+        out["_Funnel_Volatility"] = (
+            out["_Funnel_Meta"]
+            &
+            out["Volatility_Pass"]
+            .fillna(True)
+            .astype(bool)
+        )
+
+    else:
+
+        out["_Funnel_Volatility"] = (
+            out["_Funnel_Meta"]
+        )
+
+    # --------------------------------------------------------
     # Eligibility
     # --------------------------------------------------------
 
@@ -1560,6 +1634,130 @@ def _cross_sectional_signal(
     )
 
     # --------------------------------------------------------
+    # DAILY SELECTION FUNNEL DIAGNOSTICS
+    # --------------------------------------------------------
+    #
+    # Rank is calculated exactly as the strategy already does.
+    # This section only measures how many candidates survive.
+    #
+    # --------------------------------------------------------
+
+    out["_Funnel_Rank"] = (
+        out["_Funnel_Volatility"]
+        &
+        (
+            out["Alpha_Rank"]
+            <= TOP_PCT
+        )
+    )
+
+    funnel_daily = (
+        out
+        .groupby(
+            "Date",
+            sort=False,
+        )
+        .agg(
+            Universe=(
+                "_Funnel_Universe",
+                "sum",
+            ),
+            PositiveAlpha=(
+                "_Funnel_PositiveAlpha",
+                "sum",
+            ),
+            Confidence=(
+                "_Funnel_Confidence",
+                "sum",
+            ),
+            Meta=(
+                "_Funnel_Meta",
+                "sum",
+            ),
+            Volatility=(
+                "_Funnel_Volatility",
+                "sum",
+            ),
+            Rank=(
+                "_Funnel_Rank",
+                "sum",
+            ),
+        )
+        .reset_index()
+    )
+
+    # --------------------------------------------------------
+    # Funnel summary
+    # --------------------------------------------------------
+
+    print("\n")
+    print("=" * 64)
+    print("DAILY SELECTION FUNNEL DIAGNOSTICS")
+    print("=" * 64)
+
+    print(
+        f"Trading dates          : "
+        f"{len(funnel_daily):,}"
+    )
+
+    print(
+        f"Universe / day         : "
+        f"{funnel_daily['Universe'].mean():.2f}"
+    )
+
+    print(
+        f"Positive Alpha / day   : "
+        f"{funnel_daily['PositiveAlpha'].mean():.2f}"
+    )
+
+    print(
+        f"Confidence / day       : "
+        f"{funnel_daily['Confidence'].mean():.2f}"
+    )
+
+    print(
+        f"Meta Pass / day        : "
+        f"{funnel_daily['Meta'].mean():.2f}"
+    )
+
+    print(
+        f"Volatility Pass / day  : "
+        f"{funnel_daily['Volatility'].mean():.2f}"
+    )
+
+    print(
+        f"Rank eligible / day    : "
+        f"{funnel_daily['Rank'].mean():.2f}"
+    )
+
+    print(
+        f"Days with 0 rank       : "
+        f"{int((funnel_daily['Rank'] == 0).sum()):,}"
+    )
+
+    print(
+        f"Days with 1 rank       : "
+        f"{int((funnel_daily['Rank'] == 1).sum()):,}"
+    )
+
+    print(
+        f"Days with 2 rank       : "
+        f"{int((funnel_daily['Rank'] == 2).sum()):,}"
+    )
+
+    print(
+        f"Days with 3+ rank      : "
+        f"{int((funnel_daily['Rank'] >= 3).sum()):,}"
+    )
+
+    print(
+        f"Days with 5+ rank      : "
+        f"{int((funnel_daily['Rank'] >= 5).sum()):,}"
+    )
+
+    print("=" * 64)
+
+    # --------------------------------------------------------
     # Daily portfolio selection
     # --------------------------------------------------------
 
@@ -1652,6 +1850,76 @@ def _cross_sectional_signal(
         )
 
     # --------------------------------------------------------
+    # FINAL SELECTION FUNNEL DIAGNOSTICS
+    # --------------------------------------------------------
+
+    selected_daily = (
+        out
+        .groupby(
+            "Date",
+            sort=False,
+        )["Selected"]
+        .sum()
+    )
+
+    print("\n")
+    print("=" * 64)
+    print("FINAL SELECTION FUNNEL")
+    print("=" * 64)
+
+    print(
+        f"Selected rows          : "
+        f"{int(out['Selected'].sum()):,}"
+    )
+
+    print(
+        f"Signal dates            : "
+        f"{int((selected_daily > 0).sum()):,}"
+    )
+
+    print(
+        f"Average holdings/day    : "
+        f"{selected_daily.mean():.3f}"
+    )
+
+    print(
+        f"Median holdings/day     : "
+        f"{selected_daily.median():.3f}"
+    )
+
+    print(
+        f"Days with 0 holdings    : "
+        f"{int((selected_daily == 0).sum()):,}"
+    )
+
+    print(
+        f"Days with 1 holding     : "
+        f"{int((selected_daily == 1).sum()):,}"
+    )
+
+    print(
+        f"Days with 2 holdings    : "
+        f"{int((selected_daily == 2).sum()):,}"
+    )
+
+    print(
+        f"Days with 3 holdings    : "
+        f"{int((selected_daily == 3).sum()):,}"
+    )
+
+    print(
+        f"Days with 4 holdings    : "
+        f"{int((selected_daily == 4).sum()):,}"
+    )
+
+    print(
+        f"Days with 5 holdings    : "
+        f"{int((selected_daily >= 5).sum()):,}"
+    )
+
+    print("=" * 64)
+
+    # --------------------------------------------------------
     # Target alpha
     # --------------------------------------------------------
 
@@ -1686,6 +1954,23 @@ def _cross_sectional_signal(
             ]
         )
         .reset_index(drop=True)
+    )
+
+    # --------------------------------------------------------
+    # Remove diagnostic-only columns.
+    # --------------------------------------------------------
+
+    out.drop(
+        columns=[
+            "_Funnel_Universe",
+            "_Funnel_PositiveAlpha",
+            "_Funnel_Confidence",
+            "_Funnel_Meta",
+            "_Funnel_Volatility",
+            "_Funnel_Rank",
+        ],
+        inplace=True,
+        errors="ignore",
     )
 
     return out

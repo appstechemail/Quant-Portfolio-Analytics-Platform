@@ -191,7 +191,7 @@ CONFIG = {
         "LIQUIDITY_THRESHOLD":0.0, # can be 10_000_000
         "BUY_PCT": 0.03,
         "SELL_PCT": 0.20,
-        "TOP_PCT": 0.10,
+        "TOP_PCT": 0.15,
         "MIN_CONFIDENCE": 0.02, # can be 0.20
         "ENTRY_CONFIDENCE": 0.20, # can be 0.15, 0.20
         "EXIT_CONFIDENCE": 0.10, # can be 0.08, 0.10
@@ -199,8 +199,8 @@ CONFIG = {
         "SMOOTHING": 0.00, 
         "EXECUTION_LAG": 1,
 
-        "MAX_PORTFOLIO_SIZE": 3,
-        "MAX_POSITION_SIZE": 0.50,
+        "MAX_PORTFOLIO_SIZE": 5,
+        "MAX_POSITION_SIZE": 0.35,
         "MAX_GROSS_EXPOSURE": 1.00,
         "VOLATILITY_EXPOSURE": 0.50,
 
@@ -251,7 +251,7 @@ CONFIG = {
 
         "MIN_CONFIDENCE": 0.30,
         "MIN_PORTFOLIO_SIZE":5,
-        "USE_DYNAMIC_CONFIDENCE": True,
+        "USE_DYNAMIC_CONFIDENCE": False,
         "AUM":10_000_000,
     },
 

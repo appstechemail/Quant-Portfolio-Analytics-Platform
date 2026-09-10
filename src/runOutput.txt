@@ -1,0 +1,1452 @@
+2026-09-10 10:20:16,726 | INFO | __main__ | Building canonical final_df...
+2026-09-10 10:20:16,727 | INFO | __main__ | STEP 1 | Downloading market data
+📥 Downloading TBOTEK.NS --- TBO TEK...
+📥 Downloading NSDL.BO --- NSDL...
+📥 Downloading MAPMYINDIA.NS --- C. E. INFO...
+📥 Downloading SUNPHARMA.NS --- SUN PHARMA...
+📥 Downloading PFC.NS --- POWER FINANCE...
+📥 Downloading DRREDDY.NS --- DR REDDY...
+📥 Downloading CIPLA.NS --- CIPLA...
+📥 Downloading TORNTPHARM.NS --- TORRENT PHARMA...
+📥 Downloading CRAMC.NS --- Canara Robeco Asset...
+📥 Downloading SUZLON.NS --- Suzlon Energy Ltd...
+📥 Downloading IREDA.NS --- Indian Renewable Energy...
+📥 Downloading ICICIAMC.NS --- ICICI Prudential Asset...
+📥 Downloading ORKLAINDIA.NS --- Orkla India Ltd...
+📥 Downloading YESBANK.NS --- Yes Bank Ltd...
+📥 Downloading BAJAJHFL.NS --- Bajaj Housing Finance...
+📥 Downloading HDBFS.NS --- HDB Financial Services...
+📥 Downloading POWERINDIA.NS --- Hitachi Energy...
+📥 Downloading INOXINDIA.NS --- Inox India Ltd...
+📥 Downloading CPPLUS.NS --- Aditya Infotech Ltd...
+📥 Downloading TCS.NS --- Tata Consultancy...
+📥 Downloading INFY.NS --- Infosys Ltd...
+📥 Downloading ADVENZYMES.NS --- Advanced Enzyme...
+📥 Downloading CAPLIPOINT.NS --- Caplin Point Lab...
+📥 Downloading CDSL.NS --- Central Depository...
+📥 Downloading COALINDIA.NS --- Coal India...
+📥 Downloading CUPID.NS --- Cupid Ltd...
+📥 Downloading HUDCO.NS --- HUDCO...
+📥 Downloading HAL.NS --- Hindustan Aeronautics...
+📥 Downloading ICICIBANK.NS --- ICICI Bank Ltd...
+📥 Downloading SBIN.NS --- STATE Bank of India...
+📥 Downloading ITC.NS --- ITC Ltd...
+📥 Downloading JISLJALEQS.NS --- Jain Irrigations...
+📥 Downloading MCX.NS --- Multi Commodity Exchange...
+📥 Downloading NTPCGREEN.NS --- NTPC Green...
+📥 Downloading PCJEWELLER.NS --- PC Jeweller...
+📥 Downloading SHAKTIPUMP.NS --- Shakti Pumps...
+📥 Downloading UNITDSPR.NS --- United Spirits...
+📥 Downloading UBL.NS --- United Breweries Ltd...
+📥 Downloading MUTHOOTFIN.NS --- Muthoot Finance...
+📥 Downloading EPACK.NS --- Epack Durable Ltd...
+📥 Downloading LGEINDIA.NS --- LG Electronics...
+📥 Downloading IDEAFORGE.NS --- Ideaforge Tech...
+📥 Downloading SHREEJISPG.NS --- Shreeji Shipping...
+📥 Downloading LOTUSDEV.NS --- Sri Lotus Developers...
+📥 Downloading UNIECOM.NS --- Unicommerce eSolutions...
+
+✅ Data download complete
+Shape: (87173, 8)
+2026-09-10 10:20:25,346 | INFO | __main__ | Raw rows: 87,173
+2026-09-10 10:20:25,347 | INFO | __main__ | STEP 2 | Downloading macro data
+2026-09-10 10:20:25,599 | INFO | __main__ | STEP 3 | Technical features
+
+⚙️ GENERATING TECHNICAL FEATURES...
+⚙️ Calculating ATR
+
+✅ Technical features generated: 66
+2026-09-10 10:27:44,829 | INFO | __main__ | STEP 4 | Fundamental features
+📂 Loading EPS file: data/ALL_STOCKS_EPS.csv
+✅ Fundamentals added successfully
+2026-09-10 10:27:49,436 | INFO | __main__ | STEP 5 | Building targets
+
+🎯 GENERATING CROSS-SECTIONAL TARGETS...
+
+INSIDE ADD_TARGET ENTRY
+['Date', 'Close', 'High', 'Low', 'Open', 'Volume', 'Company', 'Ticker', 'NSE_Close', 'NSE_Return', 'Return', 'Log_Return', 'MA10', 'EMA10', 'Price_to_MA10', 'MA20', 'EMA20', 'Price_to_MA20', 'MA50', 'EMA50', 'Price_to_MA50', 'MA200', 'EMA200', 'Price_to_MA200', 'ATR_14', 'Volatility', 'Momentum', 'Momentum_ATR', 'Momentum_Vol', 'Reversal', 'RSI', 'MACD', 'MACD_Signal', 'MACD_Hist', 'BB_Z10', 'BB_Z20', 'BB_Z50', 'BB_Z200', 'Close_Lag1', 'Close_Lag2', 'Close_Lag3', 'Close_Lag5', 'Return_Lag1', 'Return_Lag2', 'Return_Lag3', 'Return_Lag5', 'Return_Lag10', 'Trend', 'Trend_Strength', 'EMA_Spread', 'Volume_Change', 'Volume_MA', 'Volume_Ratio', 'ATR', 'Gap', 'High_20', 'Low_20', 'Range_Position', 'Return_5', 'Return_10', 'Reversal_5', 'Reversal_10', 'Return_Rank', 'Momentum_Rank', 'Volatility_Rank', 'Vol_Regime', 'Return_Z', 'Momentum_Z', 'Momentum_ATR_Z', 'Momentum_Vol_Z', 'Volatility_Z', 'RSI_Z', 'MACD_Z', 'MACD_Hist_Z', 'Trend_Strength_Z', 'Return_5_Z', 'Return_10_Z', 'Volume_Change_Z', 'Volume_Ratio_Z', 'Range_Position_Z', 'ATR_Z', 'Gap_Z', 'EMA_Spread_Z', 'Future_Return', 'EPS', 'PE', 'EPS_Growth', 'PE_Change', 'EPS_Growth_Z', 'PE_Z', 'Value_Score', 'PE_Rank', 'Value_Rank']
+(87173, 93)
+
+BEFORE GROUPBY
+<class 'pandas.DataFrame'>
+['Date', 'Close', 'High', 'Low', 'Open', 'Volume', 'Company', 'Ticker', 'NSE_Close', 'NSE_Return', 'Return', 'Log_Return', 'MA10', 'EMA10', 'Price_to_MA10', 'MA20', 'EMA20', 'Price_to_MA20', 'MA50', 'EMA50', 'Price_to_MA50', 'MA200', 'EMA200', 'Price_to_MA200', 'ATR_14', 'Volatility', 'Momentum', 'Momentum_ATR', 'Momentum_Vol', 'Reversal', 'RSI', 'MACD', 'MACD_Signal', 'MACD_Hist', 'BB_Z10', 'BB_Z20', 'BB_Z50', 'BB_Z200', 'Close_Lag1', 'Close_Lag2', 'Close_Lag3', 'Close_Lag5', 'Return_Lag1', 'Return_Lag2', 'Return_Lag3', 'Return_Lag5', 'Return_Lag10', 'Trend', 'Trend_Strength', 'EMA_Spread', 'Volume_Change', 'Volume_MA', 'Volume_Ratio', 'ATR', 'Gap', 'High_20', 'Low_20', 'Range_Position', 'Return_5', 'Return_10', 'Reversal_5', 'Reversal_10', 'Return_Rank', 'Momentum_Rank', 'Volatility_Rank', 'Vol_Regime', 'Return_Z', 'Momentum_Z', 'Momentum_ATR_Z', 'Momentum_Vol_Z', 'Volatility_Z', 'RSI_Z', 'MACD_Z', 'MACD_Hist_Z', 'Trend_Strength_Z', 'Return_5_Z', 'Return_10_Z', 'Volume_Change_Z', 'Volume_Ratio_Z', 'Range_Position_Z', 'ATR_Z', 'Gap_Z', 'EMA_Spread_Z', 'Future_Return', 'EPS', 'PE', 'EPS_Growth', 'PE_Change', 'EPS_Growth_Z', 'PE_Z', 'Value_Score', 'PE_Rank', 'Value_Rank', 'Neutral_Target', 'Future_Return_Rank', 'Alpha_Target', 'Alpha_Target_Z', 'CrossSection_Target']
+
+AFTER TRIPLE BARRIER
+Columns:
+['Date', 'Close', 'High', 'Low', 'Open', 'Volume', 'Company', 'Ticker', 'NSE_Close', 'NSE_Return', 'Return', 'Log_Return', 'MA10', 'EMA10', 'Price_to_MA10', 'MA20', 'EMA20', 'Price_to_MA20', 'MA50', 'EMA50', 'Price_to_MA50', 'MA200', 'EMA200', 'Price_to_MA200', 'ATR_14', 'Volatility', 'Momentum', 'Momentum_ATR', 'Momentum_Vol', 'Reversal', 'RSI', 'MACD', 'MACD_Signal', 'MACD_Hist', 'BB_Z10', 'BB_Z20', 'BB_Z50', 'BB_Z200', 'Close_Lag1', 'Close_Lag2', 'Close_Lag3', 'Close_Lag5', 'Return_Lag1', 'Return_Lag2', 'Return_Lag3', 'Return_Lag5', 'Return_Lag10', 'Trend', 'Trend_Strength', 'EMA_Spread', 'Volume_Change', 'Volume_MA', 'Volume_Ratio', 'ATR', 'Gap', 'High_20', 'Low_20', 'Range_Position', 'Return_5', 'Return_10', 'Reversal_5', 'Reversal_10', 'Return_Rank', 'Momentum_Rank', 'Volatility_Rank', 'Vol_Regime', 'Return_Z', 'Momentum_Z', 'Momentum_ATR_Z', 'Momentum_Vol_Z', 'Volatility_Z', 'RSI_Z', 'MACD_Z', 'MACD_Hist_Z', 'Trend_Strength_Z', 'Return_5_Z', 'Return_10_Z', 'Volume_Change_Z', 'Volume_Ratio_Z', 'Range_Position_Z', 'ATR_Z', 'Gap_Z', 'EMA_Spread_Z', 'Future_Return', 'EPS', 'PE', 'EPS_Growth', 'PE_Change', 'EPS_Growth_Z', 'PE_Z', 'Value_Score', 'PE_Rank', 'Value_Rank', 'Neutral_Target', 'Future_Return_Rank', 'Alpha_Target', 'Alpha_Target_Z', 'CrossSection_Target', 'Target']
+Index names:
+[None]
+Company exists: True
+
+🎯 TARGET DISTRIBUTION
+Target
+0    0.546338
+1    0.453662
+Name: proportion, dtype: float64
+
+📌 Unique classes: [np.int64(0), np.int64(1)]
+
+📊 TARGET SETTINGS
+Prediction Horizon: 5
+Volatility Lookback: 20
+Top Percentile: 0.8
+Max Daily Move Cap: 0.3
+
+✅ Final dataset shape: (86948, 100)
+
+📈 BUY CLASS RATIO: 45.37%
+
+📊 CROSS SECTION TARGET
+CrossSection_Target
+NaN    51007
+1.0    19535
+0.0    16406
+Name: count, dtype: int64
+2026-09-10 10:27:52,931 | INFO | __main__ | STEP 6 | Cleaning dataset
+2026-09-10 10:27:53,155 | INFO | __main__ | Final shape: (78826, 100)
+
+final_df created successfully: (78826, 100)
+
+===== BEFORE REGIME DETECTION =====
+Shape: (78826, 100)
+
+🌍 Global Volatility Regime: NORMAL_VOL
+
+📊 REGIME DISTRIBUTION:
+Market_Regime
+SIDEWAYS             0.343136
+BULL                 0.248687
+BEAR                 0.214942
+BEAR_VOLATILE        0.076269
+SIDEWAYS_VOLATILE    0.061997
+BULL_VOLATILE        0.054969
+Name: proportion, dtype: float64
+
+🌍 Current Regime: BEAR
+
+📊 Running Institutional Alpha Pipeline
+2026-09-10 10:27:53,741 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-10 10:27:53,741 | INFO | src.alpha.ic_engine | STARTING ALPHA PIPELINE
+2026-09-10 10:27:53,741 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-10 10:27:53,741 | INFO | src.alpha.ic_engine | Rows              : 78826
+2026-09-10 10:27:53,741 | INFO | src.alpha.ic_engine | Features Requested: Auto
+2026-09-10 10:27:53,741 | INFO | src.alpha.ic_engine | Target Column     : Future_Return
+2026-09-10 10:27:53,741 | INFO | src.alpha.ic_engine | Current Regime    : BEAR
+2026-09-10 10:27:53,741 | INFO | src.alpha.ic_engine | 
+2026-09-10 10:27:53,741 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-10 10:27:53,742 | INFO | src.alpha.ic_engine | PHASE 1A : GLOBAL IC ANALYSIS
+2026-09-10 10:27:53,742 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-10 10:27:53,742 | INFO | src.alpha.ic_engine | Computing Daily IC...
+2026-09-10 10:27:53,745 | INFO | src.alpha.ic_engine | Evaluating 92 features for Daily IC.
+2026-09-10 10:40:21,221 | INFO | src.alpha.ic_engine | Daily IC computed for 264751 observations.
+2026-09-10 10:40:21,264 | INFO | src.alpha.ic_engine | Daily IC observations : 264751
+2026-09-10 10:40:21,264 | INFO | src.alpha.ic_engine | Building IC summary...
+2026-09-10 10:40:21,332 | INFO | src.alpha.ic_engine | IC Summary computed for 90 features.
+2026-09-10 10:40:21,332 | INFO | src.alpha.ic_engine | Features evaluated : 90
+2026-09-10 10:40:21,333 | INFO | src.alpha.ic_engine | Selecting production features...
+2026-09-10 10:40:23,062 | INFO | src.alpha.ic_engine | IC Feature Filter | Initial=90 | Quality=31 | Family=28 | Selected=5 | Removed=23
+2026-09-10 10:40:23,062 | INFO | src.alpha.ic_engine | Selected features : 5
+2026-09-10 10:40:23,063 | INFO | src.alpha.ic_engine | Removed features  : 23
+2026-09-10 10:40:23,063 | INFO | src.alpha.ic_engine | Computing global IC weights...
+2026-09-10 10:40:23,065 | INFO | src.alpha.ic_engine | Built normalized IC weights for 5 features.
+2026-09-10 10:40:23,065 | INFO | src.alpha.ic_engine | Global IC weights created for 5 features.
+2026-09-10 10:40:23,066 | INFO | src.alpha.ic_engine | 
+2026-09-10 10:40:23,066 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-10 10:40:23,066 | INFO | src.alpha.ic_engine | PHASE 1B : ROLLING IC ANALYSIS
+2026-09-10 10:40:23,066 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-10 10:40:23,066 | INFO | src.alpha.ic_engine | Computing Rolling IC...
+2026-09-10 10:40:23,245 | INFO | src.alpha.ic_engine | Rolling IC computed for 92 features using window=60.
+2026-09-10 10:40:23,245 | INFO | src.alpha.ic_engine | Rolling IC observations : 264751
+2026-09-10 10:40:23,245 | INFO | src.alpha.ic_engine | Selecting rolling features...
+2026-09-10 10:40:23,274 | INFO | src.alpha.ic_engine | Rolling IC Filter | Candidates=5 | Selected=5
+2026-09-10 10:40:23,274 | INFO | src.alpha.ic_engine | Rolling-selected features : 5
+2026-09-10 10:40:23,274 | INFO | src.alpha.ic_engine | Computing rolling weights...
+2026-09-10 10:40:23,400 | INFO | src.alpha.ic_engine | Rolling weights computed for 5 features.
+2026-09-10 10:40:23,401 | INFO | src.alpha.ic_engine | Rolling weights generated.
+2026-09-10 10:40:23,401 | INFO | src.alpha.ic_engine | 
+2026-09-10 10:40:23,401 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-10 10:40:23,401 | INFO | src.alpha.ic_engine | PHASE 1C : REGIME IC ANALYSIS
+2026-09-10 10:40:23,401 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-10 10:40:23,401 | INFO | src.alpha.ic_engine | Computing regime IC...
+2026-09-10 10:40:23,548 | INFO | src.alpha.ic_engine | Computed regime IC statistics for 264 Regime × Feature combinations.
+2026-09-10 10:40:23,548 | INFO | src.alpha.ic_engine | Regime IC observations : 264
+2026-09-10 10:40:23,548 | INFO | src.alpha.ic_engine | Selecting regime features...
+2026-09-10 10:40:23,554 | INFO | src.alpha.ic_engine | Regime Feature Filter | Regime=BEAR | Candidates=5 | Selected=3
+2026-09-10 10:40:23,554 | INFO | src.alpha.ic_engine | Regime-selected features : 3
+2026-09-10 10:40:23,554 | INFO | src.alpha.ic_engine | Computing regime weights...
+2026-09-10 10:40:23,563 | INFO | src.alpha.ic_engine | Built regime weights for 3 features (Regime=BEAR).
+2026-09-10 10:40:23,564 | INFO | src.alpha.ic_engine | Regime weights generated.
+2026-09-10 10:40:23,564 | INFO | src.alpha.ic_engine | 
+2026-09-10 10:40:23,564 | INFO | src.alpha.ic_engine | Phase 1 completed successfully.
+2026-09-10 10:40:23,564 | INFO | src.alpha.ic_engine | 
+2026-09-10 10:40:23,564 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-10 10:40:23,564 | INFO | src.alpha.ic_engine | PHASE 2 : IC STABILITY ENGINE
+2026-09-10 10:40:23,564 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-10 10:40:23,564 | INFO | src.alpha.ic_engine | Computing IC stability metrics...
+2026-09-10 10:40:23,811 | INFO | src.alpha.ic_engine | Stability metrics computed for 90 features.
+2026-09-10 10:40:23,812 | INFO | src.alpha.ic_engine | Building stability weights...
+2026-09-10 10:40:23,831 | INFO | src.alpha.ic_engine | Stability weights generated for 5 features.
+2026-09-10 10:40:23,832 | INFO | src.alpha.ic_engine | 
+2026-09-10 10:40:23,832 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-10 10:40:23,832 | INFO | src.alpha.ic_engine | PHASE 3 : FEATURE CLUSTERING
+2026-09-10 10:40:23,832 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-10 10:40:23,832 | INFO | src.alpha.ic_engine | Running feature clustering...
+2026-09-10 10:40:23,899 | INFO | src.alpha.ic_engine | Feature clustering completed.
+2026-09-10 10:40:23,899 | INFO | src.alpha.ic_engine | Clusters discovered : 5
+2026-09-10 10:40:23,899 | INFO | src.alpha.ic_engine | Diversified features retained : 5
+2026-09-10 10:40:23,899 | INFO | src.alpha.ic_engine | 
+2026-09-10 10:40:23,899 | INFO | src.alpha.ic_engine | Phase 2 & Phase 3 completed successfully.
+2026-09-10 10:40:23,899 | INFO | src.alpha.ic_engine | 
+2026-09-10 10:40:23,899 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-10 10:40:23,899 | INFO | src.alpha.ic_engine | PHASE 4 : FEATURE DECAY ENGINE
+2026-09-10 10:40:23,899 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-10 10:40:23,899 | INFO | src.alpha.ic_engine | Computing feature decay...
+2026-09-10 10:40:24,265 | INFO | src.alpha.feature_decay | Computed decay statistics for 88 features.
+2026-09-10 10:40:24,266 | INFO | src.alpha.ic_engine | Decay columns:
+2026-09-10 10:40:24,266 | INFO | src.alpha.ic_engine | ['Feature', 'Historical_IC', 'Recent_IC', 'IC_Delta', 'Historical_ICIR', 'Recent_ICIR', 'ICIR_Delta', 'Recent_Positive_Pct', 'IC_Trend']
+2026-09-10 10:40:24,266 | INFO | src.alpha.ic_engine | Decay metrics computed for 88 features.
+2026-09-10 10:40:24,266 | INFO | src.alpha.ic_engine | Building decay weights...
+2026-09-10 10:40:24,273 | INFO | src.alpha.feature_decay | Computed decay scores for 88 features.
+2026-09-10 10:40:24,282 | INFO | src.alpha.feature_decay | Decay weights computed for 5 features.
+2026-09-10 10:40:24,283 | INFO | src.alpha.ic_engine | Decay weights generated for 5 features.
+2026-09-10 10:40:24,283 | INFO | src.alpha.ic_engine | 
+2026-09-10 10:40:24,284 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-10 10:40:24,284 | INFO | src.alpha.ic_engine | PHASE 5 : MASTER IC ENGINE
+2026-09-10 10:40:24,284 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-10 10:40:24,284 | INFO | src.alpha.ic_engine | Building master feature table...
+2026-09-10 10:40:24,284 | INFO | src.alpha.ic_engine | Building Master IC table...
+2026-09-10 10:40:24,284 | INFO | src.alpha.ic_engine | Merging Global IC metrics...
+2026-09-10 10:40:24,285 | INFO | src.alpha.ic_engine | Merging Rolling IC...
+2026-09-10 10:40:24,296 | INFO | src.alpha.ic_engine | Merging Stability metrics...
+2026-09-10 10:40:24,302 | INFO | src.alpha.ic_engine | Merging Feature Clustering...
+2026-09-10 10:40:24,311 | INFO | src.alpha.ic_engine | Merging Regime IC...
+2026-09-10 10:40:24,322 | INFO | src.alpha.ic_engine | Merging Feature Decay...
+2026-09-10 10:40:24,346 | INFO | src.alpha.ic_engine | Master table created with 90 features.
+2026-09-10 10:40:24,347 | INFO | src.alpha.ic_engine | Master table columns:
+Feature
+Mean_IC
+Abs_IC
+IC_Std
+Positive_IC_Pct
+Observations
+ICIR
+Alpha_Score
+Global_Weight
+Rolling_IC
+Rolling_ICIR
+Rolling_Rank
+Rolling_Weight
+IC_Volatility
+IC_FlipRate
+Rolling_IC_Volatility
+Rolling_ICIR_Volatility
+Stability_Score
+Stability_Multiplier
+Stability_Weight
+Stability_Rank
+Cluster_ID
+Cluster_Size
+Representative
+Dropped_By_Cluster
+Cluster_Weight
+Diversification_Multiplier
+Regime
+Regime_Mean_IC
+Regime_Abs_IC
+Regime_ICIR
+Regime_Alpha_Score
+Regime_Positive_IC_Pct
+Regime_Observations
+Regime_Weight
+Historical_IC
+Recent_IC
+IC_Delta
+Historical_ICIR
+Recent_ICIR
+ICIR_Delta
+Recent_Positive_Pct
+IC_Trend
+Decay_Score
+Decay_Multiplier
+Decay_Weight
+Feature_Rank
+Use_Feature
+2026-09-10 10:40:24,347 | INFO | src.alpha.ic_engine | Master table created with 90 features.
+2026-09-10 10:40:24,347 | INFO | src.alpha.ic_engine | Building adaptive IC weights...
+2026-09-10 10:40:24,348 | INFO | src.alpha.ic_engine | Master IC columns:
+2026-09-10 10:40:24,348 | INFO | src.alpha.ic_engine | Master table columns:
+Feature
+Mean_IC
+Abs_IC
+IC_Std
+Positive_IC_Pct
+Observations
+ICIR
+Alpha_Score
+Global_Weight
+Rolling_IC
+Rolling_ICIR
+Rolling_Rank
+Rolling_Weight
+IC_Volatility
+IC_FlipRate
+Rolling_IC_Volatility
+Rolling_ICIR_Volatility
+Stability_Score
+Stability_Multiplier
+Stability_Weight
+Stability_Rank
+Cluster_ID
+Cluster_Size
+Representative
+Dropped_By_Cluster
+Cluster_Weight
+Diversification_Multiplier
+Regime
+Regime_Mean_IC
+Regime_Abs_IC
+Regime_ICIR
+Regime_Alpha_Score
+Regime_Positive_IC_Pct
+Regime_Observations
+Regime_Weight
+Historical_IC
+Recent_IC
+IC_Delta
+Historical_ICIR
+Recent_ICIR
+ICIR_Delta
+Recent_Positive_Pct
+IC_Trend
+Decay_Score
+Decay_Multiplier
+Decay_Weight
+Feature_Rank
+Use_Feature
+2026-09-10 10:40:24,366 | INFO | src.alpha.ic_engine | Adaptive weighting completed.
+2026-09-10 10:40:24,367 | INFO | src.alpha.ic_engine | 
+2026-09-10 10:40:24,367 | INFO | src.alpha.ic_engine | Phase 4 & Phase 5 completed successfully.
+2026-09-10 10:40:24,367 | INFO | src.alpha.ic_engine | 
+2026-09-10 10:40:24,367 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-10 10:40:24,367 | INFO | src.alpha.ic_engine | PHASE 6 : FEATURE CATEGORY ALLOCATION
+2026-09-10 10:40:24,367 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-10 10:40:24,367 | INFO | src.alpha.ic_engine | Building feature-category table...
+2026-09-10 10:40:24,373 | INFO | src.alpha.ic_engine | Feature-category table created with 90 rows.
+2026-09-10 10:40:24,373 | INFO | src.alpha.ic_engine | Computing category statistics...
+2026-09-10 10:40:24,390 | INFO | src.alpha.ic_engine | Computed statistics for 5 categories.
+2026-09-10 10:40:24,390 | INFO | src.alpha.ic_engine | Allocating dynamic category budgets...
+2026-09-10 10:40:24,399 | INFO | src.alpha.ic_engine | Generated budgets for 5 categories.
+2026-09-10 10:40:24,399 | INFO | src.alpha.ic_engine | Computing final feature weights...
+2026-09-10 10:40:24,407 | INFO | src.alpha.ic_engine | Final feature weights generated for 90 features.
+2026-09-10 10:40:24,407 | INFO | src.alpha.ic_engine | 
+2026-09-10 10:40:24,407 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-10 10:40:24,407 | INFO | src.alpha.ic_engine | ALPHA PIPELINE COMPLETED SUCCESSFULLY
+2026-09-10 10:40:24,408 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-10 10:40:42,727 | INFO | src.alpha.ic_engine | Alpha Engine results saved to 'data'.
+
+🏆 TOP IC FEATURES
+             Feature   Mean_IC    Abs_IC  ...      ICIR  Alpha_Score  Feature_Rank
+0                EPS  0.046104  0.230249  ...  0.166443     0.189440             1
+1        Value_Score  0.032107  0.185788  ...  0.139637     0.167525             2
+2     Trend_Strength  0.035689  0.219948  ...  0.132463     0.167478             3
+3   Trend_Strength_Z  0.035689  0.219948  ...  0.132460     0.167427             4
+4              Trend  0.033001  0.218569  ...  0.122872     0.161680             5
+5            BB_Z200  0.030362  0.205852  ...  0.119805     0.158026             6
+6     Price_to_MA200  0.031278  0.218687  ...  0.116631     0.156357             7
+7         Value_Rank  0.025405  0.192668  ...  0.107056     0.146060             8
+9               MA20  0.027098  0.249802  ...  0.089569     0.137247            10
+8             Low_20  0.027156  0.251305  ...  0.089233     0.137526             9
+12             EMA20  0.026947  0.249960  ...  0.089010     0.137092            13
+14              MA50  0.026858  0.248992  ...  0.088961     0.136989            15
+10              MA10  0.026920  0.250229  ...  0.088844     0.137191            11
+16             EMA50  0.026825  0.249266  ...  0.088780     0.136781            17
+15             EMA10  0.026898  0.250244  ...  0.088772     0.136799            16
+
+[15 rows x 9 columns]
+           Feature    Category  Final_Weight
+0       Volatility  Volatility      0.171923
+1               PE       Value      0.073764
+2              EPS       Value      0.072727
+3       Log_Return       Price      0.071592
+4           Return       Price      0.071592
+5             MACD    Momentum      0.056328
+6         Momentum    Momentum      0.056328
+7              RSI    Momentum      0.056328
+8     Momentum_ATR    Momentum      0.056328
+9   Trend_Strength     Unknown      0.004607
+10    EMA_Spread_Z     Unknown      0.004469
+11          Low_20     Unknown      0.004414
+12           EMA20     Unknown      0.003852
+13      Close_Lag3     Unknown      0.003852
+14            MA50     Unknown      0.003852
+15           EMA10     Unknown      0.003852
+16           EMA50     Unknown      0.003852
+17      Close_Lag5     Unknown      0.003852
+18      Close_Lag2     Unknown      0.003852
+19         BB_Z200     Unknown      0.003852
+
+🛡 Institutional Feature Set
+Selected Features: 40
+['Volatility', 'PE', 'EPS', 'Log_Return', 'Return', 'MACD', 'Momentum', 'RSI', 'Momentum_ATR', 'Trend_Strength', 'EMA_Spread_Z', 'Low_20', 'EMA20', 'Close_Lag3', 'MA50', 'EMA10', 'EMA50', 'Close_Lag5', 'Close_Lag2', 'BB_Z200', 'Trend', 'Trend_Strength_Z', 'Value_Rank', 'Price_to_MA200', 'MA20', 'MA10', 'Range_Position_Z', 'SMA_L', 'EMA200', 'MA200', 'SMA_S', 'Close_Lag1', 'EMA_M', 'High_20', 'EMA_S', 'MACD_Signal', 'Momentum_ATR_Z', 'Price_to_MA50', 'ATR_Z', 'Return_Lag5']
+
+✅ Institutional Alpha Engine Complete
+
+============================================================
+PART 4 — MODEL TRAINING
+============================================================
+
+Dataset Shape:
+(78826, 46)
+
+============================================================
+DATE-BASED TRAIN / TEST SPLIT
+============================================================
+Total dates : 3,028
+Train dates : 2,422
+Test dates  : 606
+Train rows  : 58,179
+Test rows   : 20,647
+Train companies : 28
+Test companies  : 39
+Combined companies : 39
+Train-only companies : 0
+Test-only companies : 11
+Missing from test universe : 0
+Missing from train universe : 11
+
+ℹ TEST-ONLY COMPANIES
+['ADITYA INFOTECH LTD', 'EPACK DURABLE LTD', 'INDIAN RENEWABLE ENERGY', 'INOX INDIA LTD', 'NSDL', 'NTPC GREEN', 'ORKLA INDIA LTD', 'SHREEJI SHIPPING', 'SRI LOTUS DEVELOPERS', 'TBO TEK', 'UNICOMMERCE ESOLUTIONS']
+Train period : 2014-05-30 → 2024-03-26
+Test period  : 2024-03-27 → 2026-09-02
+
+============================================================
+DATE SPLIT VALIDATION
+============================================================
+✓ Date leakage check       : PASS
+✓ Train X/y alignment      : PASS
+✓ Test X/y alignment       : PASS
+✓ Meta X/y alignment       : PASS
+✓ Test panel uniqueness    : PASS
+✓ Test universe diagnosed  : PASS
+============================================================
+
+📊 MODEL TEST UNIVERSE
+Canonical companies : 39
+Companies in test   : 39
+✓ All canonical companies have test observations.
+============================================================
+
+============================================================
+FINAL UNIVERSE vs TEST UNIVERSE
+============================================================
+Full universe companies : 39
+Test universe companies : 39
+Missing test companies  : 0
+Unexpected test companies : 0
+
+✓ All current-universe companies have test-period observations.
+✓ No unexpected companies in test panel.
+============================================================
+
+⚙ Removing highly correlated features
+Removed 20 features
+
+⚙ Scaling features
+
+⚙ Training base models
+
+🤖 TRAINING MODELS...
+📊 Target Classes: [np.int64(0), np.int64(1)]
+
+📊 Selected Models: ['xgb', 'rf', 'lr', 'mlp']
+
+⚙️ Training XGB
+✅ XGB trained successfully
+
+⚙️ Training RF
+✅ RF trained successfully
+
+⚙️ Training LR
+✅ LR trained successfully
+
+⚙️ Training MLP
+✅ MLP trained successfully
+
+✅ Final trained models:
+['xgb', 'rf', 'lr', 'mlp']
+
+Final trained models:
+['xgb', 'rf', 'lr', 'mlp']
+
+⚙ Generating probabilities
+
+⚙ Training meta model
+2026-09-10 10:44:18,957 | INFO | __main__ | ================================================================================
+2026-09-10 10:44:18,957 | INFO | __main__ | BACKTEST DEBUG - After Meta Filter
+2026-09-10 10:44:18,957 | INFO | __main__ | Rows after merge: 78826
+2026-09-10 10:44:18,962 | INFO | __main__ | Unique Dates=3028 | Companies=39
+2026-09-10 10:44:18,963 | INFO | __main__ | Meta-positive observations: 1852
+Average Meta: 0.3644
+
+============================================================
+PART 5 — ENSEMBLE GENERATION
+============================================================
+
+Weighted Ensemble Complete
+Models: ['XGB', 'RF', 'LR', 'MLP']
+Weights: [0.21875 0.09375 0.0625  0.625  ]
+2026-09-10 10:44:21,494 | INFO | __main__ | ================================================================================
+2026-09-10 10:44:21,494 | INFO | __main__ | BACKTEST DEBUG Before - Meta Model Filter
+2026-09-10 10:44:21,494 | INFO | __main__ | Rows after merge: 78826
+2026-09-10 10:44:21,500 | INFO | __main__ | Unique Dates=3028 | Companies=39
+
+Applying Meta Model
+2026-09-10 10:44:21,503 | INFO | __main__ | ================================================================================
+2026-09-10 10:44:21,504 | INFO | __main__ | BACKTEST DEBUG After - Meta Model Filter
+2026-09-10 10:44:21,504 | INFO | __main__ | Rows after merge: 78826
+2026-09-10 10:44:21,509 | INFO | __main__ | Unique Dates=3028 | Companies=39
+2026-09-10 10:44:21,518 | INFO | __main__ | ================================================================================
+2026-09-10 10:44:21,518 | INFO | __main__ | BACKTEST DEBUG Before - Meta Filter Final Proba
+2026-09-10 10:44:21,518 | INFO | __main__ | Rows after merge: 78826
+2026-09-10 10:44:21,523 | INFO | __main__ | Unique Dates=3028 | Companies=39
+Signals after Meta Filter: 1212
+2026-09-10 10:44:21,526 | INFO | __main__ | ================================================================================
+2026-09-10 10:44:21,527 | INFO | __main__ | BACKTEST DEBUG After - Meta Filter Final Proba and Before Regime Filter
+2026-09-10 10:44:21,527 | INFO | __main__ | Rows after merge: 78826
+2026-09-10 10:44:21,532 | INFO | __main__ | Unique Dates=3028 | Companies=39
+
+Applying Regime Filter
+
+===== REGIME EXPOSURE DIAGNOSTICS =====
+Market_Regime
+SIDEWAYS             6969
+BULL                 5273
+BEAR                 4601
+BEAR_VOLATILE        1520
+SIDEWAYS_VOLATILE    1203
+BULL_VOLATILE        1081
+Name: Observations, dtype: int64
+
+Regime Exposure:
+Market_Regime
+BULL                 1.00
+SIDEWAYS             0.85
+BULL_VOLATILE        0.75
+SIDEWAYS_VOLATILE    0.60
+BEAR                 0.50
+BEAR_VOLATILE        0.25
+Name: Regime_Exposure, dtype: float64
+
+Mean Canonical Probability by Regime:
+Market_Regime
+BULL_VOLATILE        0.505424
+BEAR_VOLATILE        0.503193
+BEAR                 0.488070
+SIDEWAYS_VOLATILE    0.483893
+BULL                 0.472431
+SIDEWAYS             0.464129
+Name: Probability, dtype: float64
+
+Signals with Positive Canonical Alpha: 9011
+Signals with Positive Regime Exposure: 20647
+Positive Alpha entering downstream stages: 9011
+Regime-adjusted exposure observations: 20647
+2026-09-10 10:44:21,559 | INFO | __main__ | ================================================================================
+2026-09-10 10:44:21,560 | INFO | __main__ | BACKTEST DEBUG After - Regime Adjustment and Before Volatility Filter
+2026-09-10 10:44:21,560 | INFO | __main__ | Rows after merge: 78826
+2026-09-10 10:44:21,565 | INFO | __main__ | Unique Dates=3028 | Companies=39
+2026-09-10 10:44:21,565 | INFO | __main__ | Canonical Probability Mean=0.477774 | Min=0.183492 | Max=0.779275
+2026-09-10 10:44:21,565 | INFO | __main__ | Regime Exposure Mean=0.746341 | Min=0.250000 | Max=1.000000
+
+Applying Volatility Filter
+2026-09-10 10:44:21,588 | INFO | __main__ | ================================================================================
+2026-09-10 10:44:21,588 | INFO | __main__ | VOLATILITY FILTER DEBUG
+2026-09-10 10:44:21,589 | INFO | __main__ | ATR_Z count=20647 | mean=-0.1506 | min=-0.6736 | max=2.3779
+2026-09-10 10:44:21,589 | INFO | __main__ | ATR_MEAN count=20628 | mean=-0.1502 | min=-0.5115 | max=1.3236
+2026-09-10 10:44:21,589 | INFO | __main__ | Vol Filter TRUE=15334 | FALSE=5313
+2026-09-10 10:44:21,590 | INFO | __main__ | Positive Alpha BEFORE volatility filter: 9011
+Positive Alpha after Volatility Filter: 6796
+2026-09-10 10:44:21,592 | INFO | __main__ | ================================================================================
+2026-09-10 10:44:21,592 | INFO | __main__ | BACKTEST DEBUG After - Volatality Filter and Before CROSS SECTIONAL Filter
+2026-09-10 10:44:21,592 | INFO | __main__ | Rows after merge: 78826
+2026-09-10 10:44:21,597 | INFO | __main__ | Unique Dates=3028 | Companies=39
+
+Cross Sectional Ranking deferred to Backtest Engine
+Positive Alpha entering backtest: 923
+2026-09-10 10:44:21,598 | INFO | __main__ | ================================================================================
+2026-09-10 10:44:21,599 | INFO | __main__ | BACKTEST DEBUG After -  CROSS SECTIONAL Filter
+2026-09-10 10:44:21,599 | INFO | __main__ | Rows after merge: 78826
+2026-09-10 10:44:21,604 | INFO | __main__ | Unique Dates=3028 | Companies=39
+
+FINAL SIGNAL STATISTICS
+Signal Count: 20647
+Signal Mean: 0.477774
+Signal Max: 0.779275
+Signal Min: 0.183492
+2026-09-10 10:44:21,604 | INFO | __main__ | ================================================================================
+2026-09-10 10:44:21,605 | INFO | __main__ | BACKTEST DEBUG Before - Backtest
+2026-09-10 10:44:21,605 | INFO | __main__ | Rows after merge: 78826
+2026-09-10 10:44:21,610 | INFO | __main__ | Unique Dates=3028 | Companies=39
+
+===== SIGNAL DIAGNOSTICS =====
+count    606.000000
+mean      34.070957
+std        3.154938
+min       28.000000
+25%       32.000000
+50%       34.000000
+75%       38.000000
+max       39.000000
+dtype: float64
+count    606.000000
+mean      34.070957
+std        3.154938
+min       28.000000
+25%       32.000000
+50%       34.000000
+75%       38.000000
+max       39.000000
+dtype: float64
+
+Running Ensemble Backtest
+After merge: 78826
+2026-09-10 10:44:21,621 | INFO | __main__ | Signals AFTER volatility filter: 20647
+2026-09-10 10:44:21,621 | INFO | __main__ | Max proba after vol filter: 0.779275
+2026-09-10 10:44:21,622 | INFO | __main__ | Mean proba after vol filter: 0.477774
+2026-09-10 10:44:21,622 | INFO | __main__ | ================================================================================
+✓ Canonical Date/Company alignment PASS | Rows=20,647
+
+========================================================================
+CANONICAL ALPHA SIGNAL CONTRACT
+========================================================================
+Full dataset rows       : 78,826
+Test panel rows         : 20,647
+Probability count       : 20,647
+Probability mean        : 0.477774
+Probability min         : 0.183492
+Probability max         : 0.779275
+Positive Alpha          : 9,011
+Negative Alpha          : 11,636
+Zero Alpha              : 0
+========================================================================
+
+CANONICAL BACKTEST PROBABILITY CHECK
+        Date              Company  ...  Prediction_Alpha  Confidence
+0 2026-01-01  ADITYA INFOTECH LTD  ...          0.028329    0.056658
+1 2026-01-02  ADITYA INFOTECH LTD  ...         -0.043684    0.087369
+2 2026-01-05  ADITYA INFOTECH LTD  ...          0.000062    0.000125
+3 2026-01-06  ADITYA INFOTECH LTD  ...         -0.099745    0.199491
+4 2026-01-07  ADITYA INFOTECH LTD  ...         -0.067045    0.134089
+5 2026-01-08  ADITYA INFOTECH LTD  ...         -0.063556    0.127113
+6 2026-01-09  ADITYA INFOTECH LTD  ...         -0.085215    0.170430
+7 2026-01-12  ADITYA INFOTECH LTD  ...         -0.040367    0.080734
+8 2026-01-13  ADITYA INFOTECH LTD  ...         -0.151227    0.302455
+9 2026-01-14  ADITYA INFOTECH LTD  ...         -0.167626    0.335252
+
+[10 rows x 5 columns]
+
+✓ Canonical probability alignment PASS | TestRows=20,647 | ProbabilityRows=20,647
+
+
+========================================================================
+📊 BACKTEST STARTED
+========================================================================
+Initial prediction rows : 20,647
+Meta test rows           : 20,647
+Final dataset rows       : 20,647
+2026-09-10 10:44:21,927 | INFO | src.backtest.backtest | BACKTEST UNIVERSE CHECK | prediction companies=39 | prediction dates=606
+
+Complete test panel: 20,647 rows
+Unique test dates: 606
+Unique test companies: 39
+
+Rows after valid price/date check: 20,647
+Rows removed: 0
+
+================================================================
+BACKTEST PROBABILITY DISTRIBUTION
+================================================================
+Count        : 20,647
+Mean         : 0.477774
+Median       : 0.473088
+Std          : 0.132924
+Min          : 0.183492
+Max          : 0.779275
+P > 0.50     : 9,011 (43.64%)
+P > 0.55     : 6,582 (31.88%)
+P > 0.60     : 4,372 (21.17%)
+P > 0.65     : 2,566 (12.43%)
+P > 0.70     : 994 (4.81%)
+================================================================
+
+CANONICAL SIGNAL INTEGRITY
+Probability source : Proba
+Neutrality         : 0.500000
+Alpha mean         : -0.022226
+Confidence mean    : 0.227737
+
+================================================================
+CANONICAL ALPHA CONTRACT
+================================================================
+Neutrality threshold : 0.500000
+Probability min      : 0.18349184
+Probability max      : 0.77927492
+Probability mean     : 0.47777384
+Alpha min            : -0.31650816
+Alpha max            : 0.27927492
+Alpha mean           : -0.02222616
+Alpha median         : -0.02691162
+Alpha std            : 0.13292385
+Positive Alpha       : 9011
+Negative Alpha       : 11636
+Zero Alpha           : 0
+Positive Alpha %     : 43.64%
+Negative Alpha %     : 56.36%
+Confidence min       : 0.00002322
+Confidence max       : 0.63301633
+Confidence mean      : 0.22773715
+Alpha source         : Canonical_Probability
+================================================================
+
+
+==========================================================
+CROSS-SECTIONAL SIGNAL DEBUG
+==========================================================
+Alpha min       : -0.31650816
+Alpha max       : 0.27927492
+Alpha mean      : -0.02222616
+Alpha median    : -0.02691162
+Positive Alpha  : 9,011
+Confidence >= 0.02: 19,631
+TOP_PCT         : 0.1
+Cross-section rank enabled: True
+Eligible after rank: 469
+
+
+==========================================================
+BACKTEST SIGNAL DIAGNOSTICS
+==========================================================
+Test observations : 20,647
+Test dates        : 606
+Test companies    : 39
+Eligible rows     : 469
+Selected rows     : 469
+Signal dates      : 348
+
+
+==========================================================
+BACKTEST DIAGNOSTICS
+==========================================================
+Rows                  : 20,647
+Unique Dates          : 606
+Unique Companies      : 39
+Selected Signals      : 469
+Signal Dates          : 348
+Average Holdings      : 0.772
+Average Daily Turnover: 0.271917
+Annualized Turnover   : 68.52x
+Deadband Filtered     : 0.00%
+
+Position Statistics:
+count    20647.000000
+mean         0.006903
+std          0.051021
+min          0.000000
+25%          0.000000
+50%          0.000000
+75%          0.000000
+max          0.500000
+Name: Position_Executed, dtype: float64
+
+Confidence Statistics:
+count    20647.000000
+mean         0.227737
+std          0.144168
+min          0.000023
+25%          0.104126
+50%          0.213858
+75%          0.341748
+max          0.633016
+Name: Confidence, dtype: float64
+
+Risk Statistics:
+         Volatility       ATR_PCT
+count  20647.000000  20647.000000
+mean       0.020584      0.031865
+std        0.009690      0.012190
+min        0.002484      0.009744
+25%        0.013250      0.022166
+50%        0.018619      0.029654
+75%        0.025978      0.039572
+max        0.069952      0.085883
+
+Market Regime:
+Market_Regime
+SIDEWAYS             6969
+BULL                 5273
+BEAR                 4601
+BEAR_VOLATILE        1520
+SIDEWAYS_VOLATILE    1203
+BULL_VOLATILE        1081
+Name: count, dtype: int64
+
+
+==========================================================
+BACKTEST RESULTS
+==========================================================
+Sharpe              : 0.024
+Max DD              : -0.180
+CAGR                : -0.004
+Volatility          : 0.118
+Win Rate            : 0.269
+Final Return        : 0.990
+Active Days         : 445
+Total Test Days     : 606
+Average Daily Turnover: 0.271917
+Annualized Turnover : 68.52x
+Average Holdings    : 0.772
+Maximum Position    : 0.500000
+Maximum Gross Exp.  : 1.000000
+
+
+==========================================================
+BACKTEST SANITY CHECKS
+==========================================================
+Test rows retained           : 20,647
+Test dates retained          : 606
+Daily return observations    : 606
+Maximum position             : 0.500000
+Maximum gross exposure       : 1.000000
+Expected-return explosion    : PASS
+Probability bounded          : PASS
+Date-panel integrity         : PASS
+Date/Company uniqueness      : PASS
+
+⚠ TEST-UNIVERSE DIAGNOSTIC
+Canonical universe companies : 39
+Backtest test companies      : 39
+Missing from test universe   : 0
+Unexpected test companies    : 0
+✓ Test companies are contained within canonical universe.
+
+========================================================
+TEST-UNIVERSE COVERAGE
+========================================================
+Test dates                 : 606
+Companies in test panel   : 39
+Average company coverage  : 87.36%
+Minimum company coverage  : 17.66%
+Maximum company coverage  : 100.00%
+
+⚠ LOW TEST COVERAGE COMPANIES
+Company
+ORKLA INDIA LTD           0.176568
+SHREEJI SHIPPING          0.255776
+NSDL                      0.273927
+SRI LOTUS DEVELOPERS      0.277228
+ADITYA INFOTECH LTD       0.278878
+NTPC GREEN                0.562706
+UNICOMMERCE ESOLUTIONS    0.681518
+TBO TEK                   0.782178
+Name: Date, dtype: float64
+========================================================
+
+
+========================================================================
+✅ BACKTEST COMPLETED
+========================================================================
+Test rows      : 20,647
+Test dates     : 606
+Test companies : 39
+Signals        : 469
+Signal dates   : 348
+Sharpe         : 0.024
+Max DD         : -0.180
+CAGR           : -0.004
+Final Return   : 0.990
+========================================================================
+2026-09-10 10:44:24,975 | INFO | __main__ | ================================================================================
+2026-09-10 10:44:24,975 | INFO | __main__ | BACKTEST DEBUG After - Backtest
+2026-09-10 10:44:24,975 | INFO | __main__ | Full dataset rows: 78826
+2026-09-10 10:44:24,975 | INFO | __main__ | Backtest test-panel rows: 20647
+2026-09-10 10:44:24,975 | INFO | __main__ | Canonical probability rows: 20647
+2026-09-10 10:44:24,977 | INFO | __main__ | Unique Dates=606 | Companies=39
+2026-09-10 10:44:24,977 | INFO | __main__ | Canonical Probability Mean=0.477774 | Min=0.183492 | Max=0.779275
+
+✅ Institutional Alpha Signal Ready
+
+============================================================
+PART 5A — QUANTITATIVE VALIDATION & ROBUSTNESS
+============================================================
+
+⏭ Walk-forward validation skipped (CONFIG['WALKFORWARD']['ENABLED'] = False)
+
+📊 Analysing saved walk-forward results...
+
+===== FOLD CONSISTENCY =====
+fold_count: 36
+mean_sharpe: -0.2136595797163462
+median_sharpe: -0.1357964438432526
+std_sharpe: 2.284660446211678
+min_sharpe: -5.215422043205807
+q25_sharpe: -1.217897873745824
+q75_sharpe: 1.5871277097954533
+positive_sharpe_pct: 0.4722222222222222
+positive_cagr_pct: 0.4722222222222222
+positive_ic_pct: 0.6388888888888888
+
+===== WORST QUARTILE =====
+worst_quartile_folds: 9
+worst_quartile_mean_sharpe: -3.4019553151625623
+worst_quartile_median_sharpe: -3.2391790392554305
+worst_quartile_mean_cagr: -0.5586128696284347
+worst_quartile_mean_drawdown: -0.24941399269802889
+
+===== REGIME ROBUSTNESS =====
+BEAR: {'mean_return': -0.00039756819155280763, 'median_return': -0.00029328485236795, 'positive_pct': 0.4444444444444444, 'observations': 36}
+BEAR_VOLATILE: {'mean_return': -0.00011364554477064986, 'median_return': -0.00037886720822805, 'positive_pct': 0.3888888888888889, 'observations': 36}
+SIDEWAYS: {'mean_return': -0.0003890703546715973, 'median_return': 0.00021527530222529998, 'positive_pct': 0.5277777777777778, 'observations': 36}
+SIDEWAYS_VOLATILE: {'mean_return': -0.0005419247390963653, 'median_return': -1.7494571701326388e-05, 'positive_pct': 0.5, 'observations': 36}
+BULL: {'mean_return': -0.0001954817923923109, 'median_return': -6.068058225544568e-05, 'positive_pct': 0.5, 'observations': 36}
+BULL_VOLATILE: {'mean_return': -0.00045908743093769726, 'median_return': 0.00026229491148890003, 'positive_pct': 0.5277777777777778, 'observations': 36}
+
+===== ACTIVITY QUALITY =====
+total_folds: 36
+qualified_folds: 35
+sparse_folds: 1
+qualified_pct: 0.9722222222222222
+sparse_pct: 0.027777777777777776
+qualified_mean_sharpe: -0.12721616658665807
+qualified_median_sharpe: -0.104926653091384
+qualified_positive_sharpe_pct: 0.4857142857142857
+qualified_mean_cagr: 0.0856098033759964
+qualified_mean_drawdown: -0.15852482248304
+sparse_mean_sharpe: -3.2391790392554305
+sparse_median_sharpe: -3.2391790392554305
+activity_threshold_pct: 0.5
+holdings_threshold: 0.25
+
+✅ Saved:
+data/walkforward_activity_diagnostics.csv
+artifacts/walkforward_activity_quality.pkl
+
+============================================================
+PART 6 — LIVE PORTFOLIO GENERATION
+============================================================
+
+Building latest universe
+Universe Size: 34
+
+Generating live signals
+2026-09-10 10:44:26,220 | INFO | __main__ | ================================================================================
+2026-09-10 10:44:26,220 | INFO | __main__ | PREDICT TODAY INPUT
+2026-09-10 10:44:26,220 | INFO | __main__ | Rows received: 34
+2026-09-10 10:44:26,220 | INFO | __main__ | Prediction_Prob exists: False
+2026-09-10 10:44:26,221 | INFO | __main__ | Probability exists: False
+2026-09-10 10:44:26,221 | INFO | __main__ | Confidence exists: False
+
+📡 GENERATING LIVE SIGNALS...
+
+🤖 GENERATING MODEL PROBABILITIES...
+✅ XGB probability generated
+✅ RF probability generated
+✅ LR probability generated
+✅ MLP probability generated
+
+MODEL ENSEMBLE
+Models: ['xgb', 'rf', 'lr', 'mlp']
+Weights: [0.21875 0.09375 0.0625  0.625  ]
+
+===== SIGNAL DISTRIBUTION =====
+Signal
+BUY            13
+HOLD           10
+SELL            9
+STRONG BUY      1
+STRONG SELL     1
+Name: count, dtype: int64
+
+===== PROBABILITY DISTRIBUTION =====
+count    34.000000
+mean      0.527412
+std       0.163826
+min       0.216276
+10%       0.315569
+25%       0.355826
+50%       0.526244
+75%       0.668480
+90%       0.722996
+95%       0.737598
+99%       0.795777
+max       0.824092
+Name: Probability, dtype: float64
+
+ATR available: True
+
+===== SIGNAL DISTRIBUTION =====
+Signal
+BUY            13
+HOLD           10
+SELL            9
+STRONG BUY      1
+STRONG SELL     1
+Name: count, dtype: int64
+
+Signal Counts:
+STRONG BUY       : 1
+BUY              : 13
+HOLD             : 10
+SELL             : 9
+STRONG SELL      : 1
+
+============================================================
+PORTFOLIO CANDIDATE FILTER
+============================================================
+Initial Universe       : 34
+After BUY probability : 14
+                        Company  Probability  ...  Expected_Return  Market_Regime
+43632          JAIN IRRIGATIONS     0.824092  ...         0.045627           BEAR
+80899      UNITED BREWERIES LTD     0.738288  ...         0.008439       SIDEWAYS
+36691               INFOSYS LTD     0.737226  ...         0.015205           BULL
+32866            IDEAFORGE TECH     0.724325  ...         0.029646           BEAR
+77247            TORRENT PHARMA     0.719895  ...         0.011671       SIDEWAYS
+46994  MULTI COMMODITY EXCHANGE     0.700784  ...         0.021702           BULL
+22471         EPACK DURABLE LTD     0.685181  ...         0.015611           BEAR
+13083                     CIPLA     0.676729  ...         0.006513           BEAR
+67265                SUN PHARMA     0.671307  ...         0.009763           BEAR
+57328             POWER FINANCE     0.659999  ...         0.016275  BEAR_VOLATILE
+64131       STATE BANK OF INDIA     0.635257  ...         0.007808       SIDEWAYS
+18687                 CUPID LTD     0.634304  ...         0.019938           BEAR
+16217                COAL INDIA     0.623292  ...         0.006260       SIDEWAYS
+31897            ICICI BANK LTD     0.604920  ...         0.005062       SIDEWAYS
+
+[14 rows x 5 columns]
+After Confidence      : 10
+2026-09-10 10:44:26,681 | INFO | src.prediction.predict | Signals above threshold 0.50 : 19
+
+PASSING TRUE BUY CANDIDATES TO PORTFOLIO ENGINE
+BUY Candidates : 10
+                        Company  Probability  ...  Expected_Return  Market_Regime
+43632          JAIN IRRIGATIONS     0.824092  ...         0.045627           BEAR
+80899      UNITED BREWERIES LTD     0.738288  ...         0.008439       SIDEWAYS
+36691               INFOSYS LTD     0.737226  ...         0.015205           BULL
+32866            IDEAFORGE TECH     0.724325  ...         0.029646           BEAR
+77247            TORRENT PHARMA     0.719895  ...         0.011671       SIDEWAYS
+46994  MULTI COMMODITY EXCHANGE     0.700784  ...         0.021702           BULL
+22471         EPACK DURABLE LTD     0.685181  ...         0.015611           BEAR
+13083                     CIPLA     0.676729  ...         0.006513           BEAR
+67265                SUN PHARMA     0.671307  ...         0.009763           BEAR
+57328             POWER FINANCE     0.659999  ...         0.016275  BEAR_VOLATILE
+
+[10 rows x 5 columns]
+2026-09-10 10:44:26,690 | INFO | src.portfolio.portfolio_selection | Portfolio selection input: 10 rows
+2026-09-10 10:44:26,730 | INFO | src.portfolio.portfolio_selection | Portfolio selection filters | Initial=10 | Probability=10 | Confidence=5 | Final=5
+2026-09-10 10:44:26,772 | INFO | src.portfolio.portfolio_selection | Selection complete | Candidates=5 | Selected=5 | New=5 | Retained=0 | Exits=0
+2026-09-10 10:44:26,778 | WARNING | src.portfolio.portfolio_selection | compute_position_weights() is a legacy compatibility function. Use portfolio_builder.py for final institutional weights.
+2026-09-10 10:44:26,779 | INFO | src.portfolio.portfolio_selection | Portfolio selection diagnostics: {'rows': 5, 'selected': 5, 'new_entries': 5, 'retained': 0, 'exits': 0, 'score_mean': 4.4408920985006264e-17, 'score_std': 1.118033984834368, 'score_max': 1.2087493986003601, 'score_min': -1.2401369680778358, 'prediction_mean': 0.2487652532195483, 'prediction_max': 0.3240921222782629}
+2026-09-10 10:44:26,782 | INFO | src.portfolio.portfolio_selection | Latest selection date: 2026-09-02 00:00:00
+2026-09-10 10:44:26,788 | INFO | src.portfolio.portfolio_selection | 
+Latest selected candidates:
+       Company Signal  Prediction_Prob  Prediction_Alpha  Confidence  Alpha_Score  Risk_Penalty  Expected_Return  RR_Ratio  Final_Score  Portfolio_Rank  Selected  New_Entry  Retained_Holding  Position_Weight
+   INFOSYS LTD    BUY         0.737226          0.237226    0.474452     0.452252     -0.250127         0.015205  1.708967          1.0               1         1          1                 0         0.888535
+TORRENT PHARMA    BUY         0.719895          0.219895    0.439790     0.878421     -1.076694         0.011671  1.635930         -1.0               2         1          1                 0         0.111465
+
+FINAL SCORE DISTRIBUTION
+count    5.000000e+00
+mean     4.440892e-17
+std      1.118034e+00
+min     -1.240137e+00
+10%     -1.144082e+00
+25%     -1.000000e+00
+50%      3.138757e-02
+75%      1.000000e+00
+90%      1.125250e+00
+max      1.208749e+00
+Name: Final_Score, dtype: float64
+
+🏆 FINAL PORTFOLIO
+                    Company      Signal  ...  Position_Weight  Market_Regime
+36691           INFOSYS LTD         BUY  ...         0.444268           BULL
+43632      JAIN IRRIGATIONS  STRONG BUY  ...         0.391614           BEAR
+32866        IDEAFORGE TECH         BUY  ...         0.083511           BEAR
+77247        TORRENT PHARMA         BUY  ...         0.055732       SIDEWAYS
+80899  UNITED BREWERIES LTD         BUY  ...         0.024875       SIDEWAYS
+
+[5 rows x 9 columns]
+
+Total Weight: 1.0000000000000002
+
+============================================================
+FINAL PORTFOLIO SUMMARY
+============================================================
+Portfolio Size        : 5
+Minimum Required      : 5
+BUY Threshold         : 0.60
+Portfolio Accepted    : YES
+Portfolio Status      : ACCEPTED
+Total Weight          : 1.000000
+
+Signals Generated:
+34
+
+Portfolio Size:
+5
+
+Portfolio Columns:
+['Date', 'Close', 'High', 'Low', 'Open', 'Volume', 'Ticker', 'NSE_Close', 'NSE_Return', 'Return', 'Log_Return', 'MA10', 'EMA10', 'Price_to_MA10', 'MA20', 'EMA20', 'Price_to_MA20', 'MA50', 'EMA50', 'Price_to_MA50', 'MA200', 'EMA200', 'Price_to_MA200', 'ATR_14', 'Volatility', 'Momentum', 'Momentum_ATR', 'Momentum_Vol', 'Reversal', 'RSI', 'MACD', 'MACD_Signal', 'MACD_Hist', 'BB_Z10', 'BB_Z20', 'BB_Z50', 'BB_Z200', 'Close_Lag1', 'Close_Lag2', 'Close_Lag3', 'Close_Lag5', 'Return_Lag1', 'Return_Lag2', 'Return_Lag3', 'Return_Lag5', 'Return_Lag10', 'Trend', 'Trend_Strength', 'EMA_Spread', 'Volume_Change', 'Volume_MA', 'Volume_Ratio', 'ATR', 'Gap', 'High_20', 'Low_20', 'Range_Position', 'Return_5', 'Return_10', 'Reversal_5', 'Reversal_10', 'Return_Rank', 'Momentum_Rank', 'Volatility_Rank', 'Vol_Regime', 'Return_Z', 'Momentum_Z', 'Momentum_ATR_Z', 'Momentum_Vol_Z', 'Volatility_Z', 'RSI_Z', 'MACD_Z', 'MACD_Hist_Z', 'Trend_Strength_Z', 'Return_5_Z', 'Return_10_Z', 'Volume_Change_Z', 'Volume_Ratio_Z', 'Range_Position_Z', 'ATR_Z', 'Gap_Z', 'EMA_Spread_Z', 'Future_Return', 'EPS', 'PE', 'EPS_Growth', 'PE_Change', 'EPS_Growth_Z', 'PE_Z', 'Value_Score', 'PE_Rank', 'Value_Rank', 'Neutral_Target', 'Future_Return_Rank', 'Alpha_Target', 'Alpha_Target_Z', 'CrossSection_Target', 'Target', 'Meta_Target', 'Company', 'SMA_S', 'SMA_L', 'EMA_S', 'EMA_M', 'Trend_Z', 'Vol_Z', 'Regime_Score', 'Market_Regime', 'Regime_Strength', 'Probability', 'Confidence', 'Signal', 'Position', 'Side', 'Signal_Date', 'Action_Date', 'Exit_Date', 'Prediction_Volatility', 'Expected_Return', 'Expected_return(%)', 'Stop_Loss', 'Take_Profit', 'Risk', 'Reward', 'RR_Ratio', 'Prediction_Prob', 'Prediction_Alpha', 'Prediction_Alpha_CSZ', 'Trend_Strength_CSZ', 'Alpha_Score', 'Gap_Abs', 'Risk_Penalty', 'Min_Prob', 'Selection_Fallback', 'Final_Score', 'Concentration_Penalty', 'Risk_Score_Penalty', 'Selection_Score', 'Rank_Score', 'Portfolio_Rank', 'Prev_Selected', 'Selected', 'New_Entry', 'Retained_Holding', 'Exit_Signal', 'Position_Weight']
+
+Top 20 Positions
+2026-09-10 10:44:26,811 | INFO | __main__ | 
+Top Portfolio Positions:
+             Company  Final_Score  Portfolio_Rank  Position_Weight
+         INFOSYS LTD     1.000000               1         0.444268
+    JAIN IRRIGATIONS     1.208749               1         0.391614
+      IDEAFORGE TECH     0.031388               2         0.083511
+      TORRENT PHARMA    -1.000000               2         0.055732
+UNITED BREWERIES LTD    -1.240137               3         0.024875
+
+Total Weight: 1.0
+
+Live Portfolio Successfully Generated
+
+ALPHA PLATFORM OUTPUTS
+final_df
+FEATURES
+ensemble_proba
+final_proba
+signals_df
+portfolio
+
+============================================================
+PART 7 — CONSTRUCTION ADAPTER INTEGRATION
+============================================================
+
+Building Institutional PipelineInput
+
+
+================================================================================
+ALPHA STAGE TRACKER
+================================================================================
+           Stage   Rows  Columns  Dates  Companies
+0            RAW  78826      100   3028         39
+1    IC_PIPELINE     90        9      0          0
+2           META  20647        6    606         39
+3         REGIME  20647        6    606         39
+4     VOLATILITY  20647        6    606         39
+5  CROSS_SECTION  20647        6    606         39
+6        SIGNALS     34       23      0         34
+7      PORTFOLIO      5      146      2          5
+================================================================================
+
+PipelineInput Successfully Built
+PipelineInput validation passed.
+
+PipelineInput Summary
+Market Data Rows: 3028
+Expected Returns: True
+Factor Exposures: False
+Current Portfolio: True
+Liquidity: True
+Constraints: False
+
+Adapter Diagnostics
+AdapterEngineDiagnostics(market_rows=78826, universe_size=39, forecast_assets=34, liquidity_assets=39, constraint_assets=0, validation_passed=True, warnings=[])
+
+Institutional PipelineInput saved.
+
+============================================================
+PART 8 — INSTITUTIONAL PIPELINE INTEGRATION
+============================================================
+
+Creating Institutional Metadata
+
+Metadata
+Run ID: PIPE-34EC12EDDF3D
+Strategy: StockPredictionV1
+Universe: NSE500
+Benchmark: NIFTY50
+
+Executing Institutional Pipeline
+2026-09-10 10:44:28,660 | INFO | src.portfolio.construction.pipeline | Analytics stage ENABLED | run_analytics=True
+2026-09-10 10:44:28,689 | INFO | src.portfolio.construction.pipeline | Analytics stage completed successfully | result_type=InstitutionalAnalyticsReport
+2026-09-10 10:44:28,689 | INFO | src.portfolio.construction.pipeline | Attribution stage ENABLED | run_attribution=True
+2026-09-10 10:44:28,693 | INFO | src.portfolio.construction.pipeline | Attribution stage completed successfully | result_type=ReturnAttributionResult
+2026-09-10 10:44:28,693 | INFO | src.portfolio.construction.pipeline | Stress Testing stage ENABLED | run_stress_testing=True
+2026-09-10 10:44:29,822 | INFO | src.portfolio.construction.pipeline | Stress Testing stage completed successfully | result_type=InstitutionalStressReport
+2026-09-10 10:44:29,822 | INFO | src.portfolio.construction.pipeline | Monitoring stage ENABLED | run_monitoring=True
+[ALERT] AlertLevel.ERROR Monitoring Warning Score=0.738
+[ALERT] AlertLevel.CRITICAL Monitoring Failure Component failed
+2026-09-10 10:44:29,897 | ERROR | src.portfolio.construction.pipeline | Monitoring stage failed: 'InstitutionalMonitoringEngine' object has no attribute 'clamp_score'
+Traceback (most recent call last):
+  File "/content/drive/MyDrive/StockPredictionML_REGIME_V18.1/src/portfolio/construction/pipeline.py", line 8536, in run_monitoring_stage
+    result = run_monitoring(
+        metadata=metadata,
+        monitoring_input=monitoring_input,
+        config=monitoring_config,
+    )
+  File "/content/drive/MyDrive/StockPredictionML_REGIME_V18.1/src/portfolio/construction/monitoring.py", line 7326, in run_monitoring
+    return engine.run(
+           ~~~~~~~~~~^
+        monitoring_input
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/content/drive/MyDrive/StockPredictionML_REGIME_V18.1/src/portfolio/construction/monitoring.py", line 7082, in run
+    score = self.clamp_score(
+            ^^^^^^^^^^^^^^^^
+AttributeError: 'InstitutionalMonitoringEngine' object has no attribute 'clamp_score'
+
+Analytics Error:
+None
+
+Running Institutional Alpha Diagnostics
+
+================================================================================
+INSTITUTIONAL ALPHA PIPELINE
+================================================================================
+
+
+================================================================================
+ALPHA STAGE TRACKER
+================================================================================
+           Stage   Rows  Columns  Dates  Companies
+0            RAW  78826      100   3028         39
+1           META  20647        6    606         39
+2         REGIME  20647        6    606         39
+3     VOLATILITY  20647        6    606         39
+4  CROSS_SECTION  20647        6    606         39
+5      PORTFOLIO      5      146      2          5
+================================================================================
+
+================================================================================
+ALPHA RETENTION REPORT
+================================================================================
+           stage  signals  signal_retention  sharpe  cagr  max_dd  turnover
+0            RAW        0          0.000000     0.0   0.0     0.0       0.0
+1           META     9011          1.000000     0.0   0.0     0.0       0.0
+2         REGIME     9011          1.000000     0.0   0.0     0.0       0.0
+3     VOLATILITY     9011          1.000000     0.0   0.0     0.0       0.0
+4  CROSS_SECTION     9011          1.000000     0.0   0.0     0.0       0.0
+5      PORTFOLIO        5          0.000555     0.0   0.0     0.0       0.0
+
+PIPELINE SUMMARY
+{'best_stage': 'RAW', 'worst_stage': 'RAW', 'max_pipeline_sharpe': 0.0, 'final_portfolio_sharpe': 0.0, 'alpha_decay': 0.0, 'pipeline_efficiency': nan}
+
+✓ Alpha Retention exported -> data/alpha/outputs
+
+================================================================================
+ALPHA CAPACITY REPORT
+================================================================================
+      Company   Max_Capital  ...  Alpha_Retention  Deployable
+36691     NaN  4.881684e+08  ...         0.905741        True
+77247     NaN  7.405681e+07  ...         0.898312        True
+32866     NaN  1.196212e+07  ...         0.900320        True
+80899     NaN  5.261097e+06  ...         0.906161        True
+43632     NaN  2.061793e+06  ...         0.931005        True
+
+[5 rows x 6 columns]
+
+PORTFOLIO CAPACITY
+{'Num_Stocks': 5, 'Portfolio_Capacity': np.float64(581510231.4645207), 'Average_Impact': np.float64(0.0223606797749979), 'Average_Retention': np.float64(0.9083079067608093), 'Median_Capacity': 11962123.787304688}
+
+======================================================================
+ALPHA CROWDING ENGINE
+======================================================================
+                         0
+Signal_Concentration  1.00
+Portfolio_HHI         0.20
+Annual_Turnover       0.00
+Feature_Crowding      0.00
+Factor_Crowding       0.00
+Regime_Crowding       0.40
+Capacity              1.00
+Alpha_Uniqueness      0.66
+Crowding_Score        0.34
+
+FINAL ALPHA HEALTH SCORE
+{'retention_score': 0.0, 'capacity_score': 0.9083079067608093, 'crowding_score': 0.0, 'lifecycle_score': 0.0, 'overall': np.float64(0.2271)}
+
+Institutional Alpha Pipeline Completed.
+
+PIPELINE DIAGNOSTICS
+{'report_stage': {'positions': 5, 'runtime_seconds': 3.439900137891527e-05}}
+
+Pipeline Status
+COMPLETED
+Pipeline completed.
+
+Institutional Report Generated
+
+Portfolio Summary
+<class 'src.portfolio.construction.pipeline.InstitutionalPortfolio'>
+
+Rebalance Summary
+<class 'src.portfolio.construction.pipeline.InstitutionalRebalance'>
+
+Diagnostics Report:
+InstitutionalDiagnosticsPackage(records=[DiagnosticRecord(source=<DiagnosticSource.PORTFOLIO: 'portfolio'>, metric_name='gross_exposure', metric_value=0.9999999999999998, metadata={}), DiagnosticRecord(source=<DiagnosticSource.PORTFOLIO: 'portfolio'>, metric_name='net_exposure', metric_value=0.9999999999999998, metadata={}), DiagnosticRecord(source=<DiagnosticSource.PORTFOLIO: 'portfolio'>, metric_name='effective_n', metric_value=2.7667549200515764, metadata={}), DiagnosticRecord(source=<DiagnosticSource.PORTFOLIO: 'portfolio'>, metric_name='expected_return', metric_value=0.0, metadata={}), DiagnosticRecord(source=<DiagnosticSource.PORTFOLIO: 'portfolio'>, metric_name='expected_volatility', metric_value=0.0, metadata={}), DiagnosticRecord(source=<DiagnosticSource.REBALANCE: 'rebalance'>, metric_name='turnover', metric_value=0.0, metadata={}), DiagnosticRecord(source=<DiagnosticSource.REBALANCE: 'rebalance'>, metric_name='trade_count', metric_value=0, metadata={}), DiagnosticRecord(source=<DiagnosticSource.EXECUTION: 'execution'>, metric_name='execution_cost', metric_value=0.0, metadata={}), DiagnosticRecord(source=<DiagnosticSource.EXECUTION: 'execution'>, metric_name='slippage', metric_value=0.0, metadata={}), DiagnosticRecord(source=<DiagnosticSource.EXECUTION: 'execution'>, metric_name='market_impact', metric_value=0.0, metadata={}), DiagnosticRecord(source=<DiagnosticSource.ATTRIBUTION: 'attribution'>, metric_name='num_assets', metric_value=2, metadata={}), DiagnosticRecord(source=<DiagnosticSource.ATTRIBUTION: 'attribution'>, metric_name='cash_weight', metric_value=0.0, metadata={}), DiagnosticRecord(source=<DiagnosticSource.ATTRIBUTION: 'attribution'>, metric_name='explained_return', metric_value=-0.0056271178157058935, metadata={})], summary={'record_count': 13, 'sources': ['attribution', 'execution', 'portfolio', 'rebalance']}, diagnostics={})
+
+Runtime Diagnostics:
+{'analytics': InstitutionalAnalyticsReport(metadata=AnalyticsMetadata(generated_at=datetime.datetime(2026, 9, 10, 10, 44, 28, 661778, tzinfo=datetime.timezone.utc), portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', strategy_name='StockPredictionV1', universe_name='NSE500', frequency=<AnalyticsFrequency.DAILY: 'daily'>, version='1.0'), analytics_name='Institutional Analytics Report', success=True, diagnostics={}, portfolio_statistics=PortfolioStatisticsResult(metadata=AnalyticsMetadata(generated_at=datetime.datetime(2026, 9, 10, 10, 44, 28, 661778, tzinfo=datetime.timezone.utc), portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', strategy_name='StockPredictionV1', universe_name='NSE500', frequency=<AnalyticsFrequency.DAILY: 'daily'>, version='1.0'), analytics_name='Portfolio Statistics', success=True, diagnostics={}, observations=3028, total_return=1.3307434438076138, annualized_return=0.07296136471351011, annualized_volatility=0.2572078959585447, sharpe_ratio=0.28366689304619797, sortino_ratio=0.4325062298928385, calmar_ratio=0.09904019266254176, max_drawdown=-0.7366843980414127, average_return=0.0004107260731734564, median_return=0.00030126169047009737, skewness=0.022851219167555902, kurtosis=3.3080857113097606, hit_ratio=0.5062747688243064, positive_periods=1533, negative_periods=1488, flat_periods=7), exposure_analytics=ExposureAnalyticsResult(metadata=AnalyticsMetadata(generated_at=datetime.datetime(2026, 9, 10, 10, 44, 28, 661778, tzinfo=datetime.timezone.utc), portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', strategy_name='StockPredictionV1', universe_name='NSE500', frequency=<AnalyticsFrequency.DAILY: 'daily'>, version='1.0'), analytics_name='Exposure Analytics', success=True, diagnostics={}, gross_exposure=0.9999999999999998, net_exposure=0.9999999999999998, long_exposure=0.9999999999999998, short_exposure=0.0, cash_exposure=2.220446049250313e-16, leverage=0.9999999999999998, sector_exposure=None, industry_exposure=None, country_exposure=None, currency_exposure=None, market_cap_exposure=None, beta_exposure=0.0, style_exposure=None), concentration_analytics=ConcentrationAnalyticsResult(metadata=AnalyticsMetadata(generated_at=datetime.datetime(2026, 9, 10, 10, 44, 28, 661778, tzinfo=datetime.timezone.utc), portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', strategy_name='StockPredictionV1', universe_name='NSE500', frequency=<AnalyticsFrequency.DAILY: 'daily'>, version='1.0'), analytics_name='Concentration Analytics', success=True, diagnostics={}, top_1_weight=0.4442675054582821, top_5_weight=0.9999999999999998, top_10_weight=0.9999999999999998, top_20_weight=0.9999999999999998, hhi=0.3614342538085589, effective_number_of_holdings=2.7667549200515746, diversification_ratio=0.5533509840103149, max_sector_weight=0.0, max_industry_weight=0.0, sector_hhi=0.0, industry_hhi=0.0, concentration_score=36.143425380855895), risk_analytics=RiskAnalyticsResult(metadata=AnalyticsMetadata(generated_at=datetime.datetime(2026, 9, 10, 10, 44, 28, 661778, tzinfo=datetime.timezone.utc), portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', strategy_name='StockPredictionV1', universe_name='NSE500', frequency=<AnalyticsFrequency.DAILY: 'daily'>, version='1.0'), analytics_name='Risk Analytics', success=True, diagnostics={}, portfolio_volatility=0.016202574474963916, annualized_volatility=0.2572078959585447, tracking_error=0.0, portfolio_beta=0.0, information_ratio=0.0, value_at_risk=-0.024307053027479802, expected_shortfall=-0.03483183143496437, downside_deviation=0.16869436708827906, factor_risk=0.0, specific_risk=0.0, diversification_ratio=0.0, risk_concentration=0.0, marginal_risk_contribution=None, component_risk_contribution=None, factor_exposures=None, factor_contributions=None), factor_analytics=None, performance_analytics=None, rebalance_analytics=RebalanceAnalyticsResult(metadata=AnalyticsMetadata(generated_at=datetime.datetime(2026, 9, 10, 10, 44, 28, 661778, tzinfo=datetime.timezone.utc), portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', strategy_name='StockPredictionV1', universe_name='NSE500', frequency=<AnalyticsFrequency.DAILY: 'daily'>, version='1.0'), analytics_name='Rebalance Analytics', success=True, diagnostics={}, rebalance_count=1, average_turnover=0.0, median_turnover=0.0, max_turnover=0.0, min_turnover=0.0, annualized_turnover=0.0, average_trade_count=0.0, total_trade_count=0, average_buys=0.0, average_sells=0.0, buy_sell_ratio=0.0, average_drift_before_rebalance=0.0, average_drift_after_rebalance=0.0, drift_reduction=0.0, average_cost_per_rebalance=0.0, total_rebalance_cost=0.0, turnover_series=Date
+2026-09-10 10:44:28.669300+00:00    0.0
+Name: Turnover, dtype: float64, trade_count_series=Date
+2026-09-10 10:44:28.669588+00:00    0
+Name: TradeCount, dtype: int64, cost_series=Series([], dtype: float64), drift_before_series=Series([], dtype: float64), drift_after_series=Series([], dtype: float64)), execution_analytics=None, capacity_analytics=CapacityAnalyticsResult(metadata=AnalyticsMetadata(generated_at=datetime.datetime(2026, 9, 10, 10, 44, 28, 661778, tzinfo=datetime.timezone.utc), portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', strategy_name='StockPredictionV1', universe_name='NSE500', frequency=<AnalyticsFrequency.DAILY: 'daily'>, version='1.0'), analytics_name='Capacity Analytics', success=True, diagnostics={}, total_portfolio_notional=9999999.999999998, average_adv_utilization=0.0001662634237030862, maximum_adv_utilization=0.0004550350862508318, median_adv_utilization=0.0, average_days_to_liquidate=0.001662634237030862, maximum_days_to_liquidate=0.004550350862508317, portfolio_capacity=1124450433.6, liquidity_score=99.9169028329828, liquidity_concentration=0.3614342538085588, illiquid_weight=0.0, liquid_weight=0.9999999999999998, liquidity_bucket_exposure=bucket
+Highly Liquid    1.0
+Name: weight, dtype: float64, capacity_bottlenecks=          Ticker  Position_Weight  ...  ADV_Utilization  DaysToLiquidate
+0        INFY.NS         0.444268  ...         0.000455         0.004550
+3  TORNTPHARM.NS         0.055732  ...         0.000376         0.003763
+1  JISLJALEQS.NS         0.391614  ...         0.000000         0.000000
+2   IDEAFORGE.NS         0.083511  ...         0.000000         0.000000
+4         UBL.NS         0.024875  ...         0.000000         0.000000
+
+[5 rows x 7 columns], adv_utilization_series=0    0.000455
+1    0.000000
+2    0.000000
+3    0.000376
+4    0.000000
+dtype: float64, days_to_liquidate_series=0    0.004550
+1    0.000000
+2    0.000000
+3    0.003763
+4    0.000000
+dtype: float64), report_timestamp=datetime.datetime(2026, 9, 10, 10, 44, 28, 689633), report_version='1.0', summary_metrics={'Volatility': 0.2572078959585447, 'VaR': -0.024307053027479802, 'CVaR': -0.03483183143496437, 'HHI': 0.3614342538085589, 'EffectiveHoldings': 2.7667549200515746, 'GrossExposure': 0.9999999999999998, 'NetExposure': 0.9999999999999998, 'Leverage': 0.9999999999999998, 'LiquidityScore': 99.9169028329828, 'PortfolioCapacity': 1124450433.6}), 'attribution': ReturnAttributionResult(metadata=AttributionMetadata(created_at=datetime.datetime(2026, 9, 10, 10, 44, 28, 692437, tzinfo=datetime.timezone.utc), version='1.0', source='Institutional Attribution Engine', portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', frequency=<AttributionFrequency.MONTHLY: 'monthly'>, notes=''), attribution_type=<AttributionType.RETURN: 'return'>, attribution_name='Return Attribution', created_at=datetime.datetime(2026, 9, 10, 10, 44, 28, 693386), total_portfolio_return=-0.0056271178157058935, total_benchmark_return=0.0, active_return=-0.0056271178157058935, contribution_table=                 Weight    Return  Contribution
+INFY.NS        0.444268 -0.013841     -0.006149
+TORNTPHARM.NS  0.055732  0.009365      0.000522, contribution_series=INFY.NS         -0.006149
+TORNTPHARM.NS    0.000522
+dtype: float64, residual=0.0, diagnostics={'num_assets': 2, 'cash_weight': 0.0, 'explained_return': -0.0056271178157058935}, asset_contributions=INFY.NS         -0.006149
+TORNTPHARM.NS    0.000522
+dtype: float64, sector_contributions=None, cash_contribution=0.0, residual_contribution=0.0), 'stress_testing': InstitutionalStressReport(metadata=StressMetadata(portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', run_timestamp=datetime.datetime(2026, 9, 10, 10, 44, 28, 698776), notes=None), summary=StressSummary(overall_risk_score=0.0, worst_scenario_name='high_vol_to_crisis_vol', worst_scenario_loss=-0.38587554717860306, average_stress_loss=-0.179408515726201, average_drawdown=-0.5137306903534493, vulnerability_level='UNKNOWN', report_timestamp=datetime.datetime(2026, 9, 10, 10, 44, 29, 822354)), sections=[StressReportSection(section_name='Tail Risk', metrics={'tail_var': -0.04024649315098299, 'tail_es': -0.05494024713167122, 'crash_prob': 0.0003303600925008259, 'black_swan_prob': 0.0}, comments='')], historical_result=None, scenario_result=None, factor_result=None, correlation_result=None, liquidity_result=None, volatility_result=VolatilityRegimeStressResult(metadata=StressMetadata(portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', run_timestamp=datetime.datetime(2026, 9, 10, 10, 44, 28, 698776), notes=None), stress_type=<StressTestType.VOLATILITY_REGIME: 'volatility_regime'>, scenario_name='high_vol_to_crisis_vol', severity=<ScenarioSeverity.EXTREME: 'extreme'>, status=<StressResultStatus.FAILED: 'failed'>, portfolio_return=-0.38587554717860306, portfolio_pnl=-0.38587554717860306, drawdown=-1.2862518239286769, var_impact=0.6431259119643384, volatility_impact=0.38587554717860306, diagnostics={'lookback_days': 63}, original_volatility=0.2572503647857354, stressed_volatility=0.6431259119643384, volatility_multiplier=2.5, regime_detail=VolatilityRegimeDetail(current_regime=<VolatilityRegime.HIGH_VOL: 'high_vol'>, stressed_regime=<VolatilityRegime.CRISIS_VOL: 'crisis_vol'>, current_volatility=0.2572503647857354, stressed_volatility=0.6431259119643384, volatility_change=0.38587554717860306), volatility_shock_loss=-0.38587554717860306, expected_drawdown=-1.2862518239286769, volatility_multiplier_used=2.5), monte_carlo_result=None, tail_result=TailRiskStressResult(metadata=StressMetadata(portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', run_timestamp=datetime.datetime(2026, 9, 10, 10, 44, 28, 698776), notes=None), stress_type=<StressTestType.TAIL_RISK: 'tail_risk'>, scenario_name='Tail Risk', severity=<ScenarioSeverity.EXTREME: 'extreme'>, status=<StressResultStatus.PASSED: 'passed'>, portfolio_return=-0.0023499999999999997, portfolio_pnl=-0.0023499999999999997, drawdown=-0.05494024713167122, var_impact=0.04024649315098299, volatility_impact=0.04861574927883597, diagnostics={'tail_observations': 3027}, value_at_risk=0.0, expected_shortfall=0.0, tail_loss_probability=0.0, tail_var=-0.04024649315098299, tail_expected_shortfall=-0.05494024713167122, crash_probability=0.0003303600925008259, severe_crash_probability=0.0, black_swan_probability=0.0, tail_index=3.7120109765269906, jump_loss_estimate=-0.04861574927883597, event_details=[TailEventDetail(threshold=-0.1, count=1, probability=0.0003303600925008259, average_loss=-0.10940416219973513, worst_loss=-0.10940416219973513), TailEventDetail(threshold=-0.2, count=0, probability=0.0, average_loss=0.0, worst_loss=0.0), TailEventDetail(threshold=-0.4, count=0, probability=0.0, average_loss=0.0, worst_loss=0.0)]), reverse_result=ReverseStressResult(metadata=StressMetadata(portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', run_timestamp=datetime.datetime(2026, 9, 10, 10, 44, 28, 698776), notes=None), stress_type=<StressTestType.REVERSE_STRESS: 'reverse_stress'>, scenario_name='Reverse Stress Test', severity=<ScenarioSeverity.EXTREME: 'extreme'>, status=<StressResultStatus.PASSED: 'passed'>, portfolio_return=-0.15, portfolio_pnl=-0.15, drawdown=-0.2, var_impact=0.25, volatility_impact=0.9718159202931579, diagnostics={'target_loss': -0.15, 'target_drawdown': -0.2}, required_market_shock=0.15, required_volatility_multiplier=0.9718159202931579, required_correlation_level=0.7233245079948425, required_liquidity_haircut=0.35, breakpoints=[ReverseStressBreakpoint(stress_type='market_shock', required_shock=0.15, resulting_loss=-0.15, description='Market decline required to breach loss target'), ReverseStressBreakpoint(stress_type='volatility_regime', required_shock=0.9718159202931579, resulting_loss=-0.15, description='Volatility increase multiplier'), ReverseStressBreakpoint(stress_type='correlation_spike', required_shock=0.7233245079948425, resulting_loss=-0.15, description='Average correlation required'), ReverseStressBreakpoint(stress_type='liquidity_collapse', required_shock=0.35, resulting_loss=-0.15, description='Liquidity haircut required')]), vulnerability_result=None), 'monitoring': None, 'execution': InstitutionalExecutionPackage(orders=[], total_turnover=0.0, total_cost=0.0, total_slippage=0.0, total_market_impact=0.0, diagnostics={'order_count': 0, 'turnover': 0.0, 'total_cost': 0.0, 'total_slippage': 0.0, 'total_market_impact': 0.0, 'runtime_seconds': 1.8734001059783623e-05})}
+{'report_stage': {'positions': 5, 'runtime_seconds': 3.439900137891527e-05}}
+Stress Testing Available
+
+Institutional artifacts saved.
+
+============================================================
+FIRST INSTITUTIONAL SMOKE TEST PASSED
+============================================================
+
+============================================================
+PART 9 — REPORTING
+============================================================
+
+Institutional Report Created
+
+Portfolio Result
+<class 'src.portfolio.construction.pipeline.InstitutionalPortfolio'>
+
+Rebalance Result
+<class 'src.portfolio.construction.pipeline.InstitutionalRebalance'>
+
+Execution Result
+True
+
+Analytics Error Detail
+None
+
+Analytics Result
+True
+
+Attribution Result
+True
+
+Stress Testing Result
+True
+
+Monitoring Result
+False
+
+Diagnostics Keys
+['report_stage']
+
+Saving Institutional Reports
+
+Exporting CSV Reports
+
+============================================================
+INSTITUTIONAL PLATFORM COMPLETE
+============================================================
+Run ID: PIPE-34EC12EDDF3D
+Strategy: StockPredictionV1
+Universe: NSE500
+Artifacts Directory: artifacts/
+
+Saved Files:
+  • institutional_report.pkl
+  • portfolio_result.pkl
+  • rebalance_result.pkl
+  • pipeline_diagnostics.pkl
+  • analytics.pkl
+  • attribution.pkl
+  • stress_testing.pkl
+  • execution.pkl
+  • monitoring.pkl
+
+SUCCESS
+Alpha Engine + Institutional Construction Engine integrated successfully.
+============================================================
+
+============================================================
+PART 10 — SMOKE TESTS
+============================================================
+
+Smoke Test Summary
+PipelineInput             PASS
+Portfolio                 PASS
+Rebalance                 PASS
+Execution                 PASS
+Analytics                 PASS
+Attribution               PASS
+StressTesting             PASS
+Monitoring                FAIL
+InstitutionalReport       PASS
+InputAdapter              PASS
+PipelineEngine            PASS
+
+============================================================
+SMOKE TEST FAILURES DETECTED
+============================================================
+
+FINAL COUNTS
+Universe Size: 34
+Features: 20
+Models: 4
+Signals: 34
+Portfolio Rows: 5
+Portfolio Available: True
+Rebalance Available: True
+
+Deployment Ready: False
+
+============================================================
+ALPHA ENGINE
+        +
+INPUT ADAPTER
+        +
+INSTITUTIONAL PIPELINE
+        +
+PORTFOLIO BUILDER
+        +
+RISK MODEL
+        +
+CONSTRAINTS
+        +
+OPTIMIZER
+        +
+REBALANCE
+        +
+EXECUTION
+        +
+ANALYTICS
+        +
+ATTRIBUTION
+        +
+STRESS TESTING
+        +
+MONITORING
+        +
+INSTITUTIONAL REPORT
+
+SUCCESS
+Institutional-Grade Quant Platform validated successfully.
+============================================================

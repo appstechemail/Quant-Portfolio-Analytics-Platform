@@ -6128,6 +6128,64 @@ class InstitutionalPortfolioPipeline:
         )
 
     # --------------------------------------------------------
+    # PORTFOLIO AVAILABILITY
+    # --------------------------------------------------------
+
+    @staticmethod
+    def _portfolio_is_available(
+        portfolio_output: PortfolioBuildStageOutput | None,
+    ) -> bool:
+        """
+        Return True only when a valid deployable portfolio
+        exists.
+
+        A missing portfolio or a portfolio output with no
+        result is a normal NO-DEPLOYMENT state, not an
+        exception condition.
+        """
+
+        if portfolio_output is None:
+            return False
+
+        portfolio_result = (
+            portfolio_output.result
+        )
+
+        if portfolio_result is None:
+            return False
+
+        weights = getattr(
+            portfolio_result,
+            "weights",
+            None,
+        )
+
+        if weights is None:
+            return False
+
+        if not isinstance(
+            weights,
+            pd.Series,
+        ):
+            return False
+
+        weights = (
+            weights
+            .replace(
+                [np.inf, -np.inf],
+                np.nan,
+            )
+            .dropna()
+        )
+
+        if weights.empty:
+            return False
+
+        return bool(
+            (weights.abs() > 0).any()
+        )
+
+    # --------------------------------------------------------
     # FORECAST
     # --------------------------------------------------------
 
@@ -6322,23 +6380,106 @@ class InstitutionalPortfolioPipeline:
             self.config
             .run_rebalance
         ):
+            return None
+
+        # ----------------------------------------------------
+        # NO DEPLOYABLE PORTFOLIO
+        # ----------------------------------------------------
+        #
+        # An empty / unavailable portfolio is a valid
+        # safety outcome. Rebalance must not attempt to
+        # construct trades from a missing portfolio.
+        # ----------------------------------------------------
+
+        portfolio_available = False
+
+        if (
+            portfolio_output is not None
+            and portfolio_output.result is not None
+        ):
+
+            portfolio = (
+                portfolio_output
+                .result
+            )
+
+            weights = getattr(
+                portfolio,
+                "weights",
+                None,
+            )
+
+            if (
+                isinstance(
+                    weights,
+                    pd.Series,
+                )
+                and not weights.empty
+            ):
+
+                weights = (
+                    weights
+                    .replace(
+                        [np.inf, -np.inf],
+                        np.nan,
+                    )
+                    .dropna()
+                )
+
+                portfolio_available = bool(
+                    (
+                        weights.abs()
+                        > 0
+                    ).any()
+                )
+
+        if not portfolio_available:
+
+            logger.warning(
+                "Rebalance stage SKIPPED | "
+                "no deployable portfolio available."
+            )
+
+            context.shared_objects[
+                "rebalance_skipped"
+            ] = True
+
+            context.shared_objects[
+                "rebalance_skip_reason"
+            ] = (
+                "No deployable portfolio available."
+            )
 
             return None
 
-        stage = RebalanceStageFactory.create(
-            metadata=context.metadata,
-            config=context.config,
-            pipeline_input=context.shared_objects["pipeline_input"],
+        # ----------------------------------------------------
+        # CREATE REBALANCE STAGE
+        # ----------------------------------------------------
+
+        stage = (
+            RebalanceStageFactory.create(
+                metadata=context.metadata,
+                config=context.config,
+                pipeline_input=
+                    context.shared_objects[
+                        "pipeline_input"
+                    ],
+            )
         )
+
+        # ----------------------------------------------------
+        # RUN REBALANCE
+        # ----------------------------------------------------
 
         return (
             run_rebalance_stage(
-                context= context,
-                inputs= inputs,
-                stage= stage,
-                portfolio_output= portfolio_output,
+                context=context,
+                inputs=inputs,
+                stage=stage,
+                portfolio_output=portfolio_output,
             )
         )
+
 
     # --------------------------------------------------------
     # EXECUTION
@@ -6355,28 +6496,65 @@ class InstitutionalPortfolioPipeline:
             self.config
             .run_execution
         ):
+            return None
+
+        # ----------------------------------------------------
+        # NO REBALANCE OUTPUT
+        # ----------------------------------------------------
+        #
+        # If rebalance was skipped because there was no
+        # deployable portfolio, execution must also be skipped.
+        #
+        # Never attempt execution with None.
+        # ----------------------------------------------------
+
+        if rebalance_output is None:
+
+            logger.warning(
+                "Execution stage SKIPPED | "
+                "no rebalance output available."
+            )
+
+            context.shared_objects[
+                "execution_skipped"
+            ] = True
+
+            context.shared_objects[
+                "execution_skip_reason"
+            ] = (
+                "No deployable portfolio / "
+                "rebalance output available."
+            )
 
             return None
 
-        stage = ExecutionStageFactory.create(
-            metadata=context.metadata,
-            config=context.config,
-            pipeline_input=context.shared_objects["pipeline_input"],
+        # ----------------------------------------------------
+        # CREATE EXECUTION STAGE
+        # ----------------------------------------------------
+
+        stage = (
+            ExecutionStageFactory.create(
+                metadata=context.metadata,
+                config=context.config,
+                pipeline_input=
+                    context.shared_objects[
+                        "pipeline_input"
+                    ],
+            )
         )
+
+        # ----------------------------------------------------
+        # RUN EXECUTION
+        # ----------------------------------------------------
 
         return (
             run_execution_stage(
-
-                context=
-                context,
-
-                stage=
-                stage,
-
-                rebalance_output=
-                rebalance_output,
+                context=context,
+                stage=stage,
+                rebalance_output=rebalance_output,
             )
         )
+
 
     # --------------------------------------------------------
     # ANALYTICS
@@ -6413,13 +6591,36 @@ class InstitutionalPortfolioPipeline:
             # Validate portfolio output
             # ----------------------------------
 
-            if (
-                portfolio_output is None
-                or portfolio_output.result is None
+            if not self._portfolio_is_available(
+                portfolio_output
             ):
-                raise ValueError(
-                    "Analytics requires a valid portfolio output."
+                logger.warning(
+                    "Analytics stage SKIPPED | "
+                    "no deployable portfolio available."
                 )
+
+                context.shared_objects[
+                    "analytics_error"
+                ] = None
+
+                context.shared_objects[
+                    "analytics_skipped"
+                ] = True
+
+                context.shared_objects[
+                    "analytics_skip_reason"
+                ] = (
+                    "No deployable portfolio available."
+                )
+
+                context.shared_objects[
+                    "analytics_runtime_seconds"
+                ] = (
+                    time.perf_counter()
+                    - start
+                )
+
+                return None
 
             portfolio_result = (
                 portfolio_output.result
@@ -6649,13 +6850,36 @@ class InstitutionalPortfolioPipeline:
             # Validate portfolio
             # ----------------------------------
 
-            if (
-                portfolio_output is None
-                or portfolio_output.result is None
+            if not self._portfolio_is_available(
+                portfolio_output
             ):
-                raise ValueError(
-                    "Attribution requires a valid portfolio output."
+                logger.warning(
+                    "Attribution stage SKIPPED | "
+                    "no deployable portfolio available."
                 )
+
+                context.shared_objects[
+                    "attribution_error"
+                ] = None
+
+                context.shared_objects[
+                    "attribution_skipped"
+                ] = True
+
+                context.shared_objects[
+                    "attribution_skip_reason"
+                ] = (
+                    "No deployable portfolio available."
+                )
+
+                context.shared_objects[
+                    "attribution_runtime_seconds"
+                ] = (
+                    time.perf_counter()
+                    - start
+                )
+
+                return None
 
             portfolio_result = (
                 portfolio_output.result
@@ -7631,13 +7855,36 @@ class InstitutionalPortfolioPipeline:
             # Validate portfolio
             # ----------------------------------
 
-            if (
-                portfolio_output is None
-                or portfolio_output.result is None
+            if not self._portfolio_is_available(
+                portfolio_output
             ):
-                raise ValueError(
-                    "Stress Testing requires a valid portfolio output."
+                logger.warning(
+                    "Stress Testing stage SKIPPED | "
+                    "no deployable portfolio available."
                 )
+
+                context.shared_objects[
+                    "stress_error"
+                ] = None
+
+                context.shared_objects[
+                    "stress_skipped"
+                ] = True
+
+                context.shared_objects[
+                    "stress_skip_reason"
+                ] = (
+                    "No deployable portfolio available."
+                )
+
+                context.shared_objects[
+                    "stress_runtime_seconds"
+                ] = (
+                    time.perf_counter()
+                    - start
+                )
+
+                return None
 
             portfolio_result = (
                 portfolio_output.result

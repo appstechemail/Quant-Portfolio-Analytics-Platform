@@ -6612,6 +6612,7 @@ class MonitoringEngineResult:
 # MASTER ENGINE
 # ============================================================
 
+
 class InstitutionalMonitoringEngine:
     """
     Institutional Monitoring Platform.
@@ -6630,6 +6631,8 @@ class InstitutionalMonitoringEngine:
         InstitutionalMonitoringReport
     """
 
+    # --------------------------------------------------------
+    # INITIALIZATION
     # --------------------------------------------------------
 
     def __init__(
@@ -6652,7 +6655,6 @@ class InstitutionalMonitoringEngine:
 
         self.runtime_engine = (
             RuntimeMonitoringEngine(
-
                 metadata=
                 metadata,
 
@@ -6663,7 +6665,6 @@ class InstitutionalMonitoringEngine:
 
         self.health_engine = (
             HealthMonitoringEngine(
-
                 metadata=
                 metadata,
 
@@ -6674,7 +6675,6 @@ class InstitutionalMonitoringEngine:
 
         self.compliance_engine = (
             ComplianceMonitoringEngine(
-
                 metadata=
                 metadata,
 
@@ -6685,7 +6685,6 @@ class InstitutionalMonitoringEngine:
 
         self.alert_engine = (
             AlertingEngine(
-
                 metadata=
                 metadata,
 
@@ -6696,7 +6695,6 @@ class InstitutionalMonitoringEngine:
 
         self.diagnostics_engine = (
             MonitoringDiagnosticsEngine(
-
                 metadata=
                 metadata,
 
@@ -6717,7 +6715,8 @@ class InstitutionalMonitoringEngine:
 
         return (
             self.runtime_engine.run(
-                runtime_seconds=float(
+                runtime_seconds=
+                float(
                     inputs.runtime_metrics.get(
                         "runtime_seconds",
                         0.0,
@@ -6752,7 +6751,6 @@ class InstitutionalMonitoringEngine:
 
         return (
             self.compliance_engine.run(
-
                 context=
                 inputs
                 .compliance_context
@@ -6777,24 +6775,20 @@ class InstitutionalMonitoringEngine:
     ) -> AlertMonitoringResult:
 
         scores = [
-
             runtime_result.score,
-
             health_result.score,
-
             compliance_result.score,
         ]
 
         overall_score = float(
-            np.mean(scores)
+            np.mean(
+                scores
+            )
         )
 
         statuses = [
-
             runtime_result.status,
-
             health_result.status,
-
             compliance_result.status,
         ]
 
@@ -6807,7 +6801,6 @@ class InstitutionalMonitoringEngine:
             s ==
             MonitoringStatus
             .FAILED
-
             for s
             in statuses
         ):
@@ -6821,7 +6814,6 @@ class InstitutionalMonitoringEngine:
             s ==
             MonitoringStatus
             .WARNING
-
             for s
             in statuses
         ):
@@ -6833,7 +6825,6 @@ class InstitutionalMonitoringEngine:
 
         return (
             self.alert_engine.run(
-
                 score=
                 overall_score,
 
@@ -6856,22 +6847,40 @@ class InstitutionalMonitoringEngine:
     def run_diagnostics(
         self,
         *,
-        runtime_result: RuntimeMonitoringResult,
-        health_result: HealthMonitoringResult,
-        compliance_result: ComplianceMonitoringResult,
-        alert_result: AlertMonitoringResult,
-        overall_status: MonitoringStatus | None = None,
+        runtime_result:
+        RuntimeMonitoringResult,
+
+        health_result:
+        HealthMonitoringResult,
+
+        compliance_result:
+        ComplianceMonitoringResult,
+
+        alert_result:
+        AlertMonitoringResult,
+
+        overall_status:
+        MonitoringStatus | None = None,
     ) -> (
         MonitoringDiagnosticSnapshot
     ):
 
         return (
             self.diagnostics_engine.run(
-                runtime_result=runtime_result,
-                health_result=health_result,
-                compliance_result=compliance_result,
-                alert_result=alert_result,
-                overall_status=overall_status,
+                runtime_result=
+                runtime_result,
+
+                health_result=
+                health_result,
+
+                compliance_result=
+                compliance_result,
+
+                alert_result=
+                alert_result,
+
+                overall_status=
+                overall_status,
             )
         )
 
@@ -6908,7 +6917,6 @@ class InstitutionalMonitoringEngine:
         return (
             InstitutionalMonitoringReportBuilder
             .build(
-
                 metadata=
                 self.metadata,
 
@@ -6932,254 +6940,272 @@ class InstitutionalMonitoringEngine:
             )
         )
 
-    # ============================================================
-# MASTER RUN
-# ============================================================
-
-def run(
-    self,
-    inputs: MonitoringInput,
-) -> (
-    MonitoringEngineResult
-):
-
     # ========================================================
-    # RUNTIME MONITORING
+    # MASTER RUN
     # ========================================================
 
-    runtime_result = (
-        self.run_runtime(
-            inputs
+    def run(
+        self,
+        inputs:
+        MonitoringInput,
+    ) -> (
+        MonitoringEngineResult
+    ):
+
+        # ====================================================
+        # RUNTIME MONITORING
+        # ====================================================
+
+        runtime_result = (
+            self.run_runtime(
+                inputs
+            )
         )
-    )
 
-    # ========================================================
-    # HEALTH MONITORING
-    # ========================================================
+        # ====================================================
+        # HEALTH MONITORING
+        # ====================================================
 
-    health_result = (
-        self.run_health(
-            inputs
+        health_result = (
+            self.run_health(
+                inputs
+            )
         )
-    )
 
-    # ========================================================
-    # COMPLIANCE MONITORING
-    # ========================================================
+        # ====================================================
+        # COMPLIANCE MONITORING
+        # ====================================================
 
-    compliance_result = (
-        self.run_compliance(
-            inputs
+        compliance_result = (
+            self.run_compliance(
+                inputs
+            )
         )
-    )
 
-    # ========================================================
-    # ALERT MONITORING
-    # ========================================================
+        # ====================================================
+        # ALERT MONITORING
+        # ====================================================
 
-    alert_result = (
-        self.run_alerts(
-            runtime_result=
-            runtime_result,
+        alert_result = (
+            self.run_alerts(
+                runtime_result=
+                runtime_result,
 
-            health_result=
-            health_result,
+                health_result=
+                health_result,
 
-            compliance_result=
-            compliance_result,
+                compliance_result=
+                compliance_result,
+            )
         )
-    )
 
-    # ========================================================
-    # CALCULATE OVERALL MONITORING SCORE
-    # ========================================================
-    #
-    # The individual monitoring engines already produce scores.
-    #
-    # We calculate the master score from the available
-    # component scores.
-    #
-    # IMPORTANT:
-    # This score is used for the normal PASS/WARNING/FAILED
-    # threshold evaluation.
-    #
-    # ERROR / CRITICAL alerts are handled separately below
-    # through determine_health_status().
-    # ========================================================
+        # ====================================================
+        # CALCULATE OVERALL MONITORING SCORE
+        # ====================================================
 
-    component_scores = []
+        #
+        # The individual monitoring engines already produce
+        # scores.
+        #
+        # We calculate the master score from the available
+        # component scores.
+        #
+        # IMPORTANT:
+        #
+        # This score is used for the normal PASS/WARNING/
+        # FAILED threshold evaluation.
+        #
+        # ERROR / CRITICAL alerts are handled separately
+        # through determine_health_status().
+        #
 
-    if runtime_result is not None:
-        if pd.notna(
-            runtime_result.score
-        ):
-            component_scores.append(
+        component_scores = []
+
+        if runtime_result is not None:
+
+            if pd.notna(
+                runtime_result.score
+            ):
+
+                component_scores.append(
+                    float(
+                        runtime_result.score
+                    )
+                )
+
+        if health_result is not None:
+
+            if pd.notna(
+                health_result.score
+            ):
+
+                component_scores.append(
+                    float(
+                        health_result.score
+                    )
+                )
+
+        if compliance_result is not None:
+
+            if pd.notna(
+                compliance_result.score
+            ):
+
+                component_scores.append(
+                    float(
+                        compliance_result.score
+                    )
+                )
+
+        if alert_result is not None:
+
+            if pd.notna(
+                alert_result.score
+            ):
+
+                component_scores.append(
+                    float(
+                        alert_result.score
+                    )
+                )
+
+        # ----------------------------------------------------
+        # Overall score
+        # ----------------------------------------------------
+
+        if component_scores:
+
+            score = self.clamp_score(
                 float(
-                    runtime_result.score
+                    np.mean(
+                        component_scores
+                    )
                 )
             )
 
-    if health_result is not None:
-        if pd.notna(
-            health_result.score
-        ):
-            component_scores.append(
-                float(
-                    health_result.score
-                )
+        else:
+
+            # Fail closed when no monitoring
+            # component produced a valid score.
+
+            score = 0.0
+
+        # ====================================================
+        # EXTRACT ALERT RECORDS
+        # ====================================================
+
+        alerts = (
+            alert_result.alerts
+            if alert_result is not None
+            else []
+        )
+
+        # ====================================================
+        # DETERMINE OVERALL MONITORING HEALTH
+        # ====================================================
+
+        #
+        # DO NOT replace the individual component-level
+        # determine_status() calls with this function.
+        #
+        # This call is specifically for the MASTER monitoring
+        # health decision.
+        #
+        # Any ERROR / CRITICAL alert forces FAILED status,
+        # regardless of the aggregate score.
+        #
+
+        status = self.determine_health_status(
+            score=
+            score,
+
+            alerts=
+            alerts,
+        )
+
+        # ====================================================
+        # DETERMINE OVERALL SEVERITY
+        # ====================================================
+
+        severity = (
+            self.determine_severity(
+                score
             )
+        )
 
-    if compliance_result is not None:
-        if pd.notna(
-            compliance_result.score
-        ):
-            component_scores.append(
-                float(
-                    compliance_result.score
-                )
-            )
+        # ====================================================
+        # DIAGNOSTICS
+        # ====================================================
 
-    if alert_result is not None:
-        if pd.notna(
-            alert_result.score
-        ):
-            component_scores.append(
-                float(
-                    alert_result.score
-                )
-            )
+        snapshot = (
+            self.run_diagnostics(
+                runtime_result=
+                runtime_result,
 
-    # --------------------------------------------------------
-    # Overall score
-    # --------------------------------------------------------
+                health_result=
+                health_result,
 
-    if component_scores:
+                compliance_result=
+                compliance_result,
 
-        score = self.clamp_score(
-            float(
-                np.mean(
-                    component_scores
-                )
+                alert_result=
+                alert_result,
+
+                overall_status=
+                status,
             )
         )
 
-    else:
+        # ====================================================
+        # BUILD MASTER REPORT
+        # ====================================================
 
-        # Fail closed when no monitoring
-        # component produced a valid score.
-        score = 0.0
+        report = (
+            self.build_report(
+                runtime_result=
+                runtime_result,
 
-    # ========================================================
-    # EXTRACT ALERT RECORDS
-    # ========================================================
+                health_result=
+                health_result,
 
-    alerts = (
-        alert_result.alerts
-        if alert_result is not None
-        else []
-    )
+                compliance_result=
+                compliance_result,
 
-    # ========================================================
-    # DETERMINE OVERALL MONITORING HEALTH
-    # ========================================================
-    #
-    # DO NOT replace the individual component-level
-    # determine_status() calls with this function.
-    #
-    # This call is specifically for the MASTER monitoring
-    # health decision.
-    #
-    # Any ERROR / CRITICAL alert forces FAILED status,
-    # regardless of the aggregate score.
-    # ========================================================
+                alert_result=
+                alert_result,
 
-    status = self.determine_health_status(
-        score=score,
-        alerts=alerts,
-    )
-
-    # ========================================================
-    # DETERMINE OVERALL SEVERITY
-    # ========================================================
-
-    severity = (
-        self.determine_severity(
-            score
+                snapshot=
+                snapshot,
+            )
         )
-    )
 
-    # ========================================================
-    # DIAGNOSTICS
-    # ========================================================
+        # ====================================================
+        # RETURN MASTER MONITORING RESULT
+        # ====================================================
 
-    snapshot = (
-        self.run_diagnostics(
-            runtime_result=
-            runtime_result,
+        return (
+            MonitoringEngineResult(
+                report=
+                report,
 
-            health_result=
-            health_result,
+                runtime_result=
+                runtime_result,
 
-            compliance_result=
-            compliance_result,
+                health_result=
+                health_result,
 
-            alert_result=
-            alert_result,
+                compliance_result=
+                compliance_result,
 
-            overall_status=
-            status,
+                alert_result=
+                alert_result,
+
+                diagnostic_snapshot=
+                snapshot,
+            )
         )
-    )
 
-    # ========================================================
-    # BUILD MASTER REPORT
-    # ========================================================
 
-    report = (
-        self.build_report(
-            runtime_result=
-            runtime_result,
-
-            health_result=
-            health_result,
-
-            compliance_result=
-            compliance_result,
-
-            alert_result=
-            alert_result,
-
-            snapshot=
-            snapshot,
-        )
-    )
-
-    # ========================================================
-    # RETURN MASTER MONITORING RESULT
-    # ========================================================
-
-    return (
-        MonitoringEngineResult(
-            report=
-            report,
-
-            runtime_result=
-            runtime_result,
-
-            health_result=
-            health_result,
-
-            compliance_result=
-            compliance_result,
-
-            alert_result=
-            alert_result,
-
-            diagnostic_snapshot=
-            snapshot,
-        )
-    )
-    
 # ============================================================
 # PART 13 — FACTORY & CONVENIENCE APIS
 # ============================================================

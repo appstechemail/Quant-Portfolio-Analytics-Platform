@@ -1803,3 +1803,12 @@ def predict_today(
                 f"Total Weight          : "
                 f"{portfolio['Position_Weight'].sum():.6f}"
             )
+
+    # =======================================================================
+    # 34. RETURN FINAL RESULTS
+    # =======================================================================
+
+    return (
+        signal_output,
+        portfolio,
+    )

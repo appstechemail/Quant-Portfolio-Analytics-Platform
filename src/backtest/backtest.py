@@ -1686,6 +1686,105 @@ def _cross_sectional_signal(
         .reset_index()
     )
 
+
+    # --------------------------------------------------------
+    # REGIME-LEVEL META FILTER DIAGNOSTICS
+    # --------------------------------------------------------
+    #
+    # Diagnostic only.
+    #
+    # This section does NOT modify:
+    #   - Meta_Pass
+    #   - Eligible
+    #   - Rank
+    #   - Selected
+    #   - portfolio weights
+    #
+    # It measures how Meta_Pass behaves by Market_Regime.
+    #
+    # --------------------------------------------------------
+
+    if (
+        "Market_Regime" in out.columns
+        and "Meta_Pass" in out.columns
+    ):
+
+        meta_regime_diag = (
+            out
+            .groupby(
+                "Market_Regime",
+                dropna=False,
+                sort=False,
+            )
+            .agg(
+                Universe=(
+                    "_Funnel_Universe",
+                    "sum",
+                ),
+                PositiveAlpha=(
+                    "_Funnel_PositiveAlpha",
+                    "sum",
+                ),
+                ConfidenceQualified=(
+                    "_Funnel_Confidence",
+                    "sum",
+                ),
+                MetaPass=(
+                    "_Funnel_Meta",
+                    "sum",
+                ),
+                AvgProbability=(
+                    "Probability",
+                    "mean",
+                ),
+                AvgConfidence=(
+                    "Confidence",
+                    "mean",
+                ),
+            )
+            .reset_index()
+        )
+
+        meta_regime_diag["MetaPassRate"] = np.where(
+            meta_regime_diag["ConfidenceQualified"] > 0,
+            (
+                meta_regime_diag["MetaPass"]
+                /
+                meta_regime_diag["ConfidenceQualified"]
+            ),
+            0.0,
+        )
+
+        print("\n")
+        print("=" * 72)
+        print("META FILTER DIAGNOSTICS BY MARKET REGIME")
+        print("=" * 72)
+
+        print(
+            meta_regime_diag[
+                [
+                    "Market_Regime",
+                    "Universe",
+                    "PositiveAlpha",
+                    "ConfidenceQualified",
+                    "MetaPass",
+                    "MetaPassRate",
+                    "AvgProbability",
+                    "AvgConfidence",
+                ]
+            ]
+            .to_string(
+                index=False,
+                formatters={
+                    "MetaPassRate": "{:.2%}".format,
+                    "AvgProbability": "{:.4f}".format,
+                    "AvgConfidence": "{:.4f}".format,
+                },
+            )
+        )
+
+        print("=" * 72)
+
     # --------------------------------------------------------
     # Funnel summary
     # --------------------------------------------------------

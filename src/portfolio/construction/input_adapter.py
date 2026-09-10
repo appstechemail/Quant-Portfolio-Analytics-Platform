@@ -3215,14 +3215,13 @@ class MainPipelineAdapter:
             )
 
             if candidate_weights.empty:
-                raise ValueError(
-                    "Alpha portfolio contains no positive candidate weights."
-                )
+                candidate_weights = None
 
-            candidate_weights = (
-                candidate_weights
-                / candidate_weights.abs().sum()
-            )
+            else:
+                candidate_weights = (
+                    candidate_weights
+                    / candidate_weights.abs().sum()
+                )
 
         # ----------------------------------
         # ALPHA PIPELINE

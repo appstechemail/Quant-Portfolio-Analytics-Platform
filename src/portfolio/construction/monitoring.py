@@ -6647,7 +6647,11 @@ class InstitutionalMonitoringEngine:
 
         self.metadata = metadata
 
-        self.config = config
+        self.config = (
+            config
+            if config is not None
+            else MonitoringConfig()
+        )
 
         # ---------------------------------
         # Engines

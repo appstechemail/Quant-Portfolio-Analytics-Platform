@@ -2058,6 +2058,7 @@ logger.info(
     final_df["Date"].nunique(),
     final_df["Company"].nunique()
 )
+
 # ----------------------------------------------------------
 # REGIME THRESHOLDS
 # ----------------------------------------------------------
@@ -2110,6 +2111,161 @@ logger.info(
     final_df["Date"].nunique(),
     final_df["Company"].nunique()
 )
+
+
+# ==========================================================
+# META MODEL DIAGNOSTICS BY MARKET REGIME
+# ==========================================================
+#
+# DIAGNOSTIC ONLY
+#
+# This section MUST NOT modify:
+#   - meta_proba
+#   - thresholds
+#   - meta_pass
+#   - final_proba
+#   - portfolio selection
+#
+# Purpose:
+#   Determine whether low Meta retention is caused by:
+#
+#       A. Low Meta probabilities
+#       B. Aggressive regime thresholds
+#
+# ==========================================================
+
+meta_diag = pd.DataFrame({
+    "Market_Regime": test_regimes,
+    "Meta_Proba": meta_proba,
+    "Meta_Threshold": thresholds,
+})
+
+meta_diag["Meta_Pass_Diagnostic"] = (
+    meta_diag["Meta_Proba"]
+    >
+    meta_diag["Meta_Threshold"]
+)
+
+print("\n")
+print("=" * 90)
+print("META MODEL DIAGNOSTICS BY MARKET REGIME")
+print("=" * 90)
+
+meta_regime_diag = (
+    meta_diag
+    .groupby(
+        "Market_Regime",
+        dropna=False,
+        sort=False,
+    )
+    .agg(
+        Count=(
+            "Meta_Proba",
+            "count",
+        ),
+
+        AvgMetaProba=(
+            "Meta_Proba",
+            "mean",
+        ),
+
+        P25MetaProba=(
+            "Meta_Proba",
+            lambda x: x.quantile(0.25),
+        ),
+
+        P50MetaProba=(
+            "Meta_Proba",
+            "median",
+        ),
+
+        P75MetaProba=(
+            "Meta_Proba",
+            lambda x: x.quantile(0.75),
+        ),
+
+        P90MetaProba=(
+            "Meta_Proba",
+            lambda x: x.quantile(0.90),
+        ),
+
+        P95MetaProba=(
+            "Meta_Proba",
+            lambda x: x.quantile(0.95),
+        ),
+
+        AvgThreshold=(
+            "Meta_Threshold",
+            "mean",
+        ),
+
+        MetaPass=(
+            "Meta_Pass_Diagnostic",
+            "sum",
+        ),
+    )
+    .reset_index()
+)
+
+meta_regime_diag["MetaPassRate"] = np.where(
+    meta_regime_diag["Count"] > 0,
+    (
+        meta_regime_diag["MetaPass"]
+        /
+        meta_regime_diag["Count"]
+    ),
+    0.0,
+)
+
+meta_regime_diag["P90_Minus_Threshold"] = (
+    meta_regime_diag["P90MetaProba"]
+    -
+    meta_regime_diag["AvgThreshold"]
+)
+
+meta_regime_diag["P75_Minus_Threshold"] = (
+    meta_regime_diag["P75MetaProba"]
+    -
+    meta_regime_diag["AvgThreshold"]
+)
+
+print(
+    meta_regime_diag[
+        [
+            "Market_Regime",
+            "Count",
+            "AvgMetaProba",
+            "P25MetaProba",
+            "P50MetaProba",
+            "P75MetaProba",
+            "P90MetaProba",
+            "P95MetaProba",
+            "AvgThreshold",
+            "MetaPass",
+            "MetaPassRate",
+            "P75_Minus_Threshold",
+            "P90_Minus_Threshold",
+        ]
+    ].to_string(
+        index=False,
+        formatters={
+            "AvgMetaProba": "{:.4f}".format,
+            "P25MetaProba": "{:.4f}".format,
+            "P50MetaProba": "{:.4f}".format,
+            "P75MetaProba": "{:.4f}".format,
+            "P90MetaProba": "{:.4f}".format,
+            "P95MetaProba": "{:.4f}".format,
+            "AvgThreshold": "{:.4f}".format,
+            "MetaPassRate": "{:.2%}".format,
+            "P75_Minus_Threshold": "{:+.4f}".format,
+            "P90_Minus_Threshold": "{:+.4f}".format,
+        },
+    )
+)
+
+print("=" * 90)
+
+
 # ----------------------------------------------------------
 # META FILTER
 # ----------------------------------------------------------

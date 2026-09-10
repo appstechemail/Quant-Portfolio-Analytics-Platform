@@ -6612,13 +6612,12 @@ class MonitoringEngineResult:
 # MASTER ENGINE
 # ============================================================
 
-
 class InstitutionalMonitoringEngine:
     """
     Institutional Monitoring Platform.
 
+    ```
     Executes:
-
         Runtime Monitoring
         Health Monitoring
         Compliance Monitoring
@@ -6627,22 +6626,14 @@ class InstitutionalMonitoringEngine:
         Reporting
 
     Produces:
-
         InstitutionalMonitoringReport
     """
-
-    # --------------------------------------------------------
-    # INITIALIZATION
-    # --------------------------------------------------------
 
     def __init__(
         self,
         *,
-        metadata:
-        MonitoringMetadata,
-
-        config:
-        MonitoringConfig | None = None,
+        metadata: MonitoringMetadata,
+        config: MonitoringConfig | None = None,
     ) -> None:
 
         self.metadata = metadata
@@ -6653,59 +6644,164 @@ class InstitutionalMonitoringEngine:
             else MonitoringConfig()
         )
 
-        # ---------------------------------
         # Engines
-        # ---------------------------------
+        self.runtime_engine = RuntimeMonitoringEngine(
+            metadata=metadata,
+            config=config,
+        )
 
-        self.runtime_engine = (
-            RuntimeMonitoringEngine(
-                metadata=
-                metadata,
+        self.health_engine = HealthMonitoringEngine(
+            metadata=metadata,
+            config=config,
+        )
 
-                config=
-                config,
+        self.compliance_engine = ComplianceMonitoringEngine(
+            metadata=metadata,
+            config=config,
+        )
+
+        self.alert_engine = AlertingEngine(
+            metadata=metadata,
+            config=config,
+        )
+
+        self.diagnostics_engine = MonitoringDiagnosticsEngine(
+            metadata=metadata,
+            config=config,
+        )
+
+    # ========================================================
+    # MASTER SCORE HELPERS
+    # ========================================================
+
+    @staticmethod
+    def clamp_score(
+        score: float,
+        minimum: float = 0.0,
+        maximum: float = 1.0,
+    ) -> float:
+        """
+        Clamp a monitoring score to the valid [0, 1] range.
+        """
+
+        try:
+            value = float(score)
+
+        except (TypeError, ValueError):
+            return float(minimum)
+
+        if not np.isfinite(value):
+            return float(minimum)
+
+        if minimum > maximum:
+            raise ValueError(
+                "Monitoring score minimum cannot exceed maximum."
+            )
+
+        return float(
+            min(
+                max(
+                    value,
+                    minimum,
+                ),
+                maximum,
             )
         )
 
-        self.health_engine = (
-            HealthMonitoringEngine(
-                metadata=
-                metadata,
+    # ========================================================
+    # MASTER HEALTH STATUS
+    # ========================================================
 
-                config=
-                config,
+    def determine_health_status(
+        self,
+        *,
+        score: float,
+        alerts: list[Any] | None = None,
+    ) -> MonitoringStatus:
+        """
+        Determine the overall monitoring health status.
+
+        ERROR / CRITICAL alerts force FAILED status.
+
+        Otherwise the aggregate score is evaluated against
+        the configured monitoring thresholds.
+        """
+
+        score = self.clamp_score(score)
+
+        alerts = alerts or []
+
+        for alert in alerts:
+
+            level = getattr(
+                alert,
+                "level",
+                None,
+            )
+
+            level_name = (
+                getattr(
+                    level,
+                    "name",
+                    str(level),
+                )
+                .upper()
+            )
+
+            if level_name in {
+                "ERROR",
+                "CRITICAL",
+            }:
+                return MonitoringStatus.FAILED
+
+        health_threshold = float(
+            getattr(
+                self.config,
+                "health_threshold",
+                0.80,
             )
         )
 
-        self.compliance_engine = (
-            ComplianceMonitoringEngine(
-                metadata=
-                metadata,
-
-                config=
-                config,
+        warning_threshold = float(
+            getattr(
+                self.config,
+                "warning_threshold",
+                0.60,
             )
         )
 
-        self.alert_engine = (
-            AlertingEngine(
-                metadata=
-                metadata,
+        if score >= health_threshold:
+            return MonitoringStatus.PASSED
 
-                config=
-                config,
-            )
-        )
+        if score >= warning_threshold:
+            return MonitoringStatus.WARNING
 
-        self.diagnostics_engine = (
-            MonitoringDiagnosticsEngine(
-                metadata=
-                metadata,
+        return MonitoringStatus.FAILED
 
-                config=
-                config,
-            )
-        )
+    # ========================================================
+    # MASTER SEVERITY
+    # ========================================================
+
+    def determine_severity(
+        self,
+        score: float,
+    ):
+        """
+        Determine monitoring severity from the aggregate score.
+        """
+
+        score = self.clamp_score(score)
+
+        if score >= 0.80:
+            return MonitoringSeverity.INFO
+
+        if score >= 0.60:
+            return MonitoringSeverity.WARNING
+
+        if score >= 0.40:
+            return MonitoringSeverity.ERROR
+
+        return MonitoringSeverity.CRITICAL
 
     # ========================================================
     # RUNTIME STAGE
@@ -6713,14 +6809,12 @@ class InstitutionalMonitoringEngine:
 
     def run_runtime(
         self,
-        inputs:
-        MonitoringInput,
+        inputs: MonitoringInput,
     ) -> RuntimeMonitoringResult:
 
         return (
             self.runtime_engine.run(
-                runtime_seconds=
-                float(
+                runtime_seconds=float(
                     inputs.runtime_metrics.get(
                         "runtime_seconds",
                         0.0,
@@ -6735,8 +6829,7 @@ class InstitutionalMonitoringEngine:
 
     def run_health(
         self,
-        inputs:
-        MonitoringInput,
+        inputs: MonitoringInput,
     ) -> HealthMonitoringResult:
 
         return (
@@ -6749,15 +6842,12 @@ class InstitutionalMonitoringEngine:
 
     def run_compliance(
         self,
-        inputs:
-        MonitoringInput,
+        inputs: MonitoringInput,
     ) -> ComplianceMonitoringResult:
 
         return (
             self.compliance_engine.run(
-                context=
-                inputs
-                .compliance_context
+                context=inputs.compliance_context
             )
         )
 
@@ -6768,14 +6858,9 @@ class InstitutionalMonitoringEngine:
     def run_alerts(
         self,
         *,
-        runtime_result:
-        RuntimeMonitoringResult,
-
-        health_result:
-        HealthMonitoringResult,
-
-        compliance_result:
-        ComplianceMonitoringResult,
+        runtime_result: RuntimeMonitoringResult,
+        health_result: HealthMonitoringResult,
+        compliance_result: ComplianceMonitoringResult,
     ) -> AlertMonitoringResult:
 
         scores = [
@@ -6797,50 +6882,31 @@ class InstitutionalMonitoringEngine:
         ]
 
         overall_status = (
-            MonitoringStatus
-            .PASSED
+            MonitoringStatus.PASSED
         )
 
         if any(
-            s ==
-            MonitoringStatus
-            .FAILED
-            for s
-            in statuses
+            s == MonitoringStatus.FAILED
+            for s in statuses
         ):
-
             overall_status = (
-                MonitoringStatus
-                .FAILED
+                MonitoringStatus.FAILED
             )
 
         elif any(
-            s ==
-            MonitoringStatus
-            .WARNING
-            for s
-            in statuses
+            s == MonitoringStatus.WARNING
+            for s in statuses
         ):
-
             overall_status = (
-                MonitoringStatus
-                .WARNING
+                MonitoringStatus.WARNING
             )
 
         return (
             self.alert_engine.run(
-                score=
-                overall_score,
-
-                status=
-                overall_status,
-
-                category=
-                MonitoringCategory
-                .ALERTING,
-
-                source=
-                "MASTER_ENGINE",
+                score=overall_score,
+                status=overall_status,
+                category=MonitoringCategory.ALERTING,
+                source="MASTER_ENGINE",
             )
         )
 
@@ -6851,40 +6917,20 @@ class InstitutionalMonitoringEngine:
     def run_diagnostics(
         self,
         *,
-        runtime_result:
-        RuntimeMonitoringResult,
-
-        health_result:
-        HealthMonitoringResult,
-
-        compliance_result:
-        ComplianceMonitoringResult,
-
-        alert_result:
-        AlertMonitoringResult,
-
-        overall_status:
-        MonitoringStatus | None = None,
-    ) -> (
-        MonitoringDiagnosticSnapshot
-    ):
+        runtime_result: RuntimeMonitoringResult,
+        health_result: HealthMonitoringResult,
+        compliance_result: ComplianceMonitoringResult,
+        alert_result: AlertMonitoringResult,
+        overall_status: MonitoringStatus | None = None,
+    ) -> MonitoringDiagnosticSnapshot:
 
         return (
             self.diagnostics_engine.run(
-                runtime_result=
-                runtime_result,
-
-                health_result=
-                health_result,
-
-                compliance_result=
-                compliance_result,
-
-                alert_result=
-                alert_result,
-
-                overall_status=
-                overall_status,
+                runtime_result=runtime_result,
+                health_result=health_result,
+                compliance_result=compliance_result,
+                alert_result=alert_result,
+                overall_status=overall_status,
             )
         )
 
@@ -6895,23 +6941,12 @@ class InstitutionalMonitoringEngine:
     def build_report(
         self,
         *,
-        runtime_result:
-        RuntimeMonitoringResult,
-
-        health_result:
-        HealthMonitoringResult,
-
-        compliance_result:
-        ComplianceMonitoringResult,
-
-        alert_result:
-        AlertMonitoringResult,
-
-        snapshot:
-        MonitoringDiagnosticSnapshot,
-    ) -> (
-        InstitutionalMonitoringReport
-    ):
+        runtime_result: RuntimeMonitoringResult,
+        health_result: HealthMonitoringResult,
+        compliance_result: ComplianceMonitoringResult,
+        alert_result: AlertMonitoringResult,
+        snapshot: MonitoringDiagnosticSnapshot,
+    ) -> InstitutionalMonitoringReport:
 
         trends = (
             self.diagnostics_engine
@@ -6921,26 +6956,13 @@ class InstitutionalMonitoringEngine:
         return (
             InstitutionalMonitoringReportBuilder
             .build(
-                metadata=
-                self.metadata,
-
-                runtime_result=
-                runtime_result,
-
-                health_result=
-                health_result,
-
-                compliance_result=
-                compliance_result,
-
-                alert_result=
-                alert_result,
-
-                snapshot=
-                snapshot,
-
-                trends=
-                trends,
+                metadata=self.metadata,
+                runtime_result=runtime_result,
+                health_result=health_result,
+                compliance_result=compliance_result,
+                alert_result=alert_result,
+                snapshot=snapshot,
+                trends=trends,
             )
         )
 
@@ -6950,11 +6972,8 @@ class InstitutionalMonitoringEngine:
 
     def run(
         self,
-        inputs:
-        MonitoringInput,
-    ) -> (
-        MonitoringEngineResult
-    ):
+        inputs: MonitoringInput,
+    ) -> MonitoringEngineResult:
 
         # ====================================================
         # RUNTIME MONITORING
@@ -6992,14 +7011,9 @@ class InstitutionalMonitoringEngine:
 
         alert_result = (
             self.run_alerts(
-                runtime_result=
-                runtime_result,
-
-                health_result=
-                health_result,
-
-                compliance_result=
-                compliance_result,
+                runtime_result=runtime_result,
+                health_result=health_result,
+                compliance_result=compliance_result,
             )
         )
 
@@ -7120,11 +7134,8 @@ class InstitutionalMonitoringEngine:
         #
 
         status = self.determine_health_status(
-            score=
-            score,
-
-            alerts=
-            alerts,
+            score=score,
+            alerts=alerts,
         )
 
         # ====================================================
@@ -7143,20 +7154,11 @@ class InstitutionalMonitoringEngine:
 
         snapshot = (
             self.run_diagnostics(
-                runtime_result=
-                runtime_result,
-
-                health_result=
-                health_result,
-
-                compliance_result=
-                compliance_result,
-
-                alert_result=
-                alert_result,
-
-                overall_status=
-                status,
+                runtime_result=runtime_result,
+                health_result=health_result,
+                compliance_result=compliance_result,
+                alert_result=alert_result,
+                overall_status=status,
             )
         )
 
@@ -7166,20 +7168,11 @@ class InstitutionalMonitoringEngine:
 
         report = (
             self.build_report(
-                runtime_result=
-                runtime_result,
-
-                health_result=
-                health_result,
-
-                compliance_result=
-                compliance_result,
-
-                alert_result=
-                alert_result,
-
-                snapshot=
-                snapshot,
+                runtime_result=runtime_result,
+                health_result=health_result,
+                compliance_result=compliance_result,
+                alert_result=alert_result,
+                snapshot=snapshot,
             )
         )
 
@@ -7189,23 +7182,12 @@ class InstitutionalMonitoringEngine:
 
         return (
             MonitoringEngineResult(
-                report=
-                report,
-
-                runtime_result=
-                runtime_result,
-
-                health_result=
-                health_result,
-
-                compliance_result=
-                compliance_result,
-
-                alert_result=
-                alert_result,
-
-                diagnostic_snapshot=
-                snapshot,
+                report=report,
+                runtime_result=runtime_result,
+                health_result=health_result,
+                compliance_result=compliance_result,
+                alert_result=alert_result,
+                diagnostic_snapshot=snapshot,
             )
         )
 

@@ -6778,30 +6778,46 @@ class InstitutionalMonitoringEngine:
 
         return MonitoringStatus.FAILED
 
+
     # ========================================================
     # MASTER SEVERITY
     # ========================================================
 
+    @staticmethod
     def determine_severity(
-        self,
         score: float,
-    ):
+    ) -> MonitoringSeverity:
         """
-        Determine monitoring severity from the aggregate score.
+        Determine overall monitoring severity from
+        the aggregate monitoring score.
+
+        Severity is intentionally independent from
+        MonitoringStatus:
+
+            >= 0.95 -> LOW
+            >= 0.85 -> MEDIUM
+            >= 0.70 -> HIGH
+            <  0.70 -> CRITICAL
+
+        This follows the canonical severity scale already
+        defined by BaseMonitoringEngine.
         """
 
-        score = self.clamp_score(score)
+        score = InstitutionalMonitoringEngine.clamp_score(
+            score
+        )
 
-        if score >= 0.80:
-            return MonitoringSeverity.INFO
+        if score >= 0.95:
+            return MonitoringSeverity.LOW
 
-        if score >= 0.60:
-            return MonitoringSeverity.WARNING
+        if score >= 0.85:
+            return MonitoringSeverity.MEDIUM
 
-        if score >= 0.40:
-            return MonitoringSeverity.ERROR
+        if score >= 0.70:
+            return MonitoringSeverity.HIGH
 
         return MonitoringSeverity.CRITICAL
+
 
     # ========================================================
     # RUNTIME STAGE

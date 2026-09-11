@@ -1079,7 +1079,7 @@ print("=" * 90)
 
 meta_train_diag = pd.DataFrame({
     "Market_Regime": data.loc[
-        train_idx,
+        train_mask,
         "Market_Regime"
     ].values,
     "Meta_Target": np.asarray(
@@ -1089,7 +1089,7 @@ meta_train_diag = pd.DataFrame({
 
 meta_test_diag = pd.DataFrame({
     "Market_Regime": data.loc[
-        test_idx,
+        test_mask,
         "Market_Regime"
     ].values,
     "Meta_Target": np.asarray(

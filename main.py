@@ -1026,6 +1026,105 @@ meta_test = (
     .reset_index(drop=True)
 )
 
+
+# ==========================================================
+# META TARGET DIAGNOSTICS
+# ==========================================================
+
+print("\n")
+print("=" * 90)
+print("META TARGET DIAGNOSTICS")
+print("=" * 90)
+
+def _print_meta_target_stats(name, y):
+    y_series = pd.Series(y).astype(int)
+
+    counts = y_series.value_counts().sort_index()
+    total = len(y_series)
+
+    print(f"\n{name}")
+    print("-" * 60)
+    print(f"Rows       : {total:,}")
+
+    for cls in [0, 1]:
+        count = int(counts.get(cls, 0))
+        pct = count / total if total else 0.0
+        print(
+            f"Class {cls}    : {count:,} "
+            f"({pct:.2%})"
+        )
+
+
+_print_meta_target_stats(
+    "META TARGET — TRAIN",
+    meta_y_train,
+)
+
+_print_meta_target_stats(
+    "META TARGET — TEST",
+    meta_y_test,
+)
+
+print("=" * 90)
+
+
+# ==========================================================
+# META TARGET BY MARKET REGIME
+# ==========================================================
+
+print("\n")
+print("=" * 90)
+print("META TARGET BY MARKET REGIME")
+print("=" * 90)
+
+meta_train_diag = pd.DataFrame({
+    "Market_Regime": data.loc[
+        train_idx,
+        "Market_Regime"
+    ].values,
+    "Meta_Target": np.asarray(
+        meta_y_train
+    ).astype(int),
+})
+
+meta_test_diag = pd.DataFrame({
+    "Market_Regime": data.loc[
+        test_idx,
+        "Market_Regime"
+    ].values,
+    "Meta_Target": np.asarray(
+        meta_y_test
+    ).astype(int),
+})
+
+for name, diag in [
+    ("TRAIN", meta_train_diag),
+    ("TEST", meta_test_diag),
+]:
+
+    regime_stats = (
+        diag
+        .groupby("Market_Regime")
+        .agg(
+            Rows=("Meta_Target", "size"),
+            Positive=("Meta_Target", "sum"),
+            PositiveRate=("Meta_Target", "mean"),
+        )
+        .reset_index()
+    )
+
+    print(f"\n{name}")
+    print(
+        regime_stats.to_string(
+            index=False,
+            formatters={
+                "PositiveRate": "{:.2%}".format,
+            },
+        )
+    )
+
+print("=" * 90)
+
 # ==========================================================
 # CANONICAL TEST SOURCE ROW IDS
 # ==========================================================

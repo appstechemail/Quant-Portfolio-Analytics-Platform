@@ -1030,28 +1030,75 @@ def _apply_quality_filters(
     )
 
     if probability_candidates.empty:
-
         confidence_threshold = (
             MIN_CONFIDENCE
         )
 
     elif USE_DYNAMIC_CONFIDENCE:
+        dynamic_confidence = float(
+            probability_candidates[
+                "Confidence"
+            ].quantile(
+                0.50
+            )
+        )
 
         confidence_threshold = max(
             MIN_CONFIDENCE,
-            float(
-                probability_candidates[
-                    "Confidence"
-                ].quantile(
-                    0.50
-                )
-            ),
+            dynamic_confidence,
         )
 
     else:
+        dynamic_confidence = None
 
         confidence_threshold = (
             MIN_CONFIDENCE
+        )
+
+    logger.info(
+        "QUALITY FILTER DEBUG | "
+        "MIN_CONFIDENCE=%.6f | "
+        "USE_DYNAMIC_CONFIDENCE=%s | "
+        "DYNAMIC_CONFIDENCE=%s | "
+        "FINAL_CONFIDENCE_THRESHOLD=%.6f",
+        float(MIN_CONFIDENCE),
+        USE_DYNAMIC_CONFIDENCE,
+        (
+            "None"
+            if dynamic_confidence is None
+            else f"{dynamic_confidence:.6f}"
+        ),
+        float(confidence_threshold),
+    )
+
+    # --------------------------------------------------------
+    # Confidence diagnostics by candidate
+    # --------------------------------------------------------
+
+    if not probability_candidates.empty:
+
+        logger.info(
+            "QUALITY FILTER CANDIDATES:\n%s",
+            probability_candidates[
+                [
+                    col
+                    for col in [
+                        "Company",
+                        "Prediction_Prob",
+                        "Confidence",
+                        "Prediction_Alpha",
+                        "Min_Prob",
+                    ]
+                    if col in probability_candidates.columns
+                ]
+            ]
+            .sort_values(
+                "Confidence",
+                ascending=False,
+            )
+            .to_string(
+                index=False
+            ),
         )
 
     confidence_mask = (
@@ -1069,16 +1116,6 @@ def _apply_quality_filters(
     df = df.loc[
         combined_mask
     ].copy()
-
-    logger.info(
-        "Portfolio selection filters | "
-        "Initial=%d | Probability=%d | "
-        "Confidence=%d | Final=%d",
-        len(candidate_df),
-        after_probability,
-        int(confidence_mask.sum()),
-        len(df),
-    )
 
     # --------------------------------------------------------
     # Fallback

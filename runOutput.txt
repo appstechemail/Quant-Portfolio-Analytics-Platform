@@ -1,5 +1,5 @@
-2026-09-11 05:19:43,470 | INFO | __main__ | Building canonical final_df...
-2026-09-11 05:19:43,470 | INFO | __main__ | STEP 1 | Downloading market data
+2026-09-11 09:32:58,581 | INFO | __main__ | Building canonical final_df...
+2026-09-11 09:32:58,581 | INFO | __main__ | STEP 1 | Downloading market data
 📥 Downloading TBOTEK.NS --- TBO TEK...
 📥 Downloading NSDL.BO --- NSDL...
 📥 Downloading MAPMYINDIA.NS --- C. E. INFO...
@@ -48,18 +48,18 @@
 
 ✅ Data download complete
 Shape: (87218, 8)
-2026-09-11 05:19:51,731 | INFO | __main__ | Raw rows: 87,218
-2026-09-11 05:19:51,731 | INFO | __main__ | STEP 2 | Downloading macro data
-2026-09-11 05:19:51,923 | INFO | __main__ | STEP 3 | Technical features
+2026-09-11 09:33:09,745 | INFO | __main__ | Raw rows: 87,218
+2026-09-11 09:33:09,746 | INFO | __main__ | STEP 2 | Downloading macro data
+2026-09-11 09:33:10,048 | INFO | __main__ | STEP 3 | Technical features
 
 ⚙️ GENERATING TECHNICAL FEATURES...
 ⚙️ Calculating ATR
 
 ✅ Technical features generated: 66
-2026-09-11 05:28:14,201 | INFO | __main__ | STEP 4 | Fundamental features
+2026-09-11 09:40:41,924 | INFO | __main__ | STEP 4 | Fundamental features
 📂 Loading EPS file: data/ALL_STOCKS_EPS.csv
 ✅ Fundamentals added successfully
-2026-09-11 05:28:19,098 | INFO | __main__ | STEP 5 | Building targets
+2026-09-11 09:40:45,477 | INFO | __main__ | STEP 5 | Building targets
 
 🎯 GENERATING CROSS-SECTIONAL TARGETS...
 
@@ -80,8 +80,8 @@ Company exists: True
 
 🎯 TARGET DISTRIBUTION
 Target
-0    0.5464
-1    0.4536
+0    0.546389
+1    0.453611
 Name: proportion, dtype: float64
 
 📌 Unique classes: [np.int64(0), np.int64(1)]
@@ -102,8 +102,8 @@ NaN    51033
 1.0    19545
 0.0    16415
 Name: count, dtype: int64
-2026-09-11 05:28:22,285 | INFO | __main__ | STEP 6 | Cleaning dataset
-2026-09-11 05:28:22,529 | INFO | __main__ | Final shape: (78865, 100)
+2026-09-11 09:40:49,753 | INFO | __main__ | STEP 6 | Cleaning dataset
+2026-09-11 09:40:50,036 | INFO | __main__ | Final shape: (78865, 100)
 
 final_df created successfully: (78865, 100)
 
@@ -125,104 +125,104 @@ Name: proportion, dtype: float64
 🌍 Current Regime: BEAR
 
 📊 Running Institutional Alpha Pipeline
-2026-09-11 05:28:23,260 | INFO | src.alpha.ic_engine | ================================================================================
-2026-09-11 05:28:23,260 | INFO | src.alpha.ic_engine | STARTING ALPHA PIPELINE
-2026-09-11 05:28:23,260 | INFO | src.alpha.ic_engine | ================================================================================
-2026-09-11 05:28:23,261 | INFO | src.alpha.ic_engine | Rows              : 78865
-2026-09-11 05:28:23,261 | INFO | src.alpha.ic_engine | Features Requested: Auto
-2026-09-11 05:28:23,261 | INFO | src.alpha.ic_engine | Target Column     : Future_Return
-2026-09-11 05:28:23,261 | INFO | src.alpha.ic_engine | Current Regime    : BEAR
-2026-09-11 05:28:23,261 | INFO | src.alpha.ic_engine | 
-2026-09-11 05:28:23,261 | INFO | src.alpha.ic_engine | ================================================================================
-2026-09-11 05:28:23,261 | INFO | src.alpha.ic_engine | PHASE 1A : GLOBAL IC ANALYSIS
-2026-09-11 05:28:23,261 | INFO | src.alpha.ic_engine | ================================================================================
-2026-09-11 05:28:23,261 | INFO | src.alpha.ic_engine | Computing Daily IC...
-2026-09-11 05:28:23,267 | INFO | src.alpha.ic_engine | Evaluating 92 features for Daily IC.
-2026-09-11 05:44:34,643 | INFO | src.alpha.ic_engine | Daily IC computed for 264839 observations.
-2026-09-11 05:44:34,687 | INFO | src.alpha.ic_engine | Daily IC observations : 264839
-2026-09-11 05:44:34,687 | INFO | src.alpha.ic_engine | Building IC summary...
-2026-09-11 05:44:34,782 | INFO | src.alpha.ic_engine | IC Summary computed for 90 features.
-2026-09-11 05:44:34,782 | INFO | src.alpha.ic_engine | Features evaluated : 90
-2026-09-11 05:44:34,782 | INFO | src.alpha.ic_engine | Selecting production features...
-2026-09-11 05:44:36,690 | INFO | src.alpha.ic_engine | IC Feature Filter | Initial=90 | Quality=31 | Family=28 | Selected=5 | Removed=23
-2026-09-11 05:44:36,690 | INFO | src.alpha.ic_engine | Selected features : 5
-2026-09-11 05:44:36,690 | INFO | src.alpha.ic_engine | Removed features  : 23
-2026-09-11 05:44:36,691 | INFO | src.alpha.ic_engine | Computing global IC weights...
-2026-09-11 05:44:36,694 | INFO | src.alpha.ic_engine | Built normalized IC weights for 5 features.
-2026-09-11 05:44:36,694 | INFO | src.alpha.ic_engine | Global IC weights created for 5 features.
-2026-09-11 05:44:36,694 | INFO | src.alpha.ic_engine | 
-2026-09-11 05:44:36,694 | INFO | src.alpha.ic_engine | ================================================================================
-2026-09-11 05:44:36,694 | INFO | src.alpha.ic_engine | PHASE 1B : ROLLING IC ANALYSIS
-2026-09-11 05:44:36,694 | INFO | src.alpha.ic_engine | ================================================================================
-2026-09-11 05:44:36,694 | INFO | src.alpha.ic_engine | Computing Rolling IC...
-2026-09-11 05:44:36,880 | INFO | src.alpha.ic_engine | Rolling IC computed for 92 features using window=60.
-2026-09-11 05:44:36,881 | INFO | src.alpha.ic_engine | Rolling IC observations : 264839
-2026-09-11 05:44:36,881 | INFO | src.alpha.ic_engine | Selecting rolling features...
-2026-09-11 05:44:36,912 | INFO | src.alpha.ic_engine | Rolling IC Filter | Candidates=5 | Selected=5
-2026-09-11 05:44:36,912 | INFO | src.alpha.ic_engine | Rolling-selected features : 5
-2026-09-11 05:44:36,912 | INFO | src.alpha.ic_engine | Computing rolling weights...
-2026-09-11 05:44:37,043 | INFO | src.alpha.ic_engine | Rolling weights computed for 5 features.
-2026-09-11 05:44:37,044 | INFO | src.alpha.ic_engine | Rolling weights generated.
-2026-09-11 05:44:37,044 | INFO | src.alpha.ic_engine | 
-2026-09-11 05:44:37,044 | INFO | src.alpha.ic_engine | ================================================================================
-2026-09-11 05:44:37,044 | INFO | src.alpha.ic_engine | PHASE 1C : REGIME IC ANALYSIS
-2026-09-11 05:44:37,044 | INFO | src.alpha.ic_engine | ================================================================================
-2026-09-11 05:44:37,044 | INFO | src.alpha.ic_engine | Computing regime IC...
-2026-09-11 05:44:37,202 | INFO | src.alpha.ic_engine | Computed regime IC statistics for 264 Regime × Feature combinations.
-2026-09-11 05:44:37,202 | INFO | src.alpha.ic_engine | Regime IC observations : 264
-2026-09-11 05:44:37,202 | INFO | src.alpha.ic_engine | Selecting regime features...
-2026-09-11 05:44:37,208 | INFO | src.alpha.ic_engine | Regime Feature Filter | Regime=BEAR | Candidates=5 | Selected=3
-2026-09-11 05:44:37,208 | INFO | src.alpha.ic_engine | Regime-selected features : 3
-2026-09-11 05:44:37,208 | INFO | src.alpha.ic_engine | Computing regime weights...
-2026-09-11 05:44:37,218 | INFO | src.alpha.ic_engine | Built regime weights for 3 features (Regime=BEAR).
-2026-09-11 05:44:37,219 | INFO | src.alpha.ic_engine | Regime weights generated.
-2026-09-11 05:44:37,219 | INFO | src.alpha.ic_engine | 
-2026-09-11 05:44:37,219 | INFO | src.alpha.ic_engine | Phase 1 completed successfully.
-2026-09-11 05:44:37,220 | INFO | src.alpha.ic_engine | 
-2026-09-11 05:44:37,220 | INFO | src.alpha.ic_engine | ================================================================================
-2026-09-11 05:44:37,220 | INFO | src.alpha.ic_engine | PHASE 2 : IC STABILITY ENGINE
-2026-09-11 05:44:37,220 | INFO | src.alpha.ic_engine | ================================================================================
-2026-09-11 05:44:37,220 | INFO | src.alpha.ic_engine | Computing IC stability metrics...
-2026-09-11 05:44:37,477 | INFO | src.alpha.ic_engine | Stability metrics computed for 90 features.
-2026-09-11 05:44:37,477 | INFO | src.alpha.ic_engine | Building stability weights...
-2026-09-11 05:44:37,491 | INFO | src.alpha.ic_engine | Stability weights generated for 5 features.
-2026-09-11 05:44:37,491 | INFO | src.alpha.ic_engine | 
-2026-09-11 05:44:37,491 | INFO | src.alpha.ic_engine | ================================================================================
-2026-09-11 05:44:37,491 | INFO | src.alpha.ic_engine | PHASE 3 : FEATURE CLUSTERING
-2026-09-11 05:44:37,491 | INFO | src.alpha.ic_engine | ================================================================================
-2026-09-11 05:44:37,491 | INFO | src.alpha.ic_engine | Running feature clustering...
-2026-09-11 05:44:37,579 | INFO | src.alpha.ic_engine | Feature clustering completed.
-2026-09-11 05:44:37,580 | INFO | src.alpha.ic_engine | Clusters discovered : 5
-2026-09-11 05:44:37,580 | INFO | src.alpha.ic_engine | Diversified features retained : 5
-2026-09-11 05:44:37,580 | INFO | src.alpha.ic_engine | 
-2026-09-11 05:44:37,580 | INFO | src.alpha.ic_engine | Phase 2 & Phase 3 completed successfully.
-2026-09-11 05:44:37,580 | INFO | src.alpha.ic_engine | 
-2026-09-11 05:44:37,580 | INFO | src.alpha.ic_engine | ================================================================================
-2026-09-11 05:44:37,580 | INFO | src.alpha.ic_engine | PHASE 4 : FEATURE DECAY ENGINE
-2026-09-11 05:44:37,580 | INFO | src.alpha.ic_engine | ================================================================================
-2026-09-11 05:44:37,580 | INFO | src.alpha.ic_engine | Computing feature decay...
-2026-09-11 05:44:37,977 | INFO | src.alpha.feature_decay | Computed decay statistics for 88 features.
-2026-09-11 05:44:37,977 | INFO | src.alpha.ic_engine | Decay columns:
-2026-09-11 05:44:37,978 | INFO | src.alpha.ic_engine | ['Feature', 'Historical_IC', 'Recent_IC', 'IC_Delta', 'Historical_ICIR', 'Recent_ICIR', 'ICIR_Delta', 'Recent_Positive_Pct', 'IC_Trend']
-2026-09-11 05:44:37,978 | INFO | src.alpha.ic_engine | Decay metrics computed for 88 features.
-2026-09-11 05:44:37,978 | INFO | src.alpha.ic_engine | Building decay weights...
-2026-09-11 05:44:37,984 | INFO | src.alpha.feature_decay | Computed decay scores for 88 features.
-2026-09-11 05:44:37,994 | INFO | src.alpha.feature_decay | Decay weights computed for 5 features.
-2026-09-11 05:44:37,995 | INFO | src.alpha.ic_engine | Decay weights generated for 5 features.
-2026-09-11 05:44:37,995 | INFO | src.alpha.ic_engine | 
-2026-09-11 05:44:37,995 | INFO | src.alpha.ic_engine | ================================================================================
-2026-09-11 05:44:37,995 | INFO | src.alpha.ic_engine | PHASE 5 : MASTER IC ENGINE
-2026-09-11 05:44:37,995 | INFO | src.alpha.ic_engine | ================================================================================
-2026-09-11 05:44:37,995 | INFO | src.alpha.ic_engine | Building master feature table...
-2026-09-11 05:44:37,995 | INFO | src.alpha.ic_engine | Building Master IC table...
-2026-09-11 05:44:37,996 | INFO | src.alpha.ic_engine | Merging Global IC metrics...
-2026-09-11 05:44:37,997 | INFO | src.alpha.ic_engine | Merging Rolling IC...
-2026-09-11 05:44:38,013 | INFO | src.alpha.ic_engine | Merging Stability metrics...
-2026-09-11 05:44:38,020 | INFO | src.alpha.ic_engine | Merging Feature Clustering...
-2026-09-11 05:44:38,035 | INFO | src.alpha.ic_engine | Merging Regime IC...
-2026-09-11 05:44:38,049 | INFO | src.alpha.ic_engine | Merging Feature Decay...
-2026-09-11 05:44:38,076 | INFO | src.alpha.ic_engine | Master table created with 90 features.
-2026-09-11 05:44:38,077 | INFO | src.alpha.ic_engine | Master table columns:
+2026-09-11 09:40:50,785 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-11 09:40:50,785 | INFO | src.alpha.ic_engine | STARTING ALPHA PIPELINE
+2026-09-11 09:40:50,785 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-11 09:40:50,786 | INFO | src.alpha.ic_engine | Rows              : 78865
+2026-09-11 09:40:50,786 | INFO | src.alpha.ic_engine | Features Requested: Auto
+2026-09-11 09:40:50,786 | INFO | src.alpha.ic_engine | Target Column     : Future_Return
+2026-09-11 09:40:50,786 | INFO | src.alpha.ic_engine | Current Regime    : BEAR
+2026-09-11 09:40:50,786 | INFO | src.alpha.ic_engine | 
+2026-09-11 09:40:50,786 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-11 09:40:50,786 | INFO | src.alpha.ic_engine | PHASE 1A : GLOBAL IC ANALYSIS
+2026-09-11 09:40:50,786 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-11 09:40:50,786 | INFO | src.alpha.ic_engine | Computing Daily IC...
+2026-09-11 09:40:50,791 | INFO | src.alpha.ic_engine | Evaluating 92 features for Daily IC.
+2026-09-11 09:53:29,174 | INFO | src.alpha.ic_engine | Daily IC computed for 264839 observations.
+2026-09-11 09:53:29,216 | INFO | src.alpha.ic_engine | Daily IC observations : 264839
+2026-09-11 09:53:29,216 | INFO | src.alpha.ic_engine | Building IC summary...
+2026-09-11 09:53:29,295 | INFO | src.alpha.ic_engine | IC Summary computed for 90 features.
+2026-09-11 09:53:29,295 | INFO | src.alpha.ic_engine | Features evaluated : 90
+2026-09-11 09:53:29,295 | INFO | src.alpha.ic_engine | Selecting production features...
+2026-09-11 09:53:30,914 | INFO | src.alpha.ic_engine | IC Feature Filter | Initial=90 | Quality=31 | Family=28 | Selected=5 | Removed=23
+2026-09-11 09:53:30,914 | INFO | src.alpha.ic_engine | Selected features : 5
+2026-09-11 09:53:30,914 | INFO | src.alpha.ic_engine | Removed features  : 23
+2026-09-11 09:53:30,915 | INFO | src.alpha.ic_engine | Computing global IC weights...
+2026-09-11 09:53:30,918 | INFO | src.alpha.ic_engine | Built normalized IC weights for 5 features.
+2026-09-11 09:53:30,918 | INFO | src.alpha.ic_engine | Global IC weights created for 5 features.
+2026-09-11 09:53:30,918 | INFO | src.alpha.ic_engine | 
+2026-09-11 09:53:30,918 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-11 09:53:30,918 | INFO | src.alpha.ic_engine | PHASE 1B : ROLLING IC ANALYSIS
+2026-09-11 09:53:30,918 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-11 09:53:30,918 | INFO | src.alpha.ic_engine | Computing Rolling IC...
+2026-09-11 09:53:31,099 | INFO | src.alpha.ic_engine | Rolling IC computed for 92 features using window=60.
+2026-09-11 09:53:31,099 | INFO | src.alpha.ic_engine | Rolling IC observations : 264839
+2026-09-11 09:53:31,099 | INFO | src.alpha.ic_engine | Selecting rolling features...
+2026-09-11 09:53:31,126 | INFO | src.alpha.ic_engine | Rolling IC Filter | Candidates=5 | Selected=5
+2026-09-11 09:53:31,127 | INFO | src.alpha.ic_engine | Rolling-selected features : 5
+2026-09-11 09:53:31,127 | INFO | src.alpha.ic_engine | Computing rolling weights...
+2026-09-11 09:53:31,249 | INFO | src.alpha.ic_engine | Rolling weights computed for 5 features.
+2026-09-11 09:53:31,250 | INFO | src.alpha.ic_engine | Rolling weights generated.
+2026-09-11 09:53:31,250 | INFO | src.alpha.ic_engine | 
+2026-09-11 09:53:31,250 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-11 09:53:31,250 | INFO | src.alpha.ic_engine | PHASE 1C : REGIME IC ANALYSIS
+2026-09-11 09:53:31,250 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-11 09:53:31,250 | INFO | src.alpha.ic_engine | Computing regime IC...
+2026-09-11 09:53:31,405 | INFO | src.alpha.ic_engine | Computed regime IC statistics for 264 Regime × Feature combinations.
+2026-09-11 09:53:31,405 | INFO | src.alpha.ic_engine | Regime IC observations : 264
+2026-09-11 09:53:31,405 | INFO | src.alpha.ic_engine | Selecting regime features...
+2026-09-11 09:53:31,411 | INFO | src.alpha.ic_engine | Regime Feature Filter | Regime=BEAR | Candidates=5 | Selected=3
+2026-09-11 09:53:31,411 | INFO | src.alpha.ic_engine | Regime-selected features : 3
+2026-09-11 09:53:31,411 | INFO | src.alpha.ic_engine | Computing regime weights...
+2026-09-11 09:53:31,419 | INFO | src.alpha.ic_engine | Built regime weights for 3 features (Regime=BEAR).
+2026-09-11 09:53:31,421 | INFO | src.alpha.ic_engine | Regime weights generated.
+2026-09-11 09:53:31,421 | INFO | src.alpha.ic_engine | 
+2026-09-11 09:53:31,421 | INFO | src.alpha.ic_engine | Phase 1 completed successfully.
+2026-09-11 09:53:31,421 | INFO | src.alpha.ic_engine | 
+2026-09-11 09:53:31,421 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-11 09:53:31,421 | INFO | src.alpha.ic_engine | PHASE 2 : IC STABILITY ENGINE
+2026-09-11 09:53:31,421 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-11 09:53:31,421 | INFO | src.alpha.ic_engine | Computing IC stability metrics...
+2026-09-11 09:53:31,657 | INFO | src.alpha.ic_engine | Stability metrics computed for 90 features.
+2026-09-11 09:53:31,658 | INFO | src.alpha.ic_engine | Building stability weights...
+2026-09-11 09:53:31,670 | INFO | src.alpha.ic_engine | Stability weights generated for 5 features.
+2026-09-11 09:53:31,670 | INFO | src.alpha.ic_engine | 
+2026-09-11 09:53:31,670 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-11 09:53:31,670 | INFO | src.alpha.ic_engine | PHASE 3 : FEATURE CLUSTERING
+2026-09-11 09:53:31,670 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-11 09:53:31,670 | INFO | src.alpha.ic_engine | Running feature clustering...
+2026-09-11 09:53:31,740 | INFO | src.alpha.ic_engine | Feature clustering completed.
+2026-09-11 09:53:31,741 | INFO | src.alpha.ic_engine | Clusters discovered : 5
+2026-09-11 09:53:31,741 | INFO | src.alpha.ic_engine | Diversified features retained : 5
+2026-09-11 09:53:31,741 | INFO | src.alpha.ic_engine | 
+2026-09-11 09:53:31,741 | INFO | src.alpha.ic_engine | Phase 2 & Phase 3 completed successfully.
+2026-09-11 09:53:31,741 | INFO | src.alpha.ic_engine | 
+2026-09-11 09:53:31,741 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-11 09:53:31,741 | INFO | src.alpha.ic_engine | PHASE 4 : FEATURE DECAY ENGINE
+2026-09-11 09:53:31,741 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-11 09:53:31,741 | INFO | src.alpha.ic_engine | Computing feature decay...
+2026-09-11 09:53:32,109 | INFO | src.alpha.feature_decay | Computed decay statistics for 88 features.
+2026-09-11 09:53:32,109 | INFO | src.alpha.ic_engine | Decay columns:
+2026-09-11 09:53:32,109 | INFO | src.alpha.ic_engine | ['Feature', 'Historical_IC', 'Recent_IC', 'IC_Delta', 'Historical_ICIR', 'Recent_ICIR', 'ICIR_Delta', 'Recent_Positive_Pct', 'IC_Trend']
+2026-09-11 09:53:32,109 | INFO | src.alpha.ic_engine | Decay metrics computed for 88 features.
+2026-09-11 09:53:32,109 | INFO | src.alpha.ic_engine | Building decay weights...
+2026-09-11 09:53:32,116 | INFO | src.alpha.feature_decay | Computed decay scores for 88 features.
+2026-09-11 09:53:32,126 | INFO | src.alpha.feature_decay | Decay weights computed for 5 features.
+2026-09-11 09:53:32,127 | INFO | src.alpha.ic_engine | Decay weights generated for 5 features.
+2026-09-11 09:53:32,127 | INFO | src.alpha.ic_engine | 
+2026-09-11 09:53:32,127 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-11 09:53:32,127 | INFO | src.alpha.ic_engine | PHASE 5 : MASTER IC ENGINE
+2026-09-11 09:53:32,128 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-11 09:53:32,128 | INFO | src.alpha.ic_engine | Building master feature table...
+2026-09-11 09:53:32,128 | INFO | src.alpha.ic_engine | Building Master IC table...
+2026-09-11 09:53:32,128 | INFO | src.alpha.ic_engine | Merging Global IC metrics...
+2026-09-11 09:53:32,129 | INFO | src.alpha.ic_engine | Merging Rolling IC...
+2026-09-11 09:53:32,140 | INFO | src.alpha.ic_engine | Merging Stability metrics...
+2026-09-11 09:53:32,145 | INFO | src.alpha.ic_engine | Merging Feature Clustering...
+2026-09-11 09:53:32,153 | INFO | src.alpha.ic_engine | Merging Regime IC...
+2026-09-11 09:53:32,164 | INFO | src.alpha.ic_engine | Merging Feature Decay...
+2026-09-11 09:53:32,188 | INFO | src.alpha.ic_engine | Master table created with 90 features.
+2026-09-11 09:53:32,188 | INFO | src.alpha.ic_engine | Master table columns:
 Feature
 Mean_IC
 Abs_IC
@@ -271,10 +271,10 @@ Decay_Multiplier
 Decay_Weight
 Feature_Rank
 Use_Feature
-2026-09-11 05:44:38,077 | INFO | src.alpha.ic_engine | Master table created with 90 features.
-2026-09-11 05:44:38,077 | INFO | src.alpha.ic_engine | Building adaptive IC weights...
-2026-09-11 05:44:38,078 | INFO | src.alpha.ic_engine | Master IC columns:
-2026-09-11 05:44:38,078 | INFO | src.alpha.ic_engine | Master table columns:
+2026-09-11 09:53:32,188 | INFO | src.alpha.ic_engine | Master table created with 90 features.
+2026-09-11 09:53:32,188 | INFO | src.alpha.ic_engine | Building adaptive IC weights...
+2026-09-11 09:53:32,189 | INFO | src.alpha.ic_engine | Master IC columns:
+2026-09-11 09:53:32,189 | INFO | src.alpha.ic_engine | Master table columns:
 Feature
 Mean_IC
 Abs_IC
@@ -323,71 +323,71 @@ Decay_Multiplier
 Decay_Weight
 Feature_Rank
 Use_Feature
-2026-09-11 05:44:38,096 | INFO | src.alpha.ic_engine | Adaptive weighting completed.
-2026-09-11 05:44:38,096 | INFO | src.alpha.ic_engine | 
-2026-09-11 05:44:38,096 | INFO | src.alpha.ic_engine | Phase 4 & Phase 5 completed successfully.
-2026-09-11 05:44:38,096 | INFO | src.alpha.ic_engine | 
-2026-09-11 05:44:38,096 | INFO | src.alpha.ic_engine | ================================================================================
-2026-09-11 05:44:38,096 | INFO | src.alpha.ic_engine | PHASE 6 : FEATURE CATEGORY ALLOCATION
-2026-09-11 05:44:38,096 | INFO | src.alpha.ic_engine | ================================================================================
-2026-09-11 05:44:38,096 | INFO | src.alpha.ic_engine | Building feature-category table...
-2026-09-11 05:44:38,102 | INFO | src.alpha.ic_engine | Feature-category table created with 90 rows.
-2026-09-11 05:44:38,103 | INFO | src.alpha.ic_engine | Computing category statistics...
-2026-09-11 05:44:38,122 | INFO | src.alpha.ic_engine | Computed statistics for 5 categories.
-2026-09-11 05:44:38,122 | INFO | src.alpha.ic_engine | Allocating dynamic category budgets...
-2026-09-11 05:44:38,131 | INFO | src.alpha.ic_engine | Generated budgets for 5 categories.
-2026-09-11 05:44:38,131 | INFO | src.alpha.ic_engine | Computing final feature weights...
-2026-09-11 05:44:38,139 | INFO | src.alpha.ic_engine | Final feature weights generated for 90 features.
-2026-09-11 05:44:38,139 | INFO | src.alpha.ic_engine | 
-2026-09-11 05:44:38,139 | INFO | src.alpha.ic_engine | ================================================================================
-2026-09-11 05:44:38,139 | INFO | src.alpha.ic_engine | ALPHA PIPELINE COMPLETED SUCCESSFULLY
-2026-09-11 05:44:38,139 | INFO | src.alpha.ic_engine | ================================================================================
-2026-09-11 05:45:04,860 | INFO | src.alpha.ic_engine | Alpha Engine results saved to 'data'.
+2026-09-11 09:53:32,207 | INFO | src.alpha.ic_engine | Adaptive weighting completed.
+2026-09-11 09:53:32,207 | INFO | src.alpha.ic_engine | 
+2026-09-11 09:53:32,207 | INFO | src.alpha.ic_engine | Phase 4 & Phase 5 completed successfully.
+2026-09-11 09:53:32,207 | INFO | src.alpha.ic_engine | 
+2026-09-11 09:53:32,207 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-11 09:53:32,207 | INFO | src.alpha.ic_engine | PHASE 6 : FEATURE CATEGORY ALLOCATION
+2026-09-11 09:53:32,207 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-11 09:53:32,207 | INFO | src.alpha.ic_engine | Building feature-category table...
+2026-09-11 09:53:32,213 | INFO | src.alpha.ic_engine | Feature-category table created with 90 rows.
+2026-09-11 09:53:32,213 | INFO | src.alpha.ic_engine | Computing category statistics...
+2026-09-11 09:53:32,229 | INFO | src.alpha.ic_engine | Computed statistics for 5 categories.
+2026-09-11 09:53:32,229 | INFO | src.alpha.ic_engine | Allocating dynamic category budgets...
+2026-09-11 09:53:32,238 | INFO | src.alpha.ic_engine | Generated budgets for 5 categories.
+2026-09-11 09:53:32,238 | INFO | src.alpha.ic_engine | Computing final feature weights...
+2026-09-11 09:53:32,245 | INFO | src.alpha.ic_engine | Final feature weights generated for 90 features.
+2026-09-11 09:53:32,245 | INFO | src.alpha.ic_engine | 
+2026-09-11 09:53:32,245 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-11 09:53:32,246 | INFO | src.alpha.ic_engine | ALPHA PIPELINE COMPLETED SUCCESSFULLY
+2026-09-11 09:53:32,246 | INFO | src.alpha.ic_engine | ================================================================================
+2026-09-11 09:53:50,295 | INFO | src.alpha.ic_engine | Alpha Engine results saved to 'data'.
 
 🏆 TOP IC FEATURES
              Feature   Mean_IC    Abs_IC  ...      ICIR  Alpha_Score  Feature_Rank
-0                EPS  0.046600  0.230534  ...  0.168160     0.190704             1
-1        Value_Score  0.032392  0.186005  ...  0.140807     0.168327             2
-2     Trend_Strength  0.035743  0.219941  ...  0.132679     0.167635             3
-3   Trend_Strength_Z  0.035743  0.219941  ...  0.132676     0.167584             4
-4              Trend  0.033040  0.218541  ...  0.123040     0.161807             5
-5            BB_Z200  0.030419  0.205852  ...  0.120038     0.158194             6
-6     Price_to_MA200  0.031332  0.218679  ...  0.116852     0.156517             7
-7         Value_Rank  0.025686  0.192873  ...  0.108201     0.146698             8
-9               MA20  0.027079  0.249733  ...  0.089523     0.137190            10
-8             Low_20  0.027152  0.251221  ...  0.089237     0.137500             9
-12             EMA20  0.026929  0.249889  ...  0.088967     0.137037            13
-14              MA50  0.026846  0.248929  ...  0.088936     0.136995            15
-11              MA10  0.026900  0.250159  ...  0.088797     0.137133            12
-16             EMA50  0.026804  0.249197  ...  0.088730     0.136721            17
-15             EMA10  0.026874  0.250177  ...  0.088709     0.136730            16
+0                EPS  0.046590  0.230544  ...  0.168118     0.190677             1
+1        Value_Score  0.032407  0.185988  ...  0.140887     0.168375             2
+2     Trend_Strength  0.035731  0.219931  ...  0.132636     0.167608             3
+3   Trend_Strength_Z  0.035730  0.219931  ...  0.132634     0.167557             4
+4              Trend  0.033016  0.218518  ...  0.122953     0.161752             5
+5            BB_Z200  0.030405  0.205840  ...  0.119986     0.158161             6
+6     Price_to_MA200  0.031316  0.218664  ...  0.116799     0.156483             7
+7         Value_Rank  0.025701  0.192850  ...  0.108271     0.146741             8
+9               MA20  0.027055  0.249767  ...  0.089435     0.137134            10
+8             Low_20  0.027131  0.251256  ...  0.089162     0.137452             9
+12             EMA20  0.026905  0.249922  ...  0.088882     0.136983            13
+14              MA50  0.026818  0.248956  ...  0.088839     0.136934            15
+11              MA10  0.026875  0.250188  ...  0.088708     0.137077            12
+16             EMA50  0.026775  0.249226  ...  0.088625     0.136654            17
+15             EMA10  0.026846  0.250204  ...  0.088609     0.136667            16
 
 [15 rows x 9 columns]
            Feature    Category  Final_Weight
-0              EPS       Value      0.188934
-1               PE       Value      0.187011
-2       Volatility  Volatility      0.064857
-3     Momentum_ATR    Momentum      0.034997
-4             MACD    Momentum      0.034997
-5              RSI    Momentum      0.034997
-6         Momentum    Momentum      0.034997
-7       Log_Return       Price      0.026853
-8           Return       Price      0.026853
-9   Trend_Strength     Unknown      0.005439
-10    EMA_Spread_Z     Unknown      0.005255
-11          Low_20     Unknown      0.005194
-12           EMA20     Unknown      0.004495
-13            MA10     Unknown      0.004495
-14            MA50     Unknown      0.004495
-15           EMA10     Unknown      0.004495
-16           EMA50     Unknown      0.004495
-17      Close_Lag5     Unknown      0.004495
-18      Close_Lag2     Unknown      0.004495
-19         BB_Z200     Unknown      0.004495
+0              EPS       Value      0.188765
+1               PE       Value      0.186914
+2       Volatility  Volatility      0.064340
+3     Momentum_ATR    Momentum      0.034371
+4             MACD    Momentum      0.034371
+5              RSI    Momentum      0.034371
+6         Momentum    Momentum      0.034371
+7       Log_Return       Price      0.026834
+8           Return       Price      0.026834
+9   Trend_Strength     Unknown      0.005488
+10    EMA_Spread_Z     Unknown      0.005298
+11          Low_20     Unknown      0.005235
+12           EMA20     Unknown      0.004536
+13            MA10     Unknown      0.004536
+14            MA50     Unknown      0.004536
+15           EMA10     Unknown      0.004536
+16           EMA50     Unknown      0.004536
+17      Close_Lag5     Unknown      0.004536
+18      Close_Lag2     Unknown      0.004536
+19         BB_Z200     Unknown      0.004536
 
 🛡 Institutional Feature Set
 Selected Features: 40
-['EPS', 'PE', 'Volatility', 'Momentum_ATR', 'MACD', 'RSI', 'Momentum', 'Log_Return', 'Return', 'Trend_Strength', 'EMA_Spread_Z', 'Low_20', 'EMA20', 'MA10', 'MA50', 'EMA10', 'EMA50', 'Close_Lag5', 'Close_Lag2', 'BB_Z200', 'Trend', 'Trend_Strength_Z', 'Value_Rank', 'Price_to_MA200', 'MA20', 'Close_Lag3', 'Range_Position_Z', 'SMA_L', 'EMA200', 'MA200', 'SMA_S', 'Close_Lag1', 'EMA_M', 'High_20', 'EMA_S', 'MACD_Signal', 'Momentum_ATR_Z', 'Reversal', 'ATR_Z', 'Return_Lag5']
+['EPS', 'PE', 'Volatility', 'Momentum_ATR', 'MACD', 'RSI', 'Momentum', 'Log_Return', 'Return', 'Trend_Strength', 'EMA_Spread_Z', 'Low_20', 'EMA20', 'MA10', 'MA50', 'EMA10', 'EMA50', 'Close_Lag5', 'Close_Lag2', 'BB_Z200', 'Trend', 'Trend_Strength_Z', 'Value_Rank', 'Price_to_MA200', 'MA20', 'Close_Lag3', 'Range_Position_Z', 'SMA_L', 'EMA200', 'MA200', 'SMA_S', 'EMA_M', 'Close_Lag1', 'High_20', 'EMA_S', 'MACD_Signal', 'Momentum_ATR_Z', 'Reversal', 'ATR_Z', 'Return_Lag5']
 
 ✅ Institutional Alpha Engine Complete
 
@@ -401,6 +401,48 @@ Dataset Shape:
 ============================================================
 DATE-BASED TRAIN / TEST SPLIT
 ============================================================
+
+
+==========================================================================================
+META TARGET DIAGNOSTICS
+==========================================================================================
+
+META TARGET — TRAIN
+------------------------------------------------------------
+Rows       : 58,207
+Class 0    : 39,443 (67.76%)
+Class 1    : 18,764 (32.24%)
+
+META TARGET — TEST
+------------------------------------------------------------
+Rows       : 20,658
+Class 0    : 14,625 (70.80%)
+Class 1    : 6,033 (29.20%)
+==========================================================================================
+
+
+==========================================================================================
+META TARGET BY MARKET REGIME
+==========================================================================================
+
+TRAIN
+    Market_Regime  Rows  Positive PositiveRate
+             BEAR 12358      3904       31.59%
+    BEAR_VOLATILE  4498      1535       34.13%
+             BULL 14331      4535       31.64%
+    BULL_VOLATILE  3252       983       30.23%
+         SIDEWAYS 20082      6598       32.86%
+SIDEWAYS_VOLATILE  3686      1209       32.80%
+
+TEST
+    Market_Regime  Rows  Positive PositiveRate
+             BEAR  4602      1279       27.79%
+    BEAR_VOLATILE  1516       492       32.45%
+             BULL  5277      1599       30.30%
+    BULL_VOLATILE  1081       323       29.88%
+         SIDEWAYS  6979      1964       28.14%
+SIDEWAYS_VOLATILE  1203       376       31.26%
+==========================================================================================
 Total dates : 3,029
 Train dates : 2,423
 Test dates  : 606
@@ -481,12 +523,12 @@ Final trained models:
 ⚙ Generating probabilities
 
 ⚙ Training meta model
-2026-09-11 05:47:54,165 | INFO | __main__ | ================================================================================
-2026-09-11 05:47:54,165 | INFO | __main__ | BACKTEST DEBUG - After Meta Filter
-2026-09-11 05:47:54,165 | INFO | __main__ | Rows after merge: 78865
-2026-09-11 05:47:54,177 | INFO | __main__ | Unique Dates=3029 | Companies=39
-2026-09-11 05:47:54,179 | INFO | __main__ | Meta-positive observations: 1504
-Average Meta: 0.3626
+2026-09-11 09:57:11,221 | INFO | __main__ | ================================================================================
+2026-09-11 09:57:11,221 | INFO | __main__ | BACKTEST DEBUG - After Meta Filter
+2026-09-11 09:57:11,222 | INFO | __main__ | Rows after merge: 78865
+2026-09-11 09:57:11,227 | INFO | __main__ | Unique Dates=3029 | Companies=39
+2026-09-11 09:57:11,228 | INFO | __main__ | Meta-positive observations: 2372
+Average Meta: 0.3798
 
 ============================================================
 PART 5 — ENSEMBLE GENERATION
@@ -495,38 +537,38 @@ PART 5 — ENSEMBLE GENERATION
 Weighted Ensemble Complete
 Models: ['XGB', 'RF', 'LR', 'MLP']
 Weights: [0.21875 0.09375 0.0625  0.625  ]
-2026-09-11 05:47:57,681 | INFO | __main__ | ================================================================================
-2026-09-11 05:47:57,681 | INFO | __main__ | BACKTEST DEBUG Before - Meta Model Filter
-2026-09-11 05:47:57,681 | INFO | __main__ | Rows after merge: 78865
-2026-09-11 05:47:57,685 | INFO | __main__ | Unique Dates=3029 | Companies=39
+2026-09-11 09:57:13,700 | INFO | __main__ | ================================================================================
+2026-09-11 09:57:13,700 | INFO | __main__ | BACKTEST DEBUG Before - Meta Model Filter
+2026-09-11 09:57:13,700 | INFO | __main__ | Rows after merge: 78865
+2026-09-11 09:57:13,706 | INFO | __main__ | Unique Dates=3029 | Companies=39
 
 Applying Meta Model
-2026-09-11 05:47:57,688 | INFO | __main__ | ================================================================================
-2026-09-11 05:47:57,688 | INFO | __main__ | BACKTEST DEBUG After - Meta Model Filter
-2026-09-11 05:47:57,688 | INFO | __main__ | Rows after merge: 78865
-2026-09-11 05:47:57,695 | INFO | __main__ | Unique Dates=3029 | Companies=39
-2026-09-11 05:47:57,705 | INFO | __main__ | ================================================================================
-2026-09-11 05:47:57,705 | INFO | __main__ | BACKTEST DEBUG Before - Meta Filter Final Proba
-2026-09-11 05:47:57,705 | INFO | __main__ | Rows after merge: 78865
-2026-09-11 05:47:57,710 | INFO | __main__ | Unique Dates=3029 | Companies=39
+2026-09-11 09:57:13,709 | INFO | __main__ | ================================================================================
+2026-09-11 09:57:13,709 | INFO | __main__ | BACKTEST DEBUG After - Meta Model Filter
+2026-09-11 09:57:13,709 | INFO | __main__ | Rows after merge: 78865
+2026-09-11 09:57:13,714 | INFO | __main__ | Unique Dates=3029 | Companies=39
+2026-09-11 09:57:13,722 | INFO | __main__ | ================================================================================
+2026-09-11 09:57:13,722 | INFO | __main__ | BACKTEST DEBUG Before - Meta Filter Final Proba
+2026-09-11 09:57:13,722 | INFO | __main__ | Rows after merge: 78865
+2026-09-11 09:57:13,727 | INFO | __main__ | Unique Dates=3029 | Companies=39
 
 
 ==========================================================================================
 META MODEL DIAGNOSTICS BY MARKET REGIME
 ==========================================================================================
     Market_Regime  Count AvgMetaProba P25MetaProba P50MetaProba P75MetaProba P90MetaProba P95MetaProba AvgThreshold  MetaPass MetaPassRate P75_Minus_Threshold P90_Minus_Threshold
-         SIDEWAYS   6979       0.3453       0.2587       0.3313       0.4271       0.5340       0.5992       0.7000       108        1.55%             -0.2729             -0.1660
-SIDEWAYS_VOLATILE   1203       0.3900       0.2777       0.3827       0.5149       0.6273       0.6916       0.8000         7        0.58%             -0.2851             -0.1727
-             BEAR   4602       0.3662       0.2733       0.3532       0.4548       0.5527       0.6284       0.6000       304        6.61%             -0.1452             -0.0473
-    BULL_VOLATILE   1081       0.3965       0.2822       0.3753       0.5164       0.6287       0.7074       0.7500        42        3.89%             -0.2336             -0.1213
-             BULL   5277       0.3587       0.2635       0.3432       0.4497       0.5614       0.6293       0.6000       374        7.09%             -0.1503             -0.0386
-    BEAR_VOLATILE   1516       0.3995       0.2916       0.3769       0.4901       0.6279       0.6979       0.6000       181       11.94%             -0.1099             +0.0279
+         SIDEWAYS   6979       0.3549       0.2387       0.3354       0.4629       0.5752       0.6416       0.7000       132        1.89%             -0.2371             -0.1248
+SIDEWAYS_VOLATILE   1203       0.4001       0.2554       0.3817       0.5492       0.6714       0.7184       0.8000         6        0.50%             -0.2508             -0.1286
+             BEAR   4602       0.3803       0.2685       0.3662       0.4812       0.5988       0.6728       0.6000       454        9.87%             -0.1188             -0.0012
+    BULL_VOLATILE   1081       0.4139       0.2619       0.4100       0.5548       0.6725       0.7215       0.7500        42        3.89%             -0.1952             -0.0775
+             BULL   5277       0.3884       0.2581       0.3723       0.5139       0.6252       0.6804       0.6000       687       13.02%             -0.0861             +0.0252
+    BEAR_VOLATILE   1516       0.4219       0.3009       0.4129       0.5333       0.6504       0.7122       0.6000       243       16.03%             -0.0667             +0.0504
 ==========================================================================================
-Signals after Meta Filter: 1016
-2026-09-11 05:47:57,763 | INFO | __main__ | ================================================================================
-2026-09-11 05:47:57,763 | INFO | __main__ | BACKTEST DEBUG After - Meta Filter Final Proba and Before Regime Filter
-2026-09-11 05:47:57,763 | INFO | __main__ | Rows after merge: 78865
-2026-09-11 05:47:57,767 | INFO | __main__ | Unique Dates=3029 | Companies=39
+Signals after Meta Filter: 1564
+2026-09-11 09:57:13,780 | INFO | __main__ | ================================================================================
+2026-09-11 09:57:13,780 | INFO | __main__ | BACKTEST DEBUG After - Meta Filter Final Proba and Before Regime Filter
+2026-09-11 09:57:13,780 | INFO | __main__ | Rows after merge: 78865
+2026-09-11 09:57:13,785 | INFO | __main__ | Unique Dates=3029 | Companies=39
 
 Applying Regime Filter
 
@@ -552,54 +594,54 @@ Name: Regime_Exposure, dtype: float64
 
 Mean Canonical Probability by Regime:
 Market_Regime
-BEAR_VOLATILE        0.490660
-BULL_VOLATILE        0.481900
-BEAR                 0.475058
-SIDEWAYS_VOLATILE    0.473713
-BULL                 0.458380
-SIDEWAYS             0.448792
+BEAR_VOLATILE        0.523016
+BULL_VOLATILE        0.516263
+BULL                 0.505350
+BEAR                 0.500798
+SIDEWAYS_VOLATILE    0.497083
+SIDEWAYS             0.476668
 Name: Probability, dtype: float64
 
-Signals with Positive Canonical Alpha: 6963
+Signals with Positive Canonical Alpha: 9782
 Signals with Positive Regime Exposure: 20658
-Positive Alpha entering downstream stages: 6963
+Positive Alpha entering downstream stages: 9782
 Regime-adjusted exposure observations: 20658
-2026-09-11 05:47:57,791 | INFO | __main__ | ================================================================================
-2026-09-11 05:47:57,792 | INFO | __main__ | BACKTEST DEBUG After - Regime Adjustment and Before Volatility Filter
-2026-09-11 05:47:57,792 | INFO | __main__ | Rows after merge: 78865
-2026-09-11 05:47:57,794 | INFO | __main__ | Unique Dates=3029 | Companies=39
-2026-09-11 05:47:57,795 | INFO | __main__ | Canonical Probability Mean=0.463349 | Min=0.210927 | Max=0.771189
-2026-09-11 05:47:57,795 | INFO | __main__ | Regime Exposure Mean=0.746524 | Min=0.250000 | Max=1.000000
+2026-09-11 09:57:13,810 | INFO | __main__ | ================================================================================
+2026-09-11 09:57:13,810 | INFO | __main__ | BACKTEST DEBUG After - Regime Adjustment and Before Volatility Filter
+2026-09-11 09:57:13,810 | INFO | __main__ | Rows after merge: 78865
+2026-09-11 09:57:13,815 | INFO | __main__ | Unique Dates=3029 | Companies=39
+2026-09-11 09:57:13,815 | INFO | __main__ | Canonical Probability Mean=0.496032 | Min=0.210825 | Max=0.775383
+2026-09-11 09:57:13,815 | INFO | __main__ | Regime Exposure Mean=0.746524 | Min=0.250000 | Max=1.000000
 
 Applying Volatility Filter
-2026-09-11 05:47:57,811 | INFO | __main__ | ================================================================================
-2026-09-11 05:47:57,811 | INFO | __main__ | VOLATILITY FILTER DEBUG
-2026-09-11 05:47:57,812 | INFO | __main__ | ATR_Z count=20658 | mean=-0.1506 | min=-0.6736 | max=2.3779
-2026-09-11 05:47:57,812 | INFO | __main__ | ATR_MEAN count=20639 | mean=-0.1502 | min=-0.5115 | max=1.3236
-2026-09-11 05:47:57,812 | INFO | __main__ | Vol Filter TRUE=15345 | FALSE=5313
-2026-09-11 05:47:57,813 | INFO | __main__ | Positive Alpha BEFORE volatility filter: 6963
-Positive Alpha after Volatility Filter: 5137
-2026-09-11 05:47:57,814 | INFO | __main__ | ================================================================================
-2026-09-11 05:47:57,815 | INFO | __main__ | BACKTEST DEBUG After - Volatality Filter and Before CROSS SECTIONAL Filter
-2026-09-11 05:47:57,815 | INFO | __main__ | Rows after merge: 78865
-2026-09-11 05:47:57,818 | INFO | __main__ | Unique Dates=3029 | Companies=39
+2026-09-11 09:57:13,837 | INFO | __main__ | ================================================================================
+2026-09-11 09:57:13,837 | INFO | __main__ | VOLATILITY FILTER DEBUG
+2026-09-11 09:57:13,838 | INFO | __main__ | ATR_Z count=20658 | mean=-0.1506 | min=-0.6736 | max=2.3779
+2026-09-11 09:57:13,839 | INFO | __main__ | ATR_MEAN count=20639 | mean=-0.1502 | min=-0.5115 | max=1.3236
+2026-09-11 09:57:13,839 | INFO | __main__ | Vol Filter TRUE=15344 | FALSE=5314
+2026-09-11 09:57:13,839 | INFO | __main__ | Positive Alpha BEFORE volatility filter: 9782
+Positive Alpha after Volatility Filter: 7223
+2026-09-11 09:57:13,841 | INFO | __main__ | ================================================================================
+2026-09-11 09:57:13,841 | INFO | __main__ | BACKTEST DEBUG After - Volatality Filter and Before CROSS SECTIONAL Filter
+2026-09-11 09:57:13,841 | INFO | __main__ | Rows after merge: 78865
+2026-09-11 09:57:13,846 | INFO | __main__ | Unique Dates=3029 | Companies=39
 
 Cross Sectional Ranking deferred to Backtest Engine
-Positive Alpha entering backtest: 649
-2026-09-11 05:47:57,819 | INFO | __main__ | ================================================================================
-2026-09-11 05:47:57,819 | INFO | __main__ | BACKTEST DEBUG After -  CROSS SECTIONAL Filter
-2026-09-11 05:47:57,819 | INFO | __main__ | Rows after merge: 78865
-2026-09-11 05:47:57,822 | INFO | __main__ | Unique Dates=3029 | Companies=39
+Positive Alpha entering backtest: 1118
+2026-09-11 09:57:13,847 | INFO | __main__ | ================================================================================
+2026-09-11 09:57:13,847 | INFO | __main__ | BACKTEST DEBUG After -  CROSS SECTIONAL Filter
+2026-09-11 09:57:13,848 | INFO | __main__ | Rows after merge: 78865
+2026-09-11 09:57:13,852 | INFO | __main__ | Unique Dates=3029 | Companies=39
 
 FINAL SIGNAL STATISTICS
 Signal Count: 20658
-Signal Mean: 0.463349
-Signal Max: 0.771189
-Signal Min: 0.210927
-2026-09-11 05:47:57,822 | INFO | __main__ | ================================================================================
-2026-09-11 05:47:57,823 | INFO | __main__ | BACKTEST DEBUG Before - Backtest
-2026-09-11 05:47:57,823 | INFO | __main__ | Rows after merge: 78865
-2026-09-11 05:47:57,826 | INFO | __main__ | Unique Dates=3029 | Companies=39
+Signal Mean: 0.496032
+Signal Max: 0.775383
+Signal Min: 0.210825
+2026-09-11 09:57:13,853 | INFO | __main__ | ================================================================================
+2026-09-11 09:57:13,853 | INFO | __main__ | BACKTEST DEBUG Before - Backtest
+2026-09-11 09:57:13,853 | INFO | __main__ | Rows after merge: 78865
+2026-09-11 09:57:13,858 | INFO | __main__ | Unique Dates=3029 | Companies=39
 
 ===== SIGNAL DIAGNOSTICS =====
 count    606.000000
@@ -623,10 +665,10 @@ dtype: float64
 
 Running Ensemble Backtest
 After merge: 78865
-2026-09-11 05:47:57,834 | INFO | __main__ | Signals AFTER volatility filter: 20658
-2026-09-11 05:47:57,834 | INFO | __main__ | Max proba after vol filter: 0.771189
-2026-09-11 05:47:57,834 | INFO | __main__ | Mean proba after vol filter: 0.463349
-2026-09-11 05:47:57,835 | INFO | __main__ | ================================================================================
+2026-09-11 09:57:13,868 | INFO | __main__ | Signals AFTER volatility filter: 20658
+2026-09-11 09:57:13,868 | INFO | __main__ | Max proba after vol filter: 0.775383
+2026-09-11 09:57:13,869 | INFO | __main__ | Mean proba after vol filter: 0.496032
+2026-09-11 09:57:13,869 | INFO | __main__ | ================================================================================
 ✓ Canonical Date/Company alignment PASS | Rows=20,658
 
 ========================================================================
@@ -635,26 +677,26 @@ CANONICAL ALPHA SIGNAL CONTRACT
 Full dataset rows       : 78,865
 Test panel rows         : 20,658
 Probability count       : 20,658
-Probability mean        : 0.463349
-Probability min         : 0.210927
-Probability max         : 0.771189
-Positive Alpha          : 6,963
-Negative Alpha          : 13,695
+Probability mean        : 0.496032
+Probability min         : 0.210825
+Probability max         : 0.775383
+Positive Alpha          : 9,782
+Negative Alpha          : 10,876
 Zero Alpha              : 0
 ========================================================================
 
 CANONICAL BACKTEST PROBABILITY CHECK
         Date              Company  ...  Prediction_Alpha  Confidence
-0 2026-01-01  ADITYA INFOTECH LTD  ...          0.020712    0.041423
-1 2026-01-02  ADITYA INFOTECH LTD  ...         -0.079099    0.158197
-2 2026-01-05  ADITYA INFOTECH LTD  ...         -0.075203    0.150406
-3 2026-01-06  ADITYA INFOTECH LTD  ...         -0.136551    0.273101
-4 2026-01-07  ADITYA INFOTECH LTD  ...         -0.155820    0.311641
-5 2026-01-08  ADITYA INFOTECH LTD  ...         -0.157683    0.315365
-6 2026-01-09  ADITYA INFOTECH LTD  ...         -0.142979    0.285958
-7 2026-01-12  ADITYA INFOTECH LTD  ...         -0.129768    0.259536
-8 2026-01-13  ADITYA INFOTECH LTD  ...         -0.097225    0.194451
-9 2026-01-14  ADITYA INFOTECH LTD  ...         -0.098230    0.196459
+0 2026-01-01  ADITYA INFOTECH LTD  ...         -0.096287    0.192574
+1 2026-01-02  ADITYA INFOTECH LTD  ...         -0.144327    0.288653
+2 2026-01-05  ADITYA INFOTECH LTD  ...         -0.194410    0.388819
+3 2026-01-06  ADITYA INFOTECH LTD  ...         -0.168725    0.337450
+4 2026-01-07  ADITYA INFOTECH LTD  ...         -0.063041    0.126082
+5 2026-01-08  ADITYA INFOTECH LTD  ...          0.046523    0.093047
+6 2026-01-09  ADITYA INFOTECH LTD  ...          0.048594    0.097188
+7 2026-01-12  ADITYA INFOTECH LTD  ...         -0.078265    0.156531
+8 2026-01-13  ADITYA INFOTECH LTD  ...         -0.160497    0.320995
+9 2026-01-14  ADITYA INFOTECH LTD  ...         -0.158963    0.317927
 
 [10 rows x 5 columns]
 
@@ -667,7 +709,7 @@ CANONICAL BACKTEST PROBABILITY CHECK
 Initial prediction rows : 20,658
 Meta test rows           : 20,658
 Final dataset rows       : 20,658
-2026-09-11 05:47:58,012 | INFO | src.backtest.backtest | BACKTEST UNIVERSE CHECK | prediction companies=39 | prediction dates=606
+2026-09-11 09:57:14,114 | INFO | src.backtest.backtest | BACKTEST UNIVERSE CHECK | prediction companies=39 | prediction dates=606
 
 Complete test panel: 20,658 rows
 Unique test dates: 606
@@ -680,44 +722,44 @@ Rows removed: 0
 BACKTEST PROBABILITY DISTRIBUTION
 ================================================================
 Count        : 20,658
-Mean         : 0.463349
-Median       : 0.456990
-Std          : 0.098730
-Min          : 0.210927
-Max          : 0.771189
-P > 0.50     : 6,963 (33.71%)
-P > 0.55     : 3,868 (18.72%)
-P > 0.60     : 1,970 (9.54%)
-P > 0.65     : 893 (4.32%)
-P > 0.70     : 332 (1.61%)
+Mean         : 0.496032
+Median       : 0.488238
+Std          : 0.133123
+Min          : 0.210825
+Max          : 0.775383
+P > 0.50     : 9,782 (47.35%)
+P > 0.55     : 7,412 (35.88%)
+P > 0.60     : 5,256 (25.44%)
+P > 0.65     : 3,401 (16.46%)
+P > 0.70     : 1,672 (8.09%)
 ================================================================
 
 CANONICAL SIGNAL INTEGRITY
 Probability source : Proba
 Neutrality         : 0.500000
-Alpha mean         : -0.036651
-Confidence mean    : 0.172990
+Alpha mean         : -0.003968
+Confidence mean    : 0.226257
 
 ================================================================
 CANONICAL ALPHA CONTRACT
 ================================================================
 Neutrality threshold : 0.500000
-Probability min      : 0.21092713
-Probability max      : 0.77118911
-Probability mean     : 0.46334855
-Alpha min            : -0.28907287
-Alpha max            : 0.27118911
-Alpha mean           : -0.03665145
-Alpha median         : -0.04301007
-Alpha std            : 0.09872962
-Positive Alpha       : 6963
-Negative Alpha       : 13695
+Probability min      : 0.21082470
+Probability max      : 0.77538349
+Probability mean     : 0.49603216
+Alpha min            : -0.28917530
+Alpha max            : 0.27538349
+Alpha mean           : -0.00396784
+Alpha median         : -0.01176187
+Alpha std            : 0.13312334
+Positive Alpha       : 9782
+Negative Alpha       : 10876
 Zero Alpha           : 0
-Positive Alpha %     : 33.71%
-Negative Alpha %     : 66.29%
-Confidence min       : 0.00003210
-Confidence max       : 0.57814574
-Confidence mean      : 0.17299029
+Positive Alpha %     : 47.35%
+Negative Alpha %     : 52.65%
+Confidence min       : 0.00002903
+Confidence max       : 0.57835061
+Confidence mean      : 0.22625681
 Alpha source         : Canonical_Probability
 ================================================================
 
@@ -725,27 +767,27 @@ Alpha source         : Canonical_Probability
 ==========================================================
 CROSS-SECTIONAL SIGNAL DEBUG
 ==========================================================
-Alpha min       : -0.28907287
-Alpha max       : 0.27118911
-Alpha mean      : -0.03665145
-Alpha median    : -0.04301007
-Positive Alpha  : 6,963
-Confidence >= 0.02: 19,243
+Alpha min       : -0.28917530
+Alpha max       : 0.27538349
+Alpha mean      : -0.00396784
+Alpha median    : -0.01176187
+Positive Alpha  : 9,782
+Confidence >= 0.02: 19,707
 TOP_PCT         : 0.15
 Cross-section rank enabled: True
-Eligible after rank: 511
+Eligible after rank: 806
 
 
 ========================================================================
 META FILTER DIAGNOSTICS BY MARKET REGIME
 ========================================================================
     Market_Regime  Universe  PositiveAlpha  ConfidenceQualified  MetaPass MetaPassRate AvgProbability AvgConfidence
-         SIDEWAYS      6979           1984                 1763        86        4.88%         0.4488        0.1772
-SIDEWAYS_VOLATILE      1203            470                  434         7        1.61%         0.4737        0.1816
-             BEAR      4602           1764                 1580       219       13.86%         0.4751        0.1578
-    BULL_VOLATILE      1081            444                  413        40        9.69%         0.4819        0.1997
-             BULL      5277           1694                 1515       331       21.85%         0.4584        0.1722
-    BEAR_VOLATILE      1516            607                  556       155       27.88%         0.4907        0.1766
+         SIDEWAYS      6979           2892                 2723       128        4.70%         0.4767        0.2225
+SIDEWAYS_VOLATILE      1203            559                  534         6        1.12%         0.4971        0.2466
+             BEAR      4602           2275                 2139       413       19.31%         0.5008        0.2029
+    BULL_VOLATILE      1081            579                  557        42        7.54%         0.5163        0.2617
+             BULL      5277           2645                 2550       658       25.80%         0.5054        0.2390
+    BEAR_VOLATILE      1516            832                  798       227       28.45%         0.5230        0.2286
 ========================================================================
 
 
@@ -754,15 +796,15 @@ DAILY SELECTION FUNNEL DIAGNOSTICS
 ================================================================
 Trading dates          : 606
 Universe / day         : 34.09
-Positive Alpha / day   : 11.49
-Confidence / day       : 10.33
-Meta Pass / day        : 1.38
-Volatility Pass / day  : 1.05
-Rank eligible / day    : 0.60
-Days with 0 rank       : 320
-Days with 1 rank       : 222
-Days with 2 rank       : 51
-Days with 3+ rank      : 13
+Positive Alpha / day   : 16.14
+Confidence / day       : 15.35
+Meta Pass / day        : 2.43
+Volatility Pass / day  : 1.84
+Rank eligible / day    : 0.95
+Days with 0 rank       : 228
+Days with 1 rank       : 226
+Days with 2 rank       : 107
+Days with 3+ rank      : 45
 Days with 5+ rank      : 0
 ================================================================
 
@@ -770,16 +812,16 @@ Days with 5+ rank      : 0
 ================================================================
 FINAL SELECTION FUNNEL
 ================================================================
-Selected rows          : 511
-Signal dates            : 354
-Average holdings/day    : 0.843
+Selected rows          : 806
+Signal dates            : 461
+Average holdings/day    : 1.330
 Median holdings/day     : 1.000
-Days with 0 holdings    : 252
-Days with 1 holding     : 233
-Days with 2 holdings    : 89
-Days with 3 holdings    : 28
-Days with 4 holdings    : 4
-Days with 5 holdings    : 0
+Days with 0 holdings    : 145
+Days with 1 holding     : 219
+Days with 2 holdings    : 156
+Days with 3 holdings    : 70
+Days with 4 holdings    : 15
+Days with 5 holdings    : 1
 ================================================================
 
 
@@ -789,9 +831,9 @@ BACKTEST SIGNAL DIAGNOSTICS
 Test observations : 20,658
 Test dates        : 606
 Test companies    : 39
-Eligible rows     : 511
-Selected rows     : 511
-Signal dates      : 354
+Eligible rows     : 806
+Selected rows     : 806
+Signal dates      : 461
 
 
 ==========================================================
@@ -800,17 +842,17 @@ BACKTEST DIAGNOSTICS
 Rows                  : 20,658
 Unique Dates          : 606
 Unique Companies      : 39
-Selected Signals      : 511
-Signal Dates          : 354
-Average Holdings      : 0.843
-Average Daily Turnover: 0.173717
-Annualized Turnover   : 43.78x
+Selected Signals      : 806
+Signal Dates          : 461
+Average Holdings      : 1.327
+Average Daily Turnover: 0.276834
+Annualized Turnover   : 69.76x
 Deadband Filtered     : 0.00%
 
 Position Statistics:
 count    20658.000000
-mean         0.005262
-std          0.037192
+mean         0.008628
+std          0.047536
 min          0.000000
 25%          0.000000
 50%          0.000000
@@ -820,13 +862,13 @@ Name: Position_Executed, dtype: float64
 
 Confidence Statistics:
 count    20658.000000
-mean         0.172990
-std          0.120153
-min          0.000032
-25%          0.072963
-50%          0.152895
-75%          0.256740
-max          0.578146
+mean         0.226257
+std          0.140555
+min          0.000029
+25%          0.106070
+50%          0.213535
+75%          0.339140
+max          0.578351
 Name: Confidence, dtype: float64
 
 Risk Statistics:
@@ -854,17 +896,17 @@ Name: count, dtype: int64
 ==========================================================
 BACKTEST RESULTS
 ==========================================================
-Sharpe              : -0.432
-Max DD              : -0.154
-CAGR                : -0.035
-Volatility          : 0.077
-Win Rate            : 0.271
-Final Return        : 0.916
-Active Days         : 433
+Sharpe              : 0.246
+Max DD              : -0.128
+CAGR                : 0.019
+Volatility          : 0.094
+Win Rate            : 0.389
+Final Return        : 1.046
+Active Days         : 526
 Total Test Days     : 606
-Average Daily Turnover: 0.173717
-Annualized Turnover : 43.78x
-Average Holdings    : 0.843
+Average Daily Turnover: 0.276834
+Annualized Turnover : 69.76x
+Average Holdings    : 1.327
 Maximum Position    : 0.350000
 Maximum Gross Exp.  : 1.000000
 
@@ -918,20 +960,20 @@ Name: Date, dtype: float64
 Test rows      : 20,658
 Test dates     : 606
 Test companies : 39
-Signals        : 511
-Signal dates   : 354
-Sharpe         : -0.432
-Max DD         : -0.154
-CAGR           : -0.035
-Final Return   : 0.916
+Signals        : 806
+Signal dates   : 461
+Sharpe         : 0.246
+Max DD         : -0.128
+CAGR           : 0.019
+Final Return   : 1.046
 ========================================================================
-2026-09-11 05:48:01,283 | INFO | __main__ | ================================================================================
-2026-09-11 05:48:01,283 | INFO | __main__ | BACKTEST DEBUG After - Backtest
-2026-09-11 05:48:01,283 | INFO | __main__ | Full dataset rows: 78865
-2026-09-11 05:48:01,283 | INFO | __main__ | Backtest test-panel rows: 20658
-2026-09-11 05:48:01,283 | INFO | __main__ | Canonical probability rows: 20658
-2026-09-11 05:48:01,284 | INFO | __main__ | Unique Dates=606 | Companies=39
-2026-09-11 05:48:01,285 | INFO | __main__ | Canonical Probability Mean=0.463349 | Min=0.210927 | Max=0.771189
+2026-09-11 09:57:19,867 | INFO | __main__ | ================================================================================
+2026-09-11 09:57:19,867 | INFO | __main__ | BACKTEST DEBUG After - Backtest
+2026-09-11 09:57:19,868 | INFO | __main__ | Full dataset rows: 78865
+2026-09-11 09:57:19,868 | INFO | __main__ | Backtest test-panel rows: 20658
+2026-09-11 09:57:19,868 | INFO | __main__ | Canonical probability rows: 20658
+2026-09-11 09:57:19,870 | INFO | __main__ | Unique Dates=606 | Companies=39
+2026-09-11 09:57:19,871 | INFO | __main__ | Canonical Probability Mean=0.496032 | Min=0.210825 | Max=0.775383
 
 ✅ Institutional Alpha Signal Ready
 
@@ -998,12 +1040,12 @@ Building latest universe
 Universe Size: 34
 
 Generating live signals
-2026-09-11 05:48:06,646 | INFO | __main__ | ================================================================================
-2026-09-11 05:48:06,647 | INFO | __main__ | PREDICT TODAY INPUT
-2026-09-11 05:48:06,647 | INFO | __main__ | Rows received: 34
-2026-09-11 05:48:06,647 | INFO | __main__ | Prediction_Prob exists: False
-2026-09-11 05:48:06,647 | INFO | __main__ | Probability exists: False
-2026-09-11 05:48:06,647 | INFO | __main__ | Confidence exists: False
+2026-09-11 09:57:22,502 | INFO | __main__ | ================================================================================
+2026-09-11 09:57:22,502 | INFO | __main__ | PREDICT TODAY INPUT
+2026-09-11 09:57:22,502 | INFO | __main__ | Rows received: 34
+2026-09-11 09:57:22,502 | INFO | __main__ | Prediction_Prob exists: False
+2026-09-11 09:57:22,502 | INFO | __main__ | Probability exists: False
+2026-09-11 09:57:22,503 | INFO | __main__ | Confidence exists: False
 
 📡 GENERATING LIVE SIGNALS...
 
@@ -1019,95 +1061,148 @@ Weights: [0.21875 0.09375 0.0625  0.625  ]
 
 ===== SIGNAL DISTRIBUTION =====
 Signal
-HOLD           22
-SELL            9
-BUY             2
+HOLD           17
+SELL            7
+BUY             6
+STRONG BUY      3
 STRONG SELL     1
 Name: count, dtype: int64
 
 ===== PROBABILITY DISTRIBUTION =====
 count    34.000000
-mean      0.453837
-std       0.099925
-min       0.244404
-10%       0.332221
-25%       0.379721
-50%       0.446640
-75%       0.512441
-90%       0.566568
-95%       0.599697
-99%       0.692117
-max       0.719494
+mean      0.515035
+std       0.152122
+min       0.231910
+10%       0.315706
+25%       0.413443
+50%       0.493111
+75%       0.595451
+90%       0.730379
+95%       0.776450
+99%       0.808853
+max       0.813892
 Name: Probability, dtype: float64
 
 ATR available: True
 
 ===== SIGNAL DISTRIBUTION =====
 Signal
-HOLD           22
-SELL            9
-BUY             2
+HOLD           17
+SELL            7
+BUY             6
+STRONG BUY      3
 STRONG SELL     1
 Name: count, dtype: int64
 
 Signal Counts:
-STRONG BUY       : 0
-BUY              : 2
-HOLD             : 22
-SELL             : 9
+STRONG BUY       : 3
+BUY              : 6
+HOLD             : 17
+SELL             : 7
 STRONG SELL      : 1
 
 ============================================================
 PORTFOLIO CANDIDATE FILTER
 ============================================================
 Initial Universe       : 34
-After BUY probability : 2
-            Company  Probability  Confidence  Expected_Return Market_Regime
-36712   INFOSYS LTD     0.719494    0.438988         0.014089          BULL
-87212  YES BANK LTD     0.636532    0.273064         0.008418          BEAR
-After Confidence      : 1
-2026-09-11 05:48:07,127 | INFO | src.prediction.predict | Signals above threshold 0.50 : 10
+After BUY probability : 9
+                    Company  Probability  ...  Expected_Return  Market_Regime
+50155       MUTHOOT FINANCE     0.813892  ...         0.032126           BULL
+73572      TATA CONSULTANCY     0.798622  ...         0.025004           BULL
+80942  UNITED BREWERIES LTD     0.764511  ...         0.009885       SIDEWAYS
+36712           INFOSYS LTD     0.741879  ...         0.015526           BULL
+9957     CENTRAL DEPOSITORY     0.703544  ...         0.012008       SIDEWAYS
+84077        UNITED SPIRITS     0.683022  ...         0.008641       SIDEWAYS
+70437     SUZLON ENERGY LTD     0.673553  ...         0.011928           BEAR
+87212          YES BANK LTD     0.657474  ...         0.009709           BEAR
+64167   STATE BANK OF INDIA     0.604225  ...         0.005070       SIDEWAYS
+
+[9 rows x 5 columns]
+After Confidence      : 8
+2026-09-11 09:57:22,944 | INFO | src.prediction.predict | Signals above threshold 0.50 : 16
 
 PASSING TRUE BUY CANDIDATES TO PORTFOLIO ENGINE
-BUY Candidates : 1
-           Company  Probability  Confidence  Expected_Return Market_Regime
-36712  INFOSYS LTD     0.719494    0.438988         0.014089          BULL
-2026-09-11 05:48:07,140 | INFO | src.portfolio.portfolio_selection | Portfolio selection input: 1 rows
-2026-09-11 05:48:07,183 | INFO | src.portfolio.portfolio_selection | Portfolio selection filters | Initial=1 | Probability=1 | Confidence=1 | Final=1
-2026-09-11 05:48:07,234 | INFO | src.portfolio.portfolio_selection | Selection complete | Candidates=1 | Selected=1 | New=1 | Retained=0 | Exits=0
-2026-09-11 05:48:07,243 | WARNING | src.portfolio.portfolio_selection | compute_position_weights() is a legacy compatibility function. Use portfolio_builder.py for final institutional weights.
-2026-09-11 05:48:07,245 | INFO | src.portfolio.portfolio_selection | Portfolio selection diagnostics: {'rows': 1, 'selected': 1, 'new_entries': 1, 'retained': 0, 'exits': 0, 'score_mean': -0.18146637345108924, 'score_std': nan, 'score_max': -0.18146637345108924, 'score_min': -0.18146637345108924, 'prediction_mean': 0.2194938639992604, 'prediction_max': 0.2194938639992604}
-2026-09-11 05:48:07,248 | INFO | src.portfolio.portfolio_selection | Latest selection date: 2026-09-03 00:00:00
-2026-09-11 05:48:07,257 | INFO | src.portfolio.portfolio_selection | 
-Latest selected candidates:
-    Company Signal  Prediction_Prob  Prediction_Alpha  Confidence  Alpha_Score  Risk_Penalty  Expected_Return  RR_Ratio  Final_Score  Portfolio_Rank  Selected  New_Entry  Retained_Holding  Position_Weight
-INFOSYS LTD    BUY         0.719494          0.219494    0.438988          0.0           0.0         0.014089  1.634273    -0.181466               1         1          1                 0              1.0
-2026-09-11 05:48:07,259 | WARNING | src.prediction.predict | Live portfolio rejected: only 1 valid candidates survived final safety filters; minimum required=5.
+BUY Candidates : 8
+                    Company  Probability  ...  Expected_Return  Market_Regime
+50155       MUTHOOT FINANCE     0.813892  ...         0.032126           BULL
+73572      TATA CONSULTANCY     0.798622  ...         0.025004           BULL
+80942  UNITED BREWERIES LTD     0.764511  ...         0.009885       SIDEWAYS
+36712           INFOSYS LTD     0.741879  ...         0.015526           BULL
+9957     CENTRAL DEPOSITORY     0.703544  ...         0.012008       SIDEWAYS
+84077        UNITED SPIRITS     0.683022  ...         0.008641       SIDEWAYS
+70437     SUZLON ENERGY LTD     0.673553  ...         0.011928           BEAR
+87212          YES BANK LTD     0.657474  ...         0.009709           BEAR
 
-⚠ FINAL PORTFOLIO IS EMPTY
+[8 rows x 5 columns]
+2026-09-11 09:57:22,960 | INFO | src.portfolio.portfolio_selection | Portfolio selection input: 8 rows
+2026-09-11 09:57:22,999 | INFO | src.portfolio.portfolio_selection | Portfolio selection filters | Initial=8 | Probability=8 | Confidence=8 | Final=8
+2026-09-11 09:57:23,033 | INFO | src.portfolio.portfolio_selection | Selection complete | Candidates=8 | Selected=5 | New=5 | Retained=0 | Exits=0
+2026-09-11 09:57:23,039 | WARNING | src.portfolio.portfolio_selection | compute_position_weights() is a legacy compatibility function. Use portfolio_builder.py for final institutional weights.
+2026-09-11 09:57:23,040 | INFO | src.portfolio.portfolio_selection | Portfolio selection diagnostics: {'rows': 8, 'selected': 5, 'new_entries': 5, 'retained': 0, 'exits': 0, 'score_mean': 0.0, 'score_std': 1.0690449587299973, 'score_max': 1.4828197449028173, 'score_min': -1.2951305599097123, 'prediction_mean': 0.2295620980053406, 'prediction_max': 0.3138919197376543}
+2026-09-11 09:57:23,043 | INFO | src.portfolio.portfolio_selection | Latest selection date: 2026-09-03 00:00:00
+2026-09-11 09:57:23,049 | INFO | src.portfolio.portfolio_selection | 
+Latest selected candidates:
+         Company     Signal  Prediction_Prob  Prediction_Alpha  Confidence  Alpha_Score  Risk_Penalty  Expected_Return  RR_Ratio  Final_Score  Portfolio_Rank  Selected  New_Entry  Retained_Holding  Position_Weight
+ MUTHOOT FINANCE STRONG BUY         0.813892          0.313892    0.627784     0.611531      1.408402         0.032126  2.070687     1.482820               1         1          1                 0         0.570723
+TATA CONSULTANCY STRONG BUY         0.798622          0.298622    0.597244     0.259499      0.887488         0.025004  1.993121     0.994022               2         1          1                 0         0.333031
+     INFOSYS LTD        BUY         0.741879          0.241879    0.483759    -0.313164     -0.397134         0.015526  1.729080    -0.036566               3         1          1                 0         0.096246
+2026-09-11 09:57:23,050 | WARNING | src.prediction.predict | Removed 3 portfolio rows with Selected != 1.
+
+FINAL SCORE DISTRIBUTION
+count    5.000000
+mean     0.488055
+std      0.999648
+min     -1.000000
+10%     -0.614626
+25%     -0.036566
+50%      0.994022
+75%      1.000000
+90%      1.289692
+max      1.482820
+Name: Final_Score, dtype: float64
+
+🏆 FINAL PORTFOLIO
+                    Company      Signal  ...  Position_Weight  Market_Regime
+80942  UNITED BREWERIES LTD  STRONG BUY  ...         0.452840       SIDEWAYS
+50155       MUTHOOT FINANCE  STRONG BUY  ...         0.285361           BULL
+73572      TATA CONSULTANCY  STRONG BUY  ...         0.166516           BULL
+36712           INFOSYS LTD         BUY  ...         0.048123           BULL
+9957     CENTRAL DEPOSITORY         BUY  ...         0.047160       SIDEWAYS
+
+[5 rows x 9 columns]
+
+Total Weight: 0.9999999999999999
 
 ============================================================
 FINAL PORTFOLIO SUMMARY
 ============================================================
-Portfolio Size        : 0
+Portfolio Size        : 5
 Minimum Required      : 5
 BUY Threshold         : 0.60
-Portfolio Accepted    : NO
-Portfolio Status      : REJECTED / NO DEPLOYABLE PORTFOLIO
+Portfolio Accepted    : YES
+Portfolio Status      : ACCEPTED
+Total Weight          : 1.000000
 
 Signals Generated:
 34
 
 Portfolio Size:
-0
+5
 
 Portfolio Columns:
 ['Date', 'Close', 'High', 'Low', 'Open', 'Volume', 'Ticker', 'NSE_Close', 'NSE_Return', 'Return', 'Log_Return', 'MA10', 'EMA10', 'Price_to_MA10', 'MA20', 'EMA20', 'Price_to_MA20', 'MA50', 'EMA50', 'Price_to_MA50', 'MA200', 'EMA200', 'Price_to_MA200', 'ATR_14', 'Volatility', 'Momentum', 'Momentum_ATR', 'Momentum_Vol', 'Reversal', 'RSI', 'MACD', 'MACD_Signal', 'MACD_Hist', 'BB_Z10', 'BB_Z20', 'BB_Z50', 'BB_Z200', 'Close_Lag1', 'Close_Lag2', 'Close_Lag3', 'Close_Lag5', 'Return_Lag1', 'Return_Lag2', 'Return_Lag3', 'Return_Lag5', 'Return_Lag10', 'Trend', 'Trend_Strength', 'EMA_Spread', 'Volume_Change', 'Volume_MA', 'Volume_Ratio', 'ATR', 'Gap', 'High_20', 'Low_20', 'Range_Position', 'Return_5', 'Return_10', 'Reversal_5', 'Reversal_10', 'Return_Rank', 'Momentum_Rank', 'Volatility_Rank', 'Vol_Regime', 'Return_Z', 'Momentum_Z', 'Momentum_ATR_Z', 'Momentum_Vol_Z', 'Volatility_Z', 'RSI_Z', 'MACD_Z', 'MACD_Hist_Z', 'Trend_Strength_Z', 'Return_5_Z', 'Return_10_Z', 'Volume_Change_Z', 'Volume_Ratio_Z', 'Range_Position_Z', 'ATR_Z', 'Gap_Z', 'EMA_Spread_Z', 'Future_Return', 'EPS', 'PE', 'EPS_Growth', 'PE_Change', 'EPS_Growth_Z', 'PE_Z', 'Value_Score', 'PE_Rank', 'Value_Rank', 'Neutral_Target', 'Future_Return_Rank', 'Alpha_Target', 'Alpha_Target_Z', 'CrossSection_Target', 'Target', 'Meta_Target', 'Company', 'SMA_S', 'SMA_L', 'EMA_S', 'EMA_M', 'Trend_Z', 'Vol_Z', 'Regime_Score', 'Market_Regime', 'Regime_Strength', 'Probability', 'Confidence', 'Signal', 'Position', 'Side', 'Signal_Date', 'Action_Date', 'Exit_Date', 'Prediction_Volatility', 'Expected_Return', 'Expected_return(%)', 'Stop_Loss', 'Take_Profit', 'Risk', 'Reward', 'RR_Ratio', 'Prediction_Prob', 'Prediction_Alpha', 'Prediction_Alpha_CSZ', 'Trend_Strength_CSZ', 'Alpha_Score', 'Gap_Abs', 'Risk_Penalty', 'Min_Prob', 'Selection_Fallback', 'Final_Score', 'Concentration_Penalty', 'Risk_Score_Penalty', 'Selection_Score', 'Rank_Score', 'Portfolio_Rank', 'Prev_Selected', 'Selected', 'New_Entry', 'Retained_Holding', 'Exit_Signal', 'Position_Weight']
 
 Top 20 Positions
-2026-09-11 05:48:07,262 | WARNING | __main__ | Portfolio is empty.
+2026-09-11 09:57:23,072 | INFO | __main__ | 
+Top Portfolio Positions:
+             Company  Final_Score  Portfolio_Rank  Position_Weight
+UNITED BREWERIES LTD     1.000000               1         0.452840
+     MUTHOOT FINANCE     1.482820               1         0.285361
+    TATA CONSULTANCY     0.994022               2         0.166516
+         INFOSYS LTD    -0.036566               3         0.048123
+  CENTRAL DEPOSITORY    -1.000000               2         0.047160
 
-Total Weight: 0.0
+Total Weight: 1.0
 
 Live Portfolio Successfully Generated
 
@@ -1137,7 +1232,7 @@ ALPHA STAGE TRACKER
 4     VOLATILITY  20658        6    606         39
 5  CROSS_SECTION  20658        6    606         39
 6        SIGNALS     34       23      0         34
-7      PORTFOLIO      0      146      0          0
+7      PORTFOLIO      5      146      2          5
 ================================================================================
 
 PipelineInput Successfully Built
@@ -1163,23 +1258,22 @@ PART 8 — INSTITUTIONAL PIPELINE INTEGRATION
 Creating Institutional Metadata
 
 Metadata
-Run ID: PIPE-1C05D55A294F
+Run ID: PIPE-88BFE4B02758
 Strategy: StockPredictionV1
 Universe: NSE500
 Benchmark: NIFTY50
 
 Executing Institutional Pipeline
-2026-09-11 05:48:10,082 | WARNING | src.portfolio.construction.pipeline | Rebalance stage SKIPPED | no deployable portfolio available.
-2026-09-11 05:48:10,082 | WARNING | src.portfolio.construction.pipeline | Execution stage SKIPPED | no rebalance output available.
-2026-09-11 05:48:10,082 | INFO | src.portfolio.construction.pipeline | Analytics stage ENABLED | run_analytics=True
-2026-09-11 05:48:10,083 | WARNING | src.portfolio.construction.pipeline | Analytics stage SKIPPED | no deployable portfolio available.
-2026-09-11 05:48:10,083 | INFO | src.portfolio.construction.pipeline | Attribution stage ENABLED | run_attribution=True
-2026-09-11 05:48:10,083 | WARNING | src.portfolio.construction.pipeline | Attribution stage SKIPPED | no deployable portfolio available.
-2026-09-11 05:48:10,083 | INFO | src.portfolio.construction.pipeline | Stress Testing stage ENABLED | run_stress_testing=True
-2026-09-11 05:48:10,083 | WARNING | src.portfolio.construction.pipeline | Stress Testing stage SKIPPED | no deployable portfolio available.
-2026-09-11 05:48:10,083 | INFO | src.portfolio.construction.pipeline | Monitoring stage ENABLED | run_monitoring=True
+2026-09-11 09:57:24,928 | INFO | src.portfolio.construction.pipeline | Analytics stage ENABLED | run_analytics=True
+2026-09-11 09:57:24,956 | INFO | src.portfolio.construction.pipeline | Analytics stage completed successfully | result_type=InstitutionalAnalyticsReport
+2026-09-11 09:57:24,956 | INFO | src.portfolio.construction.pipeline | Attribution stage ENABLED | run_attribution=True
+2026-09-11 09:57:24,960 | INFO | src.portfolio.construction.pipeline | Attribution stage completed successfully | result_type=ReturnAttributionResult
+2026-09-11 09:57:24,960 | INFO | src.portfolio.construction.pipeline | Stress Testing stage ENABLED | run_stress_testing=True
+2026-09-11 09:57:26,029 | INFO | src.portfolio.construction.pipeline | Stress Testing stage completed successfully | result_type=InstitutionalStressReport
+2026-09-11 09:57:26,029 | INFO | src.portfolio.construction.pipeline | Monitoring stage ENABLED | run_monitoring=True
+[ALERT] AlertLevel.ERROR Monitoring Warning Score=0.738
 [ALERT] AlertLevel.CRITICAL Monitoring Failure Component failed
-2026-09-11 05:48:10,157 | INFO | src.portfolio.construction.pipeline | Monitoring stage completed successfully | result_type=MonitoringEngineResult
+2026-09-11 09:57:26,102 | INFO | src.portfolio.construction.pipeline | Monitoring stage completed successfully | result_type=MonitoringEngineResult
 
 Analytics Error:
 None
@@ -1200,46 +1294,61 @@ ALPHA STAGE TRACKER
 2         REGIME  20658        6    606         39
 3     VOLATILITY  20658        6    606         39
 4  CROSS_SECTION  20658        6    606         39
-5      PORTFOLIO      0      146      0          0
+5      PORTFOLIO      5      146      2          5
 ================================================================================
 
 ================================================================================
 ALPHA RETENTION REPORT
 ================================================================================
            stage  signals  signal_retention  sharpe  cagr  max_dd  turnover
-0            RAW        0               0.0     0.0   0.0     0.0       0.0
-1           META     6963               1.0     0.0   0.0     0.0       0.0
-2         REGIME     6963               1.0     0.0   0.0     0.0       0.0
-3     VOLATILITY     6963               1.0     0.0   0.0     0.0       0.0
-4  CROSS_SECTION     6963               1.0     0.0   0.0     0.0       0.0
-5      PORTFOLIO        0               0.0     0.0   0.0     0.0       NaN
+0            RAW        0          0.000000     0.0   0.0     0.0       0.0
+1           META     9782          1.000000     0.0   0.0     0.0       0.0
+2         REGIME     9782          1.000000     0.0   0.0     0.0       0.0
+3     VOLATILITY     9782          1.000000     0.0   0.0     0.0       0.0
+4  CROSS_SECTION     9782          1.000000     0.0   0.0     0.0       0.0
+5      PORTFOLIO        5          0.000511     0.0   0.0     0.0       0.0
 
 PIPELINE SUMMARY
 {'best_stage': 'RAW', 'worst_stage': 'RAW', 'max_pipeline_sharpe': 0.0, 'final_portfolio_sharpe': 0.0, 'alpha_decay': 0.0, 'pipeline_efficiency': nan}
 
 ✓ Alpha Retention exported -> data/alpha/outputs
 
+================================================================================
+ALPHA CAPACITY REPORT
+================================================================================
+      Company   Max_Capital  ...  Alpha_Retention  Deployable
+36712     NaN  3.270099e+08  ...         0.907554        True
+73572     NaN  2.195726e+08  ...         0.925120        True
+50155     NaN  8.296569e+07  ...         0.928763        True
+9957      NaN  5.857063e+07  ...         0.890143        True
+80942     NaN  4.074202e+06  ...         0.915464        True
+
+[5 rows x 6 columns]
+
+PORTFOLIO CAPACITY
+{'Num_Stocks': 5, 'Portfolio_Capacity': np.float64(692193101.0831008), 'Average_Impact': np.float64(0.022360679774997897), 'Average_Retention': np.float64(0.9134091173255173), 'Median_Capacity': 82965689.7}
+
 ======================================================================
 ALPHA CROWDING ENGINE
 ======================================================================
-                        0
-Signal_Concentration  1.0
-Portfolio_HHI         1.0
-Annual_Turnover       0.0
-Feature_Crowding      0.0
-Factor_Crowding       0.0
-Regime_Crowding       0.0
-Capacity              1.0
-Alpha_Uniqueness      0.7
-Crowding_Score        0.3
+                         0
+Signal_Concentration  1.00
+Portfolio_HHI         0.20
+Annual_Turnover       0.00
+Feature_Crowding      0.00
+Factor_Crowding       0.00
+Regime_Crowding       0.60
+Capacity              1.00
+Alpha_Uniqueness      0.64
+Crowding_Score        0.36
 
 FINAL ALPHA HEALTH SCORE
-{'retention_score': 0.0, 'capacity_score': 0.0, 'crowding_score': 0.0, 'lifecycle_score': 0.0, 'overall': np.float64(0.0)}
+{'retention_score': 0.0, 'capacity_score': 0.9134091173255173, 'crowding_score': 0.0, 'lifecycle_score': 0.0, 'overall': np.float64(0.2284)}
 
 Institutional Alpha Pipeline Completed.
 
 PIPELINE DIAGNOSTICS
-{'report_stage': {'positions': 0, 'runtime_seconds': 5.8057999922311865e-05}}
+{'report_stage': {'positions': 5, 'runtime_seconds': 2.6275999971403508e-05}}
 
 Pipeline Status
 COMPLETED
@@ -1248,17 +1357,50 @@ Pipeline completed.
 Institutional Report Generated
 
 Portfolio Summary
-<class 'NoneType'>
+<class 'src.portfolio.construction.pipeline.InstitutionalPortfolio'>
 
 Rebalance Summary
-<class 'NoneType'>
+<class 'src.portfolio.construction.pipeline.InstitutionalRebalance'>
 
 Diagnostics Report:
-InstitutionalDiagnosticsPackage(records=[], summary={'record_count': 0, 'sources': []}, diagnostics={})
+InstitutionalDiagnosticsPackage(records=[DiagnosticRecord(source=<DiagnosticSource.PORTFOLIO: 'portfolio'>, metric_name='gross_exposure', metric_value=1.0, metadata={}), DiagnosticRecord(source=<DiagnosticSource.PORTFOLIO: 'portfolio'>, metric_name='net_exposure', metric_value=1.0, metadata={}), DiagnosticRecord(source=<DiagnosticSource.PORTFOLIO: 'portfolio'>, metric_name='effective_n', metric_value=3.137128704299165, metadata={}), DiagnosticRecord(source=<DiagnosticSource.PORTFOLIO: 'portfolio'>, metric_name='expected_return', metric_value=0.0, metadata={}), DiagnosticRecord(source=<DiagnosticSource.PORTFOLIO: 'portfolio'>, metric_name='expected_volatility', metric_value=0.0, metadata={}), DiagnosticRecord(source=<DiagnosticSource.REBALANCE: 'rebalance'>, metric_name='turnover', metric_value=0.0, metadata={}), DiagnosticRecord(source=<DiagnosticSource.REBALANCE: 'rebalance'>, metric_name='trade_count', metric_value=0, metadata={}), DiagnosticRecord(source=<DiagnosticSource.EXECUTION: 'execution'>, metric_name='execution_cost', metric_value=0.0, metadata={}), DiagnosticRecord(source=<DiagnosticSource.EXECUTION: 'execution'>, metric_name='slippage', metric_value=0.0, metadata={}), DiagnosticRecord(source=<DiagnosticSource.EXECUTION: 'execution'>, metric_name='market_impact', metric_value=0.0, metadata={}), DiagnosticRecord(source=<DiagnosticSource.ATTRIBUTION: 'attribution'>, metric_name='num_assets', metric_value=3, metadata={}), DiagnosticRecord(source=<DiagnosticSource.ATTRIBUTION: 'attribution'>, metric_name='cash_weight', metric_value=0.0, metadata={}), DiagnosticRecord(source=<DiagnosticSource.ATTRIBUTION: 'attribution'>, metric_name='explained_return', metric_value=-0.0034760096356958457, metadata={})], summary={'record_count': 13, 'sources': ['attribution', 'execution', 'portfolio', 'rebalance']}, diagnostics={})
 
 Runtime Diagnostics:
-{'analytics': None, 'attribution': None, 'stress_testing': None, 'monitoring': MonitoringEngineResult(report=InstitutionalMonitoringReport(metadata=MonitoringMetadata(run_id='663e9745-9921-40d2-9d42-22b4eb8c4737', timestamp=datetime.datetime(2026, 9, 11, 5, 48, 10, 83397, tzinfo=datetime.timezone.utc), platform_name='StockPredictionV1', environment='production', version='1.0.0', owner='QuantResearch', tags={}), summary=MonitoringReportSummary(overall_score=0.8785416666666667, overall_status=<MonitoringStatus.FAILED: 'FAILED'>, severity=<MonitoringSeverity.MEDIUM: 'MEDIUM'>, total_alerts=1, compliance_violations=0, health_score=0.7475, runtime_score=0.8666666666666667, compliance_score=1.0, alert_score=0.9), runtime_section=MonitoringReportSection(section_name='RUNTIME', status=<MonitoringStatus.FAILED: 'FAILED'>, score=0.8666666666666667, diagnostics={'history_size': 1}), health_section=MonitoringReportSection(section_name='HEALTH', status=<MonitoringStatus.FAILED: 'FAILED'>, score=0.7475, diagnostics={'warning_count': 0, 'failure_count': 1}), compliance_section=MonitoringReportSection(section_name='COMPLIANCE', status=<MonitoringStatus.PASSED: 'PASSED'>, score=1.0, diagnostics={'rule_count': 5, 'violations': 0}), alert_section=MonitoringReportSection(section_name='ALERTING', status=<MonitoringStatus.WARNING: 'WARNING'>, score=0.9, diagnostics={'alert_count': 1, 'history_size': 1}), diagnostic_snapshot=MonitoringDiagnosticSnapshot(timestamp=datetime.datetime(2026, 9, 11, 5, 48, 10, 155288, tzinfo=datetime.timezone.utc), overall_score=0.8785416666666667, overall_status=<MonitoringStatus.FAILED: 'FAILED'>, runtime_score=0.8666666666666667, health_score=0.7475, compliance_score=1.0, alert_score=0.9, diagnostics={'runtime': {'history_size': 1}, 'health': {'warning_count': 0, 'failure_count': 1}, 'compliance': {'rule_count': 5, 'violations': 0}, 'alerting': {'alert_count': 1, 'history_size': 1}}), trends=[MonitoringTrend(metric_name='OVERALL_SCORE', latest_value=0.8785416666666667, average_value=0.8785416666666667, minimum_value=0.8785416666666667, maximum_value=0.8785416666666667, trend_direction='FLAT'), MonitoringTrend(metric_name='RUNTIME_SCORE', latest_value=0.8666666666666667, average_value=0.8666666666666667, minimum_value=0.8666666666666667, maximum_value=0.8666666666666667, trend_direction='FLAT'), MonitoringTrend(metric_name='HEALTH_SCORE', latest_value=0.7475, average_value=0.7475, minimum_value=0.7475, maximum_value=0.7475, trend_direction='FLAT'), MonitoringTrend(metric_name='COMPLIANCE_SCORE', latest_value=1.0, average_value=1.0, minimum_value=1.0, maximum_value=1.0, trend_direction='FLAT'), MonitoringTrend(metric_name='ALERT_SCORE', latest_value=0.9, average_value=0.9, minimum_value=0.9, maximum_value=0.9, trend_direction='FLAT')], diagnostics={'overall_score': 0.8785416666666667, 'upward_trends': 0, 'downward_trends': 0, 'flat_trends': 5, 'trend_count': 5}), runtime_result=RuntimeMonitoringResult(metadata=MonitoringMetadata(run_id='663e9745-9921-40d2-9d42-22b4eb8c4737', timestamp=datetime.datetime(2026, 9, 11, 5, 48, 10, 83397, tzinfo=datetime.timezone.utc), platform_name='StockPredictionV1', environment='production', version='1.0.0', owner='QuantResearch', tags={}), category=<MonitoringCategory.RUNTIME: 'RUNTIME'>, status=<MonitoringStatus.FAILED: 'FAILED'>, severity=<MonitoringSeverity.MEDIUM: 'MEDIUM'>, score=0.8666666666666667, diagnostics={'history_size': 1}, warnings=[], errors=[], runtime_seconds=0.0, runtime_metrics=RuntimeMetrics(runtime_seconds=0.0, cpu_utilization=2.0, memory_utilization=0.0, peak_memory_mb=0.0, io_operations=0, thread_count=1, diagnostics={'object_count': 316995, 'process_id': 2192, 'cpu_count': 2})), health_result=HealthMonitoringResult(metadata=MonitoringMetadata(run_id='663e9745-9921-40d2-9d42-22b4eb8c4737', timestamp=datetime.datetime(2026, 9, 11, 5, 48, 10, 83397, tzinfo=datetime.timezone.utc), platform_name='StockPredictionV1', environment='production', version='1.0.0', owner='QuantResearch', tags={}), category=<MonitoringCategory.HEALTH: 'HEALTH'>, status=<MonitoringStatus.FAILED: 'FAILED'>, severity=<MonitoringSeverity.HIGH: 'HIGH'>, score=0.7475, diagnostics={'warning_count': 0, 'failure_count': 1}, warnings=[], errors=['MEMORY FAILED'], runtime_seconds=0.0, health_checks=[HealthCheckResult(component_name='MEMORY', score=0.0, status=<MonitoringStatus.FAILED: 'FAILED'>, diagnostics={'object_count': 317003, 'limit': 200000}, warnings=[]), HealthCheckResult(component_name='THREADS', score=0.99, status=<MonitoringStatus.PASSED: 'PASSED'>, diagnostics={'thread_count': 1, 'limit': 100}, warnings=[]), HealthCheckResult(component_name='PROCESS', score=1.0, status=<MonitoringStatus.PASSED: 'PASSED'>, diagnostics={'pid': 2192}, warnings=[]), HealthCheckResult(component_name='FILESYSTEM', score=1.0, status=<MonitoringStatus.PASSED: 'PASSED'>, diagnostics={'path': '.', 'exists': True}, warnings=[])], average_health_score=0.7475), compliance_result=ComplianceMonitoringResult(metadata=MonitoringMetadata(run_id='663e9745-9921-40d2-9d42-22b4eb8c4737', timestamp=datetime.datetime(2026, 9, 11, 5, 48, 10, 83397, tzinfo=datetime.timezone.utc), platform_name='StockPredictionV1', environment='production', version='1.0.0', owner='QuantResearch', tags={}), category=<MonitoringCategory.COMPLIANCE: 'COMPLIANCE'>, status=<MonitoringStatus.PASSED: 'PASSED'>, severity=<MonitoringSeverity.LOW: 'LOW'>, score=1.0, diagnostics={'rule_count': 5, 'violations': 0}, warnings=[], errors=[], runtime_seconds=0.0, compliance_checks=[ComplianceCheckResult(rule_name='POSITION_LIMIT', passed=True, severity=<MonitoringSeverity.HIGH: 'HIGH'>, message='Position limit respected', diagnostics={'max_weight': 0.0, 'limit': 0.1}), ComplianceCheckResult(rule_name='CONCENTRATION', passed=True, severity=<MonitoringSeverity.HIGH: 'HIGH'>, message='Concentration acceptable', diagnostics={'hhi': 0.0, 'limit': 0.15}), ComplianceCheckResult(rule_name='TURNOVER', passed=True, severity=<MonitoringSeverity.MEDIUM: 'MEDIUM'>, message='Turnover acceptable', diagnostics={'turnover': 0.0, 'limit': 0.5}), ComplianceCheckResult(rule_name='LEVERAGE', passed=True, severity=<MonitoringSeverity.CRITICAL: 'CRITICAL'>, message='Leverage acceptable', diagnostics={'gross_exposure': 0.0, 'limit': 1.5}), ComplianceCheckResult(rule_name='LIQUIDITY', passed=True, severity=<MonitoringSeverity.HIGH: 'HIGH'>, message='Liquidity acceptable', diagnostics={'liquidity_score': 1.0, 'minimum': 0.5})], violations=0), alert_result=AlertMonitoringResult(metadata=MonitoringMetadata(run_id='663e9745-9921-40d2-9d42-22b4eb8c4737', timestamp=datetime.datetime(2026, 9, 11, 5, 48, 10, 83397, tzinfo=datetime.timezone.utc), platform_name='StockPredictionV1', environment='production', version='1.0.0', owner='QuantResearch', tags={}), category=<MonitoringCategory.ALERTING: 'ALERTING'>, status=<MonitoringStatus.WARNING: 'WARNING'>, severity=<MonitoringSeverity.MEDIUM: 'MEDIUM'>, score=0.9, diagnostics={'alert_count': 1, 'history_size': 1}, warnings=[], errors=[], runtime_seconds=0.0, alerts=[AlertRecord(alert_id='4400e7d6-22ce-498a-88a8-a10fc539c165', created_at=datetime.datetime(2026, 9, 11, 5, 48, 10, 154866, tzinfo=datetime.timezone.utc), level=<AlertLevel.CRITICAL: 'CRITICAL'>, title='Monitoring Failure', message='Component failed', source_component='MASTER_ENGINE', acknowledged=False, metadata={})], total_alerts=1), diagnostic_snapshot=MonitoringDiagnosticSnapshot(timestamp=datetime.datetime(2026, 9, 11, 5, 48, 10, 155288, tzinfo=datetime.timezone.utc), overall_score=0.8785416666666667, overall_status=<MonitoringStatus.FAILED: 'FAILED'>, runtime_score=0.8666666666666667, health_score=0.7475, compliance_score=1.0, alert_score=0.9, diagnostics={'runtime': {'history_size': 1}, 'health': {'warning_count': 0, 'failure_count': 1}, 'compliance': {'rule_count': 5, 'violations': 0}, 'alerting': {'alert_count': 1, 'history_size': 1}})), 'execution': None}
-{'report_stage': {'positions': 0, 'runtime_seconds': 5.8057999922311865e-05}}
+{'analytics': InstitutionalAnalyticsReport(metadata=AnalyticsMetadata(generated_at=datetime.datetime(2026, 9, 11, 9, 57, 24, 929265, tzinfo=datetime.timezone.utc), portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', strategy_name='StockPredictionV1', universe_name='NSE500', frequency=<AnalyticsFrequency.DAILY: 'daily'>, version='1.0'), analytics_name='Institutional Analytics Report', success=True, diagnostics={}, portfolio_statistics=PortfolioStatisticsResult(metadata=AnalyticsMetadata(generated_at=datetime.datetime(2026, 9, 11, 9, 57, 24, 929265, tzinfo=datetime.timezone.utc), portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', strategy_name='StockPredictionV1', universe_name='NSE500', frequency=<AnalyticsFrequency.DAILY: 'daily'>, version='1.0'), analytics_name='Portfolio Statistics', success=True, diagnostics={}, observations=3029, total_return=4.715256538416855, annualized_return=0.15606478838129068, annualized_volatility=0.20172422158170417, sharpe_ratio=0.7736541856877603, sortino_ratio=1.1162869156359985, calmar_ratio=0.4316816640082135, max_drawdown=-0.361527489799338, average_return=0.000656515419838233, median_return=0.00035097595105682564, skewness=-0.22087142550801345, kurtosis=5.81779837718063, hit_ratio=0.5176625949158138, positive_periods=1568, negative_periods=1454, flat_periods=7), exposure_analytics=ExposureAnalyticsResult(metadata=AnalyticsMetadata(generated_at=datetime.datetime(2026, 9, 11, 9, 57, 24, 929265, tzinfo=datetime.timezone.utc), portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', strategy_name='StockPredictionV1', universe_name='NSE500', frequency=<AnalyticsFrequency.DAILY: 'daily'>, version='1.0'), analytics_name='Exposure Analytics', success=True, diagnostics={}, gross_exposure=1.0, net_exposure=1.0, long_exposure=1.0, short_exposure=0.0, cash_exposure=0.0, leverage=1.0, sector_exposure=None, industry_exposure=None, country_exposure=None, currency_exposure=None, market_cap_exposure=None, beta_exposure=0.0, style_exposure=None), concentration_analytics=ConcentrationAnalyticsResult(metadata=AnalyticsMetadata(generated_at=datetime.datetime(2026, 9, 11, 9, 57, 24, 929265, tzinfo=datetime.timezone.utc), portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', strategy_name='StockPredictionV1', universe_name='NSE500', frequency=<AnalyticsFrequency.DAILY: 'daily'>, version='1.0'), analytics_name='Concentration Analytics', success=True, diagnostics={}, top_1_weight=0.4528403765973262, top_5_weight=1.0, top_10_weight=1.0, top_20_weight=1.0, hhi=0.3187628223953917, effective_number_of_holdings=3.137128704299165, diversification_ratio=0.6274257408598329, max_sector_weight=0.0, max_industry_weight=0.0, sector_hhi=0.0, industry_hhi=0.0, concentration_score=31.876282239539172), risk_analytics=RiskAnalyticsResult(metadata=AnalyticsMetadata(generated_at=datetime.datetime(2026, 9, 11, 9, 57, 24, 929265, tzinfo=datetime.timezone.utc), portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', strategy_name='StockPredictionV1', universe_name='NSE500', frequency=<AnalyticsFrequency.DAILY: 'daily'>, version='1.0'), analytics_name='Risk Analytics', success=True, diagnostics={}, portfolio_volatility=0.0127074315172209, annualized_volatility=0.20172422158170417, tracking_error=0.0, portfolio_beta=0.0, information_ratio=0.0, value_at_risk=-0.01849111828382521, expected_shortfall=-0.027628093130994177, downside_deviation=0.13980705694500917, factor_risk=0.0, specific_risk=0.0, diversification_ratio=0.0, risk_concentration=0.0, marginal_risk_contribution=None, component_risk_contribution=None, factor_exposures=None, factor_contributions=None), factor_analytics=None, performance_analytics=None, rebalance_analytics=RebalanceAnalyticsResult(metadata=AnalyticsMetadata(generated_at=datetime.datetime(2026, 9, 11, 9, 57, 24, 929265, tzinfo=datetime.timezone.utc), portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', strategy_name='StockPredictionV1', universe_name='NSE500', frequency=<AnalyticsFrequency.DAILY: 'daily'>, version='1.0'), analytics_name='Rebalance Analytics', success=True, diagnostics={}, rebalance_count=1, average_turnover=0.0, median_turnover=0.0, max_turnover=0.0, min_turnover=0.0, annualized_turnover=0.0, average_trade_count=0.0, total_trade_count=0, average_buys=0.0, average_sells=0.0, buy_sell_ratio=0.0, average_drift_before_rebalance=0.0, average_drift_after_rebalance=0.0, drift_reduction=0.0, average_cost_per_rebalance=0.0, total_rebalance_cost=0.0, turnover_series=Date
+2026-09-11 09:57:24.936660+00:00    0.0
+Name: Turnover, dtype: float64, trade_count_series=Date
+2026-09-11 09:57:24.936924+00:00    0
+Name: TradeCount, dtype: int64, cost_series=Series([], dtype: float64), drift_before_series=Series([], dtype: float64), drift_after_series=Series([], dtype: float64)), execution_analytics=None, capacity_analytics=CapacityAnalyticsResult(metadata=AnalyticsMetadata(generated_at=datetime.datetime(2026, 9, 11, 9, 57, 24, 929265, tzinfo=datetime.timezone.utc), portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', strategy_name='StockPredictionV1', universe_name='NSE500', frequency=<AnalyticsFrequency.DAILY: 'daily'>, version='1.0'), analytics_name='Capacity Analytics', success=True, diagnostics={}, total_portfolio_notional=10000000.000000002, average_adv_utilization=0.00043450338336222286, maximum_adv_utilization=0.001719755538578651, median_adv_utilization=7.358041912946036e-05, average_days_to_liquidate=0.004345033833622229, maximum_days_to_liquidate=0.01719755538578651, portfolio_capacity=1259096543.4974122, liquidity_score=99.78298412900087, liquidity_concentration=0.3187628223953916, illiquid_weight=0.0, liquid_weight=1.0, liquidity_bucket_exposure=bucket
+Highly Liquid    1.0
+Name: weight, dtype: float64, capacity_bottlenecks=          Ticker  Position_Weight  ...  ADV_Utilization  DaysToLiquidate
+1  MUTHOOTFIN.NS         0.285361  ...         0.001720         0.017198
+2         TCS.NS         0.166516  ...         0.000379         0.003792
+3        INFY.NS         0.048123  ...         0.000074         0.000736
+0         UBL.NS         0.452840  ...         0.000000         0.000000
+4        CDSL.NS         0.047160  ...         0.000000         0.000000
+
+[5 rows x 7 columns], adv_utilization_series=0    0.000000
+1    0.001720
+2    0.000379
+3    0.000074
+4    0.000000
+dtype: float64, days_to_liquidate_series=0    0.000000
+1    0.017198
+2    0.003792
+3    0.000736
+4    0.000000
+dtype: float64), report_timestamp=datetime.datetime(2026, 9, 11, 9, 57, 24, 956644), report_version='1.0', summary_metrics={'Volatility': 0.20172422158170417, 'VaR': -0.01849111828382521, 'CVaR': -0.027628093130994177, 'HHI': 0.3187628223953917, 'EffectiveHoldings': 3.137128704299165, 'GrossExposure': 1.0, 'NetExposure': 1.0, 'Leverage': 1.0, 'LiquidityScore': 99.78298412900087, 'PortfolioCapacity': 1259096543.4974122}), 'attribution': ReturnAttributionResult(metadata=AttributionMetadata(created_at=datetime.datetime(2026, 9, 11, 9, 57, 24, 959257, tzinfo=datetime.timezone.utc), version='1.0', source='Institutional Attribution Engine', portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', frequency=<AttributionFrequency.MONTHLY: 'monthly'>, notes=''), attribution_type=<AttributionType.RETURN: 'return'>, attribution_name='Return Attribution', created_at=datetime.datetime(2026, 9, 11, 9, 57, 24, 960143), total_portfolio_return=-0.0034760096356958457, total_benchmark_return=0.0, active_return=-0.0034760096356958457, contribution_table=                 Weight    Return  Contribution
+MUTHOOTFIN.NS  0.285361 -0.003812     -0.001088
+TCS.NS         0.166516 -0.011882     -0.001979
+INFY.NS        0.048123 -0.008509     -0.000409, contribution_series=MUTHOOTFIN.NS   -0.001088
+TCS.NS          -0.001979
+INFY.NS         -0.000409
+dtype: float64, residual=0.0, diagnostics={'num_assets': 3, 'cash_weight': 0.0, 'explained_return': -0.0034760096356958457}, asset_contributions=MUTHOOTFIN.NS   -0.001088
+TCS.NS          -0.001979
+INFY.NS         -0.000409
+dtype: float64, sector_contributions=None, cash_contribution=0.0, residual_contribution=0.0), 'stress_testing': InstitutionalStressReport(metadata=StressMetadata(portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', run_timestamp=datetime.datetime(2026, 9, 11, 9, 57, 24, 965415), notes=None), summary=StressSummary(overall_risk_score=0.0, worst_scenario_name='high_vol_to_crisis_vol', worst_scenario_loss=-0.3026361760398216, average_stress_loss=-0.15166205867994054, average_drawdown=-0.41778641910466785, vulnerability_level='UNKNOWN', report_timestamp=datetime.datetime(2026, 9, 11, 9, 57, 26, 29439)), sections=[StressReportSection(section_name='Tail Risk', metrics={'tail_var': -0.031000360853720915, 'tail_es': -0.04457200384793134, 'crash_prob': 0.00033025099075297226, 'black_swan_prob': 0.0}, comments='')], historical_result=None, scenario_result=None, factor_result=None, correlation_result=None, liquidity_result=None, volatility_result=VolatilityRegimeStressResult(metadata=StressMetadata(portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', run_timestamp=datetime.datetime(2026, 9, 11, 9, 57, 24, 965415), notes=None), stress_type=<StressTestType.VOLATILITY_REGIME: 'volatility_regime'>, scenario_name='high_vol_to_crisis_vol', severity=<ScenarioSeverity.EXTREME: 'extreme'>, status=<StressResultStatus.FAILED: 'failed'>, portfolio_return=-0.3026361760398216, portfolio_pnl=-0.3026361760398216, drawdown=-1.0087872534660722, var_impact=0.5043936267330361, volatility_impact=0.3026361760398216, diagnostics={'lookback_days': 63}, original_volatility=0.20175745069321446, stressed_volatility=0.5043936267330361, volatility_multiplier=2.5, regime_detail=VolatilityRegimeDetail(current_regime=<VolatilityRegime.HIGH_VOL: 'high_vol'>, stressed_regime=<VolatilityRegime.CRISIS_VOL: 'crisis_vol'>, current_volatility=0.20175745069321446, stressed_volatility=0.5043936267330361, volatility_change=0.3026361760398216), volatility_shock_loss=-0.3026361760398216, expected_drawdown=-1.0087872534660722, volatility_multiplier_used=2.5), monte_carlo_result=None, tail_result=TailRiskStressResult(metadata=StressMetadata(portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', run_timestamp=datetime.datetime(2026, 9, 11, 9, 57, 24, 965415), notes=None), stress_type=<StressTestType.TAIL_RISK: 'tail_risk'>, scenario_name='Tail Risk', severity=<ScenarioSeverity.EXTREME: 'extreme'>, status=<StressResultStatus.PASSED: 'passed'>, portfolio_return=-0.0023499999999999997, portfolio_pnl=-0.0023499999999999997, drawdown=-0.04457200384793134, var_impact=0.031000360853720915, volatility_impact=0.03812857426347298, diagnostics={'tail_observations': 3028}, value_at_risk=0.0, expected_shortfall=0.0, tail_loss_probability=0.0, tail_var=-0.031000360853720915, tail_expected_shortfall=-0.04457200384793134, crash_probability=0.00033025099075297226, severe_crash_probability=0.0, black_swan_probability=0.0, tail_index=3.734254074548951, jump_loss_estimate=-0.03812857426347298, event_details=[TailEventDetail(threshold=-0.1, count=1, probability=0.00033025099075297226, average_loss=-0.11462700996518174, worst_loss=-0.11462700996518174), TailEventDetail(threshold=-0.2, count=0, probability=0.0, average_loss=0.0, worst_loss=0.0), TailEventDetail(threshold=-0.4, count=0, probability=0.0, average_loss=0.0, worst_loss=0.0)]), reverse_result=ReverseStressResult(metadata=StressMetadata(portfolio_name='StockPredictionV1', benchmark_name='NIFTY50', run_timestamp=datetime.datetime(2026, 9, 11, 9, 57, 24, 965415), notes=None), stress_type=<StressTestType.REVERSE_STRESS: 'reverse_stress'>, scenario_name='Reverse Stress Test', severity=<ScenarioSeverity.EXTREME: 'extreme'>, status=<StressResultStatus.PASSED: 'passed'>, portfolio_return=-0.15, portfolio_pnl=-0.15, drawdown=-0.2, var_impact=0.25, volatility_impact=1.239111612190925, diagnostics={'target_loss': -0.15, 'target_drawdown': -0.2}, required_market_shock=0.15, required_volatility_multiplier=1.239111612190925, required_correlation_level=0.6862871295700835, required_liquidity_haircut=0.35, breakpoints=[ReverseStressBreakpoint(stress_type='market_shock', required_shock=0.15, resulting_loss=-0.15, description='Market decline required to breach loss target'), ReverseStressBreakpoint(stress_type='volatility_regime', required_shock=1.239111612190925, resulting_loss=-0.15, description='Volatility increase multiplier'), ReverseStressBreakpoint(stress_type='correlation_spike', required_shock=0.6862871295700835, resulting_loss=-0.15, description='Average correlation required'), ReverseStressBreakpoint(stress_type='liquidity_collapse', required_shock=0.35, resulting_loss=-0.15, description='Liquidity haircut required')]), vulnerability_result=None), 'monitoring': MonitoringEngineResult(report=InstitutionalMonitoringReport(metadata=MonitoringMetadata(run_id='98fa65bf-57bf-43a0-8251-91a3dc2e9219', timestamp=datetime.datetime(2026, 9, 11, 9, 57, 26, 30300, tzinfo=datetime.timezone.utc), platform_name='StockPredictionV1', environment='production', version='1.0.0', owner='QuantResearch', tags={}), summary=MonitoringReportSummary(overall_score=0.7535416666666668, overall_status=<MonitoringStatus.FAILED: 'FAILED'>, severity=<MonitoringSeverity.MEDIUM: 'MEDIUM'>, total_alerts=2, compliance_violations=2, health_score=0.7475, runtime_score=0.8666666666666667, compliance_score=0.6, alert_score=0.8), runtime_section=MonitoringReportSection(section_name='RUNTIME', status=<MonitoringStatus.FAILED: 'FAILED'>, score=0.8666666666666667, diagnostics={'history_size': 1}), health_section=MonitoringReportSection(section_name='HEALTH', status=<MonitoringStatus.FAILED: 'FAILED'>, score=0.7475, diagnostics={'warning_count': 0, 'failure_count': 1}), compliance_section=MonitoringReportSection(section_name='COMPLIANCE', status=<MonitoringStatus.FAILED: 'FAILED'>, score=0.6, diagnostics={'rule_count': 5, 'violations': 2}), alert_section=MonitoringReportSection(section_name='ALERTING', status=<MonitoringStatus.FAILED: 'FAILED'>, score=0.8, diagnostics={'alert_count': 2, 'history_size': 2}), diagnostic_snapshot=MonitoringDiagnosticSnapshot(timestamp=datetime.datetime(2026, 9, 11, 9, 57, 26, 102193, tzinfo=datetime.timezone.utc), overall_score=0.7535416666666668, overall_status=<MonitoringStatus.FAILED: 'FAILED'>, runtime_score=0.8666666666666667, health_score=0.7475, compliance_score=0.6, alert_score=0.8, diagnostics={'runtime': {'history_size': 1}, 'health': {'warning_count': 0, 'failure_count': 1}, 'compliance': {'rule_count': 5, 'violations': 2}, 'alerting': {'alert_count': 2, 'history_size': 2}}), trends=[MonitoringTrend(metric_name='OVERALL_SCORE', latest_value=0.7535416666666668, average_value=0.7535416666666668, minimum_value=0.7535416666666668, maximum_value=0.7535416666666668, trend_direction='FLAT'), MonitoringTrend(metric_name='RUNTIME_SCORE', latest_value=0.8666666666666667, average_value=0.8666666666666667, minimum_value=0.8666666666666667, maximum_value=0.8666666666666667, trend_direction='FLAT'), MonitoringTrend(metric_name='HEALTH_SCORE', latest_value=0.7475, average_value=0.7475, minimum_value=0.7475, maximum_value=0.7475, trend_direction='FLAT'), MonitoringTrend(metric_name='COMPLIANCE_SCORE', latest_value=0.6, average_value=0.6, minimum_value=0.6, maximum_value=0.6, trend_direction='FLAT'), MonitoringTrend(metric_name='ALERT_SCORE', latest_value=0.8, average_value=0.8, minimum_value=0.8, maximum_value=0.8, trend_direction='FLAT')], diagnostics={'overall_score': 0.7535416666666668, 'upward_trends': 0, 'downward_trends': 0, 'flat_trends': 5, 'trend_count': 5}), runtime_result=RuntimeMonitoringResult(metadata=MonitoringMetadata(run_id='98fa65bf-57bf-43a0-8251-91a3dc2e9219', timestamp=datetime.datetime(2026, 9, 11, 9, 57, 26, 30300, tzinfo=datetime.timezone.utc), platform_name='StockPredictionV1', environment='production', version='1.0.0', owner='QuantResearch', tags={}), category=<MonitoringCategory.RUNTIME: 'RUNTIME'>, status=<MonitoringStatus.FAILED: 'FAILED'>, severity=<MonitoringSeverity.MEDIUM: 'MEDIUM'>, score=0.8666666666666667, diagnostics={'history_size': 1}, warnings=[], errors=[], runtime_seconds=0.0, runtime_metrics=RuntimeMetrics(runtime_seconds=0.0, cpu_utilization=2.0, memory_utilization=0.0, peak_memory_mb=0.0, io_operations=0, thread_count=1, diagnostics={'object_count': 317569, 'process_id': 4863, 'cpu_count': 2})), health_result=HealthMonitoringResult(metadata=MonitoringMetadata(run_id='98fa65bf-57bf-43a0-8251-91a3dc2e9219', timestamp=datetime.datetime(2026, 9, 11, 9, 57, 26, 30300, tzinfo=datetime.timezone.utc), platform_name='StockPredictionV1', environment='production', version='1.0.0', owner='QuantResearch', tags={}), category=<MonitoringCategory.HEALTH: 'HEALTH'>, status=<MonitoringStatus.FAILED: 'FAILED'>, severity=<MonitoringSeverity.HIGH: 'HIGH'>, score=0.7475, diagnostics={'warning_count': 0, 'failure_count': 1}, warnings=[], errors=['MEMORY FAILED'], runtime_seconds=0.0, health_checks=[HealthCheckResult(component_name='MEMORY', score=0.0, status=<MonitoringStatus.FAILED: 'FAILED'>, diagnostics={'object_count': 317577, 'limit': 200000}, warnings=[]), HealthCheckResult(component_name='THREADS', score=0.99, status=<MonitoringStatus.PASSED: 'PASSED'>, diagnostics={'thread_count': 1, 'limit': 100}, warnings=[]), HealthCheckResult(component_name='PROCESS', score=1.0, status=<MonitoringStatus.PASSED: 'PASSED'>, diagnostics={'pid': 4863}, warnings=[]), HealthCheckResult(component_name='FILESYSTEM', score=1.0, status=<MonitoringStatus.PASSED: 'PASSED'>, diagnostics={'path': '.', 'exists': True}, warnings=[])], average_health_score=0.7475), compliance_result=ComplianceMonitoringResult(metadata=MonitoringMetadata(run_id='98fa65bf-57bf-43a0-8251-91a3dc2e9219', timestamp=datetime.datetime(2026, 9, 11, 9, 57, 26, 30300, tzinfo=datetime.timezone.utc), platform_name='StockPredictionV1', environment='production', version='1.0.0', owner='QuantResearch', tags={}), category=<MonitoringCategory.COMPLIANCE: 'COMPLIANCE'>, status=<MonitoringStatus.FAILED: 'FAILED'>, severity=<MonitoringSeverity.CRITICAL: 'CRITICAL'>, score=0.6, diagnostics={'rule_count': 5, 'violations': 2}, warnings=[], errors=[], runtime_seconds=0.0, compliance_checks=[ComplianceCheckResult(rule_name='POSITION_LIMIT', passed=False, severity=<MonitoringSeverity.HIGH: 'HIGH'>, message='Position limit breached', diagnostics={'max_weight': 0.4528403765973262, 'limit': 0.1}), ComplianceCheckResult(rule_name='CONCENTRATION', passed=False, severity=<MonitoringSeverity.HIGH: 'HIGH'>, message='Concentration too high', diagnostics={'hhi': 0.3187628223953917, 'limit': 0.15}), ComplianceCheckResult(rule_name='TURNOVER', passed=True, severity=<MonitoringSeverity.MEDIUM: 'MEDIUM'>, message='Turnover acceptable', diagnostics={'turnover': 0.0, 'limit': 0.5}), ComplianceCheckResult(rule_name='LEVERAGE', passed=True, severity=<MonitoringSeverity.CRITICAL: 'CRITICAL'>, message='Leverage acceptable', diagnostics={'gross_exposure': 1.0, 'limit': 1.5}), ComplianceCheckResult(rule_name='LIQUIDITY', passed=True, severity=<MonitoringSeverity.HIGH: 'HIGH'>, message='Liquidity acceptable', diagnostics={'liquidity_score': 99.78298412900087, 'minimum': 0.5})], violations=2), alert_result=AlertMonitoringResult(metadata=MonitoringMetadata(run_id='98fa65bf-57bf-43a0-8251-91a3dc2e9219', timestamp=datetime.datetime(2026, 9, 11, 9, 57, 26, 30300, tzinfo=datetime.timezone.utc), platform_name='StockPredictionV1', environment='production', version='1.0.0', owner='QuantResearch', tags={}), category=<MonitoringCategory.ALERTING: 'ALERTING'>, status=<MonitoringStatus.FAILED: 'FAILED'>, severity=<MonitoringSeverity.HIGH: 'HIGH'>, score=0.8, diagnostics={'alert_count': 2, 'history_size': 2}, warnings=[], errors=[], runtime_seconds=0.0, alerts=[AlertRecord(alert_id='cc7cad94-a908-4566-bd06-f5fdad9e59df', created_at=datetime.datetime(2026, 9, 11, 9, 57, 26, 101938, tzinfo=datetime.timezone.utc), level=<AlertLevel.ERROR: 'ERROR'>, title='Monitoring Warning', message='Score=0.738', source_component='MASTER_ENGINE', acknowledged=False, metadata={}), AlertRecord(alert_id='d0ec890b-e131-4a41-871f-77467e6a116b', created_at=datetime.datetime(2026, 9, 11, 9, 57, 26, 101963, tzinfo=datetime.timezone.utc), level=<AlertLevel.CRITICAL: 'CRITICAL'>, title='Monitoring Failure', message='Component failed', source_component='MASTER_ENGINE', acknowledged=False, metadata={})], total_alerts=2), diagnostic_snapshot=MonitoringDiagnosticSnapshot(timestamp=datetime.datetime(2026, 9, 11, 9, 57, 26, 102193, tzinfo=datetime.timezone.utc), overall_score=0.7535416666666668, overall_status=<MonitoringStatus.FAILED: 'FAILED'>, runtime_score=0.8666666666666667, health_score=0.7475, compliance_score=0.6, alert_score=0.8, diagnostics={'runtime': {'history_size': 1}, 'health': {'warning_count': 0, 'failure_count': 1}, 'compliance': {'rule_count': 5, 'violations': 2}, 'alerting': {'alert_count': 2, 'history_size': 2}})), 'execution': InstitutionalExecutionPackage(orders=[], total_turnover=0.0, total_cost=0.0, total_slippage=0.0, total_market_impact=0.0, diagnostics={'order_count': 0, 'turnover': 0.0, 'total_cost': 0.0, 'total_slippage': 0.0, 'total_market_impact': 0.0, 'runtime_seconds': 1.9508000150381122e-05})}
+{'report_stage': {'positions': 5, 'runtime_seconds': 2.6275999971403508e-05}}
+Stress Testing Available
 Monitoring Testing Available
 
 Institutional artifacts saved.
@@ -1274,25 +1416,25 @@ PART 9 — REPORTING
 Institutional Report Created
 
 Portfolio Result
-<class 'NoneType'>
+<class 'src.portfolio.construction.pipeline.InstitutionalPortfolio'>
 
 Rebalance Result
-<class 'NoneType'>
+<class 'src.portfolio.construction.pipeline.InstitutionalRebalance'>
 
 Execution Result
-False
+True
 
 Analytics Error Detail
 None
 
 Analytics Result
-False
+True
 
 Attribution Result
-False
+True
 
 Stress Testing Result
-False
+True
 
 Monitoring Result
 True
@@ -1307,7 +1449,7 @@ Exporting CSV Reports
 ============================================================
 INSTITUTIONAL PLATFORM COMPLETE
 ============================================================
-Run ID: PIPE-1C05D55A294F
+Run ID: PIPE-88BFE4B02758
 Strategy: StockPredictionV1
 Universe: NSE500
 Artifacts Directory: artifacts/
@@ -1333,19 +1475,19 @@ PART 10 — SMOKE TESTS
 
 Smoke Test Summary
 PipelineInput             PASS
-Portfolio                 FAIL
-Rebalance                 FAIL
-Execution                 FAIL
-Analytics                 FAIL
-Attribution               FAIL
-StressTesting             FAIL
+Portfolio                 PASS
+Rebalance                 PASS
+Execution                 PASS
+Analytics                 PASS
+Attribution               PASS
+StressTesting             PASS
 Monitoring                PASS
 InstitutionalReport       PASS
 InputAdapter              PASS
 PipelineEngine            PASS
 
 ============================================================
-SMOKE TEST FAILURES DETECTED
+ALL SMOKE TESTS PASSED
 ============================================================
 
 FINAL COUNTS
@@ -1353,11 +1495,11 @@ Universe Size: 34
 Features: 20
 Models: 4
 Signals: 34
-Portfolio Rows: 0
-Portfolio Available: False
-Rebalance Available: False
+Portfolio Rows: 5
+Portfolio Available: True
+Rebalance Available: True
 
-Deployment Ready: False
+Deployment Ready: True
 
 ============================================================
 ALPHA ENGINE

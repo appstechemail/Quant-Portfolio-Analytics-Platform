@@ -1845,6 +1845,82 @@ for name, model in models.items():
             f"for {name}: {e}"
         )
 
+# ----------------------------------------------------------
+# BASE MODEL PROBABILITY DIAGNOSTICS
+# ----------------------------------------------------------
+
+print("\n" + "=" * 90)
+print("BASE MODEL PROBABILITY DIAGNOSTICS")
+print("=" * 90)
+
+for name in models.keys():
+
+    if name not in train_probas:
+        continue
+
+    train_p = np.asarray(
+        train_probas[name],
+        dtype=float,
+    )
+
+    test_p = np.asarray(
+        probas[name],
+        dtype=float,
+    )
+
+    print(f"\n{name.upper()}")
+    print("-" * 60)
+
+    print(
+        f"TRAIN | "
+        f"mean={np.mean(train_p):.6f} | "
+        f"median={np.median(train_p):.6f} | "
+        f"std={np.std(train_p):.6f} | "
+        f"min={np.min(train_p):.6f} | "
+        f"max={np.max(train_p):.6f}"
+    )
+
+    print(
+        f"TEST  | "
+        f"mean={np.mean(test_p):.6f} | "
+        f"median={np.median(test_p):.6f} | "
+        f"std={np.std(test_p):.6f} | "
+        f"min={np.min(test_p):.6f} | "
+        f"max={np.max(test_p):.6f}"
+    )
+
+    print(
+        f"TEST  | "
+        f"P > 0.50 = {(test_p > 0.50).sum():,} "
+        f"({(test_p > 0.50).mean():.2%})"
+    )
+
+    print(
+        f"TEST  | "
+        f"P > 0.55 = {(test_p > 0.55).sum():,} "
+        f"({(test_p > 0.55).mean():.2%})"
+    )
+
+    print(
+        f"TEST  | "
+        f"P > 0.60 = {(test_p > 0.60).sum():,} "
+        f"({(test_p > 0.60).mean():.2%})"
+    )
+
+    print(
+        f"TEST  | "
+        f"P > 0.65 = {(test_p > 0.65).sum():,} "
+        f"({(test_p > 0.65).mean():.2%})"
+    )
+
+    print(
+        f"TEST  | "
+        f"P > 0.70 = {(test_p > 0.70).sum():,} "
+        f"({(test_p > 0.70).mean():.2%})"
+    )
+
+print("=" * 90)
+
 meta_X_train = pd.DataFrame(
     train_probas
 )

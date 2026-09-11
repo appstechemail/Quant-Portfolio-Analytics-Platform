@@ -2214,44 +2214,45 @@ signals = np.column_stack(
     signals
 )
 
+
 # ----------------------------------------------------------
 # INSTITUTIONAL WEIGHT MAP
 # ----------------------------------------------------------
 
 weight_map = {
-
     "CAT": 0.40,
     "XGB": 0.35,
     "LGB": 0.25,
-
     "RF": 0.15,
     "LR": 0.10,
 }
 
 ensemble_weights = np.array(
-
     [
         weight_map.get(
             model,
             1.0,
         )
-
         for model in used_models
-    ]
+    ],
+    dtype=float,
 )
 
-ensemble_weights /= (
-    ensemble_weights.sum()
-)
+# Normalize weights
+ensemble_weights /= ensemble_weights.sum()
+
+# ----------------------------------------------------------
+# WEIGHTED ENSEMBLE
+# ----------------------------------------------------------
 
 ensemble_proba = np.dot(
-
     signals,
     ensemble_weights,
 )
 
 ensemble_proba = np.asarray(
-    ensemble_proba
+    ensemble_proba,
+    dtype=float,
 ).flatten()
 
 print(
@@ -2268,10 +2269,267 @@ print(
     ensemble_weights,
 )
 
+# ----------------------------------------------------------
+# ENSEMBLE MODEL CONTRIBUTION DIAGNOSTICS
+# ----------------------------------------------------------
+
+print("\n" + "=" * 90)
+print("ENSEMBLE MODEL CONTRIBUTION DIAGNOSTICS")
+print("=" * 90)
+
+print("\nActual ensemble inputs:")
+print("Signals shape:", signals.shape)
+print("Models       :", used_models)
+print("Weights      :", ensemble_weights)
+
+ensemble_components = {}
+
+for idx, model in enumerate(used_models):
+
+    # Extract this model's probability column
+    model_probability = np.asarray(
+        signals[:, idx],
+        dtype=float,
+    ).flatten()
+
+    model_weight = float(
+        ensemble_weights[idx]
+    )
+
+    # Actual contribution to ensemble probability
+    contribution = (
+        model_probability
+        * model_weight
+    )
+
+    ensemble_components[model] = contribution
+
+    print("\n" + "-" * 70)
+    print(f"{model} MODEL")
+    print("-" * 70)
+
+    print(
+        f"Weight              : "
+        f"{model_weight:.6f}"
+    )
+
+    print(
+        f"Probability mean    : "
+        f"{model_probability.mean():.6f}"
+    )
+
+    print(
+        f"Probability median  : "
+        f"{np.median(model_probability):.6f}"
+    )
+
+    print(
+        f"Probability std     : "
+        f"{model_probability.std():.6f}"
+    )
+
+    print(
+        f"Probability min     : "
+        f"{model_probability.min():.6f}"
+    )
+
+    print(
+        f"Probability max     : "
+        f"{model_probability.max():.6f}"
+    )
+
+    print(
+        f"Contribution mean   : "
+        f"{contribution.mean():.6f}"
+    )
+
+    print(
+        f"Contribution std    : "
+        f"{contribution.std():.6f}"
+    )
+
+    print(
+        f"Contribution min    : "
+        f"{contribution.min():.6f}"
+    )
+
+    print(
+        f"Contribution max    : "
+        f"{contribution.max():.6f}"
+    )
+
+    print(
+        f"P > 0.50           : "
+        f"{(model_probability > 0.50).sum():,} "
+        f"({(model_probability > 0.50).mean():.2%})"
+    )
+
+    print(
+        f"P > 0.55           : "
+        f"{(model_probability > 0.55).sum():,} "
+        f"({(model_probability > 0.55).mean():.2%})"
+    )
+
+    print(
+        f"P > 0.60           : "
+        f"{(model_probability > 0.60).sum():,} "
+        f"({(model_probability > 0.60).mean():.2%})"
+    )
+
+    print(
+        f"P > 0.65           : "
+        f"{(model_probability > 0.65).sum():,} "
+        f"({(model_probability > 0.65).mean():.2%})"
+    )
+
+    print(
+        f"P > 0.70           : "
+        f"{(model_probability > 0.70).sum():,} "
+        f"({(model_probability > 0.70).mean():.2%})"
+    )
+
+
+# ----------------------------------------------------------
+# ENSEMBLE CONSISTENCY CHECK
+# ----------------------------------------------------------
+
+# Reconstruct the ensemble directly from the individual
+# model contributions. This should match ensemble_proba
+# exactly (up to floating-point precision).
+
+reconstructed_ensemble = np.zeros(
+    len(ensemble_proba),
+    dtype=float,
+)
+
+for model in used_models:
+    reconstructed_ensemble += (
+        ensemble_components[model]
+    )
+
+ensemble_difference = (
+    ensemble_proba
+    - reconstructed_ensemble
+)
+
+print("\n" + "-" * 70)
+print("ENSEMBLE CONSISTENCY CHECK")
+print("-" * 70)
+
+print(
+    f"Maximum difference : "
+    f"{np.max(np.abs(ensemble_difference)):.12f}"
+)
+
+print(
+    f"Mean difference    : "
+    f"{np.mean(np.abs(ensemble_difference)):.12f}"
+)
+
+if np.allclose(
+    ensemble_proba,
+    reconstructed_ensemble,
+    rtol=1e-10,
+    atol=1e-10,
+):
+    print(
+        "Status             : PASS"
+    )
+else:
+    print(
+        "Status             : WARNING"
+    )
+
+
+# ----------------------------------------------------------
+# FINAL ENSEMBLE DIAGNOSTICS
+# ----------------------------------------------------------
+
+print("\n" + "-" * 70)
+print("FINAL ENSEMBLE")
+print("-" * 70)
+
+print(
+    f"Mean                : "
+    f"{ensemble_proba.mean():.6f}"
+)
+
+print(
+    f"Median              : "
+    f"{np.median(ensemble_proba):.6f}"
+)
+
+print(
+    f"Std                 : "
+    f"{ensemble_proba.std():.6f}"
+)
+
+print(
+    f"Min                 : "
+    f"{ensemble_proba.min():.6f}"
+)
+
+print(
+    f"Max                 : "
+    f"{ensemble_proba.max():.6f}"
+)
+
+for threshold in [
+    0.50,
+    0.55,
+    0.60,
+    0.65,
+    0.70,
+]:
+
+    count = (
+        ensemble_proba > threshold
+    ).sum()
+
+    print(
+        f"P > {threshold:.2f}           : "
+        f"{count:,} "
+        f"({count / len(ensemble_proba):.2%})"
+    )
+
+
+# ----------------------------------------------------------
+# MODEL CONTRIBUTION SUMMARY
+# ----------------------------------------------------------
+
+print("\n" + "-" * 70)
+print("MODEL CONTRIBUTION SUMMARY")
+print("-" * 70)
+
+for model in used_models:
+
+    contribution = (
+        ensemble_components[model]
+    )
+
+    print(
+        f"{model:<8} | "
+        f"Weight={ensemble_weights[used_models.index(model)]:.4f} | "
+        f"Mean Contribution={contribution.mean():.6f} | "
+        f"Std Contribution={contribution.std():.6f}"
+    )
+
+print("=" * 90)
+
+
+# ----------------------------------------------------------
+# BACKTEST DEBUG — BEFORE META MODEL FILTER
+# ----------------------------------------------------------
 
 logger.info("=" * 80)
-logger.info("BACKTEST DEBUG Before - Meta Model Filter")
-logger.info("Rows after merge: %d", len(final_df))
+logger.info(
+    "BACKTEST DEBUG Before - Meta Model Filter"
+)
+
+logger.info(
+    "Rows after merge: %d",
+    len(final_df)
+)
 
 logger.info(
     "Unique Dates=%d | Companies=%d",

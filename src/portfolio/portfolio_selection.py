@@ -1367,6 +1367,7 @@ def compute_final_score(
         df["Risk_Score_Penalty"]
     )
 
+   
     # ========================================================
     # FINAL CROSS-SECTIONAL NORMALIZATION
     # ========================================================
@@ -1378,18 +1379,31 @@ def compute_final_score(
     #     preserve the underlying composite score instead of
     #     converting it to zero.
     #
-    # This prevents a one-stock candidate set from receiving
-    # Final_Score = 0 solely because z-score normalization has
-    # no cross-sectional dispersion.
+    # IMPORTANT:
+    #     _normalize_final_score_group() expects a Series.
+    #
+    #     We therefore explicitly operate on the Final_Score
+    #     Series grouped by date.
+    #
+    #     This avoids passing a DataFrame to the normalization
+    #     function and preserves the existing scoring behaviour.
+    #
     # ========================================================
 
+    final_score_series = (
+        df["Final_Score"]
+    )
+
     df["Final_Score"] = (
-        df.groupby(
-            date_column,
+        final_score_series
+        .groupby(
+            df[date_column],
             sort=False,
-        )["Final_Score"]
+        )
         .transform(
-            _normalize_final_score_group
+            lambda x: _normalize_final_score_group(
+                x
+            )
         )
     )
 

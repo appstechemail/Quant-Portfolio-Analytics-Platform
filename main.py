@@ -1805,6 +1805,81 @@ probas = (
     )
 )
 
+
+# ----------------------------------------------------------
+# RAW VS TRANSFORMED TEST PROBABILITY DIAGNOSTICS
+# ----------------------------------------------------------
+
+print("\n" + "=" * 90)
+print("RAW VS TRANSFORMED TEST PROBABILITY DIAGNOSTICS")
+print("=" * 90)
+
+for name, model in models.items():
+
+    if name in ["lr", "svm", "mlp"]:
+        X_input = X_test_scaled
+    else:
+        X_input = X_test
+
+    # RAW model probability
+    raw_p = model.predict_proba(X_input)[:, 1]
+
+    # Probability returned by get_model_probabilities()
+    transformed_p = np.asarray(probas[name], dtype=float)
+
+    print(f"\n{name.upper()}")
+    print("-" * 60)
+
+    print(
+        f"RAW         | "
+        f"mean={np.mean(raw_p):.6f} | "
+        f"median={np.median(raw_p):.6f} | "
+        f"std={np.std(raw_p):.6f} | "
+        f"min={np.min(raw_p):.6f} | "
+        f"max={np.max(raw_p):.6f}"
+    )
+
+    print(
+        f"TRANSFORMED | "
+        f"mean={np.mean(transformed_p):.6f} | "
+        f"median={np.median(transformed_p):.6f} | "
+        f"std={np.std(transformed_p):.6f} | "
+        f"min={np.min(transformed_p):.6f} | "
+        f"max={np.max(transformed_p):.6f}"
+    )
+
+    print(
+        f"RAW P > 0.50 = {(raw_p > 0.50).sum():,} "
+        f"({(raw_p > 0.50).mean():.2%})"
+    )
+
+    print(
+        f"TRANS P > 0.50 = {(transformed_p > 0.50).sum():,} "
+        f"({(transformed_p > 0.50).mean():.2%})"
+    )
+
+    print(
+        f"RAW P > 0.60 = {(raw_p > 0.60).sum():,} "
+        f"({(raw_p > 0.60).mean():.2%})"
+    )
+
+    print(
+        f"TRANS P > 0.60 = {(transformed_p > 0.60).sum():,} "
+        f"({(transformed_p > 0.60).mean():.2%})"
+    )
+
+    print(
+        f"RAW P > 0.70 = {(raw_p > 0.70).sum():,} "
+        f"({(raw_p > 0.70).mean():.2%})"
+    )
+
+    print(
+        f"TRANS P > 0.70 = {(transformed_p > 0.70).sum():,} "
+        f"({(transformed_p > 0.70).mean():.2%})"
+    )
+
+print("=" * 90)
+
 # ----------------------------------------------------------
 # TRAIN PROBABILITIES
 # FOR META MODEL

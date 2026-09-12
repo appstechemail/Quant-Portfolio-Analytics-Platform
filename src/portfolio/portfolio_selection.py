@@ -1567,6 +1567,15 @@ def select_top_stocks(
         int(exit_rank),
     )
 
+    logger.info(
+        "SELECT TOP STOCKS CONFIG | "
+        "entry_rank=%d | exit_rank=%d | "
+        "candidates=%d",
+        entry_rank,
+        exit_rank,
+        len(df),
+    )
+
     # --------------------------------------------------------
     # Previous holdings
     # --------------------------------------------------------
@@ -2183,6 +2192,16 @@ def build_portfolio(
     exit_rank = max(
         top_n + 2,
         DEFAULT_EXIT_RANK,
+    )
+
+    logger.info(
+        "BUILD PORTFOLIO RANK CONFIG | "
+        "top_n=%d | DEFAULT_ENTRY_RANK=%d | "
+        "DEFAULT_EXIT_RANK=%d | exit_rank=%d",
+        top_n,
+        DEFAULT_ENTRY_RANK,
+        DEFAULT_EXIT_RANK,
+        exit_rank,
     )
 
     df = (

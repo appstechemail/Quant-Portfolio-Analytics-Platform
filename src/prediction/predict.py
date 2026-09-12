@@ -4,6 +4,7 @@ import pandas as pd
 
 from config.config import CONFIG
 from src.portfolio.portfolio_selection import build_portfolio
+import inspect
 
 
 logger = logging.getLogger(__name__)
@@ -1245,6 +1246,16 @@ def predict_today(
         signal_count
     )
 
+    print(
+        "\nBUILD_PORTFOLIO SOURCE:",
+        inspect.getsourcefile(build_portfolio)
+    )
+
+    print(
+        "BUILD_PORTFOLIO:",
+        build_portfolio
+    )
+
     # =========================================================================
     # 25. PORTFOLIO CONSTRUCTION
     # =========================================================================
@@ -1294,6 +1305,10 @@ def predict_today(
     # =========================================================================
 
     try:
+
+        print(
+            "\nPORTFOLIO CALL CONFIG | top_n=3"
+        )
 
         portfolio = build_portfolio(
             buy_candidates,

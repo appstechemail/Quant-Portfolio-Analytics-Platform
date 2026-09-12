@@ -1607,6 +1607,17 @@ def select_top_stocks(
 
     df["Selected"] = 0
 
+    logger.info(
+        "SELECTION DEBUG BEFORE MASKS | "
+        "entry_rank=%d | exit_rank=%d | "
+        "Prev_Selected distribution=%s | "
+        "Portfolio_Rank distribution=%s",
+        entry_rank,
+        exit_rank,
+        df["Prev_Selected"].value_counts().to_dict(),
+        df["Portfolio_Rank"].value_counts().sort_index().to_dict(),
+    )
+
     entry_mask = (
         df["Portfolio_Rank"]
         <=
@@ -1617,6 +1628,28 @@ def select_top_stocks(
         entry_mask,
         "Selected",
     ] = 1
+
+    logger.info(
+        "SELECTION DEBUG AFTER ENTRY/HOLD | "
+        "Selected=%d | EntrySelected=%d | HoldSelected=%d",
+        int((df["Selected"] == 1).sum()),
+        int(entry_mask.sum()),
+        int(hold_mask.sum()),
+    )
+
+    logger.info(
+        "\nSELECTION DEBUG TABLE:\n%s",
+        df[
+            [
+                "Company",
+                "Portfolio_Rank",
+                "Prev_Selected",
+                "Selected",
+            ]
+        ]
+        .sort_values("Portfolio_Rank")
+        .to_string(index=False),
+    )
 
     # --------------------------------------------------------
     # Existing holdings
